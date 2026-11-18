@@ -1,5 +1,7 @@
 # MDMS-Cy — Phase B progress report
 
+> **Newer status (18/11/2026): see `PROJECT_STATUS_AND_CHECKLIST.md`** (re-checked on SQL Server 2022, corrected large-data-set scale, team checklist). The numbers below are from 11/11.
+
 **Course:** EPL342 Databases, University of Cyprus — Group 10
 **System:** Smart National Meter Data Management System (MDMS-Cy)
 **Report date:** 11/11/2026 — **Phase B deadline:** Friday 4/12/2026, 12:00
