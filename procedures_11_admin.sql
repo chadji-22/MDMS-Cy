@@ -121,7 +121,8 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_UpsertObisCode]
     @unit             VARCHAR(10),
     @measurement_kind VARCHAR(15),
     @valid_min        DECIMAL(18,4) = NULL,
-    @valid_max        DECIMAL(18,4) = NULL
+    @valid_max        DECIMAL(18,4) = NULL,
+    @create_only      BIT = 0
 AS
 BEGIN
     SET NOCOUNT ON; SET XACT_ABORT ON;
@@ -140,6 +141,9 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
+        IF @create_only = 1 AND EXISTS (
+            SELECT 1 FROM [dbo].[OBIS_CODE] WITH (UPDLOCK, HOLDLOCK) WHERE obis_code = @obis_code)
+            THROW 50005, 'Duplicate: this OBIS code already exists.', 1;
         UPDATE [dbo].[OBIS_CODE]
            SET description = @description, unit = @unit, measurement_kind = @measurement_kind,
                valid_min = @valid_min, valid_max = @valid_max
@@ -159,6 +163,31 @@ BEGIN
         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
         THROW;
     END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[sp_ListReferenceCatalog]
+    @actor_user_id INT,
+    @catalog      VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'SYSTEM_OFFICER';
+
+    IF @catalog = 'meter-types'
+        SELECT meter_type_id, type_name, connection_phases, max_amps
+        FROM [dbo].[METER_TYPE] ORDER BY type_name, meter_type_id;
+    ELSE IF @catalog = 'service-types'
+        SELECT service_type_id, service_name, fee, is_active
+        FROM [dbo].[SERVICE_TYPE] ORDER BY service_name, service_type_id;
+    ELSE IF @catalog = 'obis'
+        SELECT obis_code, description, unit, measurement_kind, valid_min, valid_max
+        FROM [dbo].[OBIS_CODE] ORDER BY obis_code;
+    ELSE IF @catalog = 'tariffs'
+        SELECT tariff_id, tariff_name, rate, valid_from, valid_to
+        FROM [dbo].[TARIFF] ORDER BY tariff_name, valid_from, tariff_id;
+    ELSE
+        THROW 50004, 'Unknown reference catalog.', 1;
 END;
 GO
 
@@ -303,5 +332,18 @@ BEGIN
 END;
 GO
 
-PRINT 'procedures_11_admin.sql: 6 procedures created.';
+CREATE OR ALTER PROCEDURE [dbo].[sp_ListOrganizations]
+    @actor_user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'SYSTEM_ADMIN,SYSTEM_OFFICER';
+
+    SELECT organization_id, name, org_type
+    FROM [dbo].[ORGANIZATION]
+    ORDER BY name, organization_id;
+END;
+GO
+
+PRINT 'procedures_11_admin.sql: 8 procedures created.';
 GO

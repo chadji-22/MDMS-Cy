@@ -80,6 +80,8 @@ BEGIN
         WHERE l.object_type = 'GDPR_REQUEST' AND l.object_id = CAST(@gdpr_request_id AS VARCHAR(30))
           AND l.action = 'STATUS_CHANGE' AND l.new_state = N'PRE_APPROVED'
         ORDER BY l.log_id DESC;
+        IF @old = 'PRE_APPROVED' AND @pre_approver IS NULL
+            THROW 50003, 'The pre-approval officer could not be verified.', 1;
         IF @pre_approver = @actor_user_id
             THROW 50002, 'Permission denied: the final approval must come from a different officer than the pre-approval.', 1;
     END
@@ -203,7 +205,8 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ListGdprRequests]
     @actor_user_id INT,
     @status        VARCHAR(20) = NULL,
     @page          INT = 1,
-    @page_size     INT = 50
+    @page_size     INT = 50,
+    @gdpr_request_id INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -224,6 +227,7 @@ BEGIN
     FROM [dbo].[GDPR_REQUEST] AS g
     WHERE (@role = 'SYSTEM_OFFICER' OR g.user_id = @actor_user_id)
       AND (@status IS NULL OR g.status = @status)
+      AND (@gdpr_request_id IS NULL OR g.gdpr_request_id = @gdpr_request_id)
     ORDER BY g.submitted_at DESC, g.gdpr_request_id DESC
     OFFSET (@page - 1) * @page_size ROWS FETCH NEXT @page_size ROWS ONLY;
 END;
