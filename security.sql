@@ -40,11 +40,25 @@ END CATCH
 GO
 
 /* ---------------------------------------------------------------------------
-   3. Add the SQL user of the PHP application to the role.
-      The name depends on the server, so it is left as a template:
-
+   3. The user the PHP application runs as.
+      The web application connects with the one SQL login the course server gives us, which owns the database.
+      Right after connecting, sources/src/Db.php runs   EXECUTE AS USER = 'mdms_php'.
+      mdms_php is a database user WITHOUT a login, member of mdms_app: it can EXECUTE the application procedures
+      but is DENIED direct SELECT / INSERT / UPDATE / DELETE and the internal sp__ helpers (error 229).
+      So even an injected statement cannot read or change a table. Tested on SQL Server 2022.
+      On a server where the application has its own login, add that login's user to the role instead:
         ALTER ROLE [mdms_app] ADD MEMBER [<php_sql_user>];
    --------------------------------------------------------------------------- */
+BEGIN TRY
+    IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'mdms_php')
+        CREATE USER [mdms_php] WITHOUT LOGIN;
+    ALTER ROLE [mdms_app] ADD MEMBER [mdms_php];
+    PRINT 'security.sql: user mdms_php (no login) is a member of mdms_app.';
+END TRY
+BEGIN CATCH
+    PRINT 'security.sql: the user mdms_php could not be created here: ' + ERROR_MESSAGE();
+END CATCH
+GO
 
 /* ---------------------------------------------------------------------------
    4. Snapshot reads  [project.pdf §IV p.13: concurrency; lecture 20-44/45]
