@@ -650,6 +650,24 @@ END TRY
 BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('J market data', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
 
 /* ===========================================================================
+   K. fn_Floor15: edge timestamps (slot start, last second of a slot, end of day / year, leap day, before 2000)
+   =========================================================================== */
+INSERT INTO #results
+SELECT 'K1 fn_Floor15 edge timestamps map to the start of their 15-min slot',
+       CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END, N'wrong results: ' + CAST(COUNT(*) AS NVARCHAR(10))
+FROM (VALUES (CAST('2026-11-18 00:00:00' AS DATETIME2(0)), CAST('2026-11-18 00:00:00' AS DATETIME2(0))),
+             ('2026-11-18 00:14:59', '2026-11-18 00:00:00'), ('2026-11-18 00:15:00', '2026-11-18 00:15:00'),
+             ('2026-11-18 23:59:59', '2026-11-18 23:45:00'), ('2026-12-31 23:59:59', '2026-12-31 23:45:00'),
+             ('2028-02-29 12:07:30', '2028-02-29 12:00:00'), ('2000-01-01 00:00:00', '2000-01-01 00:00:00')) AS v(t, expected)
+WHERE [dbo].[fn_Floor15](v.t) <> v.expected;
+INSERT INTO #results
+SELECT 'K2 fn_Floor15 before the year 2000 (negative DATEDIFF) still rounds down',
+       CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END, N'wrong results: ' + CAST(COUNT(*) AS NVARCHAR(10))
+FROM (VALUES (CAST('1999-12-31 23:59:59' AS DATETIME2(0)), CAST('1999-12-31 23:45:00' AS DATETIME2(0))),
+             ('1999-12-31 23:44:00', '1999-12-31 23:30:00'), ('1999-12-31 23:45:00', '1999-12-31 23:45:00')) AS v(t, expected)
+WHERE [dbo].[fn_Floor15](v.t) <> v.expected;
+
+/* ===========================================================================
    SUMMARY
    =========================================================================== */
 SELECT seq, result, test, detail FROM #results ORDER BY seq;
