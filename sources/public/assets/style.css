@@ -1,0 +1,26 @@
+:root { --bg:#f6f7f9; --fg:#1b1f24; --muted:#5b6672; --line:#d8dde3; --accent:#0b5cad; --err:#a4262c; --ok:#1e6b3a; }
+* { box-sizing: border-box; }
+body { margin:0; font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--fg); background:var(--bg); }
+header.top { display:flex; flex-wrap:wrap; gap:.75rem 1.25rem; align-items:center; padding:.6rem 1.25rem; background:#fff; border-bottom:1px solid var(--line); }
+header.top .brand { font-weight:700; color:var(--accent); text-decoration:none; }
+header.top nav { display:flex; flex-wrap:wrap; gap:.25rem 1rem; flex:1; }
+header.top a { color:var(--fg); text-decoration:none; }
+header.top a:hover { text-decoration:underline; }
+form.logout { display:flex; gap:.6rem; align-items:center; margin:0; }
+.who { color:var(--muted); font-size:.9rem; }
+main { max-width:60rem; margin:1.5rem auto; padding:0 1.25rem; }
+h1 { font-size:1.5rem; margin:.2rem 0 1rem; }
+footer { max-width:60rem; margin:2rem auto; padding:0 1.25rem; color:var(--muted); font-size:.85rem; }
+.card { display:grid; gap:.9rem; max-width:24rem; background:#fff; border:1px solid var(--line); border-radius:8px; padding:1.25rem; }
+label { display:grid; gap:.25rem; font-weight:600; }
+input { font:inherit; padding:.5rem .6rem; border:1px solid var(--line); border-radius:6px; }
+button { font:inherit; padding:.5rem 1rem; border:0; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid #7fb2e5; outline-offset:2px; }
+.flash { padding:.6rem .8rem; border-radius:6px; border:1px solid var(--line); background:#fff; }
+.flash.error { border-color:var(--err); color:var(--err); }
+.flash.ok { border-color:var(--ok); color:var(--ok); }
+ul.cards { list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(14rem,1fr)); gap:.75rem; }
+ul.cards li a { display:block; padding:.9rem 1rem; background:#fff; border:1px solid var(--line); border-radius:8px; color:var(--accent); text-decoration:none; font-weight:600; }
+table { border-collapse:collapse; width:100%; background:#fff; }
+th, td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--line); }
+@media (max-width:40rem) { header.top { padding:.6rem .8rem; } main { margin:1rem auto; } }
