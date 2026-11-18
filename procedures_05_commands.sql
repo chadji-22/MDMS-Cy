@@ -91,7 +91,8 @@ GO
 -- In the demo the device answers through sp_AcknowledgeCommand.
 CREATE OR ALTER PROCEDURE [dbo].[sp_DispatchCommands]
     @actor_user_id INT,
-    @max_attempts  SMALLINT = 3
+    @max_attempts  SMALLINT = 3,
+    @only_command_id INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON; SET XACT_ABORT ON;
@@ -106,6 +107,7 @@ BEGIN
     DECLARE c CURSOR LOCAL FAST_FORWARD FOR
         SELECT command_id, attempt_count, meter_id FROM [dbo].[REMOTE_COMMAND]
         WHERE status IN ('APPROVED', 'SENT')
+          AND (@only_command_id IS NULL OR command_id = @only_command_id)
         ORDER BY requested_at, command_id;
     OPEN c;
     FETCH NEXT FROM c INTO @command_id, @attempts, @meter_id;
@@ -195,6 +197,39 @@ BEGIN
 END;
 GO
 
+-- Officer-driven ACK for the application demo. Preserve the device ACK and log who simulated it.
+CREATE OR ALTER PROCEDURE [dbo].[sp_SimulateCommandAcknowledgment]
+    @actor_user_id INT,
+    @command_id    INT,
+    @result        NVARCHAR(300) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON; SET XACT_ABORT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'SYSTEM_OFFICER';
+
+    DECLARE @network_id VARCHAR(60);
+    SELECT @network_id = m.network_id
+    FROM [dbo].[REMOTE_COMMAND] AS c
+    JOIN [dbo].[METER] AS m ON m.meter_id = c.meter_id
+    WHERE c.command_id = @command_id;
+    IF @network_id IS NULL
+        THROW 50001, 'Command not found.', 1;
+
+    SET @result = ISNULL(@result, N'Simulated ACK');
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        EXEC [dbo].[sp_AcknowledgeCommand] @network_id, @command_id, @result;
+        EXEC [dbo].[sp__SetActor] @actor_user_id, 'sp_SimulateCommandAcknowledgment';
+        EXEC [dbo].[sp__Log] 'SIMULATE_ACK', 'REMOTE_COMMAND', @command_id, NULL, NULL, @result;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
 -- [project.pdf §II.Δ p.3: remote shedding on all the meters of a transformer; UC-13]
 -- Cursor over the ACTIVE meters under the subtree of the transformer: one APPROVED command per meter,
 -- all in one transaction (all or nothing). sp_DispatchCommands then sends them.
@@ -257,7 +292,8 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ListCommands]
     @status        VARCHAR(20) = NULL,
     @meter_id      INT = NULL,
     @page          INT = 1,
-    @page_size     INT = 50
+    @page_size     INT = 50,
+    @command_id    INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -277,10 +313,11 @@ BEGIN
     JOIN [dbo].[METER] AS m ON m.meter_id = c.meter_id
     WHERE (@status IS NULL OR c.status = @status)
       AND (@meter_id IS NULL OR c.meter_id = @meter_id)
+      AND (@command_id IS NULL OR c.command_id = @command_id)
     ORDER BY c.requested_at DESC, c.command_id DESC
     OFFSET (@page - 1) * @page_size ROWS FETCH NEXT @page_size ROWS ONLY;
 END;
 GO
 
-PRINT 'procedures_05_commands.sql: 6 procedures created.';
+PRINT 'procedures_05_commands.sql: 7 procedures created.';
 GO

@@ -48,6 +48,17 @@ Point the document root at `sources/public`, and put the settings in `src/config
 
 The database must be built first (`build_all.sql`, which runs `security.sql` and creates the user `mdms_php`).
 
+For technician certificate uploads, create `sources/var/meter-certificates` and make it writable by PHP.
+The directory is ignored by Git and sits outside the public web root. With the development container:
+
+```bash
+podman exec --user root mdms-web install -d -m 0700 -o www-data -g www-data /var/www/html/var/meter-certificates
+```
+
+The officer review also serves technician PDFs stored under `sources/var/technician-documents`.
+Store those document paths as `technician-documents/<32 lowercase hex characters>.pdf`.
+The directory is private and ignored by Git.
+
 ## Tests
 
 ```bash

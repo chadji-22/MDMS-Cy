@@ -146,14 +146,23 @@ BEGIN
 
     CREATE TABLE #available (user_id INT, full_name NVARCHAR(150), phone VARCHAR(20), specialty NVARCHAR(100),
                              specialty_match BIT, slot_start TIME(0), slot_end TIME(0));
-    INSERT INTO #available
-        EXEC [dbo].[sp_FindAvailableTechnicians] @actor_user_id, @date, @start_time, @end_time, @district, NULL;
-
-    IF NOT EXISTS (SELECT 1 FROM #available WHERE user_id = @technician_user_id)
-        THROW 50004, 'The technician is not available at that time in the district of the premise.', 1;
 
     BEGIN TRY
         BEGIN TRANSACTION;
+        -- Serialize availability checks for concurrent assignments to the same technician.
+        DECLARE @locked_technician INT;
+        SELECT @locked_technician = user_id
+        FROM [dbo].[USER_ACCOUNT] WITH (UPDLOCK, HOLDLOCK)
+        WHERE user_id = @technician_user_id AND role_code = 'TECHNICIAN';
+
+        IF @locked_technician IS NULL
+            THROW 50004, 'The technician is not available at that time in the district of the premise.', 1;
+
+        INSERT INTO #available
+            EXEC [dbo].[sp_FindAvailableTechnicians] @actor_user_id, @date, @start_time, @end_time, @district, NULL;
+        IF NOT EXISTS (SELECT 1 FROM #available WHERE user_id = @technician_user_id)
+            THROW 50004, 'The technician is not available at that time in the district of the premise.', 1;
+
         UPDATE [dbo].[WORK_ORDER]
            SET status = 'ASSIGNED', technician_user_id = @technician_user_id,
                scheduled_start = @scheduled_start, scheduled_end = @scheduled_end
@@ -392,7 +401,8 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ListWorkOrders]
     @work_type     VARCHAR(20)  = NULL,
     @district      NVARCHAR(30) = NULL,
     @page          INT = 1,
-    @page_size     INT = 50
+    @page_size     INT = 50,
+    @work_order_id INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -411,6 +421,7 @@ BEGIN
     WHERE (@status IS NULL OR w.status = @status)
       AND (@work_type IS NULL OR w.work_type = @work_type)
       AND (@district IS NULL OR p.district = @district)
+      AND (@work_order_id IS NULL OR w.work_order_id = @work_order_id)
     ORDER BY w.created_at DESC, w.work_order_id DESC
     OFFSET (@page - 1) * @page_size ROWS FETCH NEXT @page_size ROWS ONLY;
 END;

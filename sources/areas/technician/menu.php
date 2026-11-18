@@ -4,4 +4,5 @@ declare(strict_types=1);
 // The page itself must still call Mdms\Auth::requireRole(...).
 return [
     ['label' => 'My jobs', 'href' => '/technician/', 'roles' => ['TECHNICIAN']],
+    ['label' => 'Availability', 'href' => '/technician/availability.php', 'roles' => ['TECHNICIAN']],
 ];

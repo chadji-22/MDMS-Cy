@@ -1,3 +1,5 @@
 # local settings and secrets: never commit
 src/config.local.php
 *.log
+/var/meter-certificates/
+/var/technician-documents/

@@ -533,6 +533,31 @@ BEGIN
 END;
 GO
 
+-- Officer review of one technician and their submitted documents.
+CREATE OR ALTER PROCEDURE [dbo].[sp_GetTechnicianReview]
+    @actor_user_id INT,
+    @technician_user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'SYSTEM_OFFICER';
+
+    IF NOT EXISTS (SELECT 1 FROM dbo.view_TECHNICIAN WHERE user_id = @technician_user_id)
+        THROW 50001, 'Technician not found.', 1;
+
+    SELECT t.user_id, t.full_name, t.email, t.phone, t.specialty, t.approval_status,
+           d.document_id, d.doc_type, d.doc_code, d.issue_date, d.expiry_date, d.file_path,
+           d.approval_status AS document_status,
+           CAST(CASE WHEN d.document_id IS NOT NULL
+                     AND (d.expiry_date IS NULL OR d.expiry_date >= CAST(SYSUTCDATETIME() AS DATE))
+                     THEN 1 ELSE 0 END AS BIT) AS is_current
+    FROM dbo.view_TECHNICIAN AS t
+    LEFT JOIN dbo.DOCUMENT AS d ON d.user_id = t.user_id
+    WHERE t.user_id = @technician_user_id
+    ORDER BY d.doc_type, d.document_id;
+END;
+GO
+
 -- [project.pdf §2.1 p.7: the officer approves, rejects or suspends a technician; UC-09]
 -- PENDING -> APPROVED | REJECTED;  APPROVED <-> SUSPENDED.  Approval needs the 3 documents approved and not expired.
 CREATE OR ALTER PROCEDURE [dbo].[sp_DecideTechnician]
@@ -735,5 +760,5 @@ BEGIN
 END;
 GO
 
-PRINT 'procedures_01_accounts.sql: 22 procedures created.';
+PRINT 'procedures_01_accounts.sql: 23 procedures created.';
 GO
