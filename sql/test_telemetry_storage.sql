@@ -1,233 +1,170 @@
-USE [egeorg28];
-GO
+/* ============================================================================
+   test_telemetry_storage.sql  -  what sp_IngestTelemetryPacket stores (Algorithm A, Build Spec 9.6)
 
+   REWRITTEN. The first version was a stand-alone re-implementation of ingestion (a T-SQL script that
+   did its own validation and INSERTs) with rules that io does not have:
+        first version                                  io (sp_IngestTelemetryPacket)
+        ---------------------------------------------  ---------------------------------------------
+        off-slot timestamp  -> THROW 54001, rejected   timestamp is floored with fn_Floor15
+        unknown OBIS / unit -> THROW 54004, all lost   unknown OBIS: UNSUPPORTED_OBIS event, others stored;
+                                                       wrong unit: stored as SUSPECT / UNIT_MISMATCH
+        duplicate OBIS      -> THROW 54005             the first one is kept, the rest are ignored
+        existing slot       -> THROW 54007             DUPLICATE_READING event, the packet is still kept
+        MATCHED needs ACTIVE + APPROVED meter          MATCHED = ACTIVE meter (there is no approval_status)
+        reading.validation_status / value_source       reading.status (PENDING) ; no value_source
+        no delta                                       delta_value (15-min energy) is computed at ingest
+   So this script now calls the real procedure and checks the rows it leaves behind.
+
+   Needs: import.sql, seed_grid.sql, seed_telemetry_demo.sql.
+   Cleans up after itself (see the CLEAN-UP block at the end). Re-runnable: the readings of the test day (2025-06-11) are deleted first.
+   ============================================================================ */
 SET NOCOUNT ON;
-SET XACT_ABORT ON;
 
--- 1. Demo δεδομένα από τον μετρητή
-DECLARE @payload NVARCHAR(MAX) = N'{
-    "Meter_Network_ID": "DEMO-NET-001",
-    "Transmission_Timestamp": "2026-11-06T10:00:00Z",
-    "Cell_Signal_Strength_dBm": -92,
-    "Network_Type": "NB_IOT",
-    "Telemetry_Payload": [
-        {
-            "obis": "1.8.0",
-            "value": 1000.0000,
-            "unit": "kWh"
-        },
-        {
-            "obis": "32.7.0",
-            "value": 230.0000,
-            "unit": "V"
-        }
-    ]
-}';
+DECLARE @m INT;
+SELECT @m = meter_id FROM [dbo].[METER] WHERE network_id = 'DEMO-NET-001' AND status = 'ACTIVE';
+IF @m IS NULL
+    THROW 54000, 'test_telemetry_storage.sql: DEMO-NET-001 is not ACTIVE - run import.sql, seed_grid.sql, seed_telemetry_demo.sql.', 1;
 
-DECLARE @meter_id INT;
-DECLARE @packet_id BIGINT;
+IF OBJECT_ID('tempdb..#results') IS NOT NULL DROP TABLE #results;   -- left over from an aborted run in this session
+CREATE TABLE #results (seq INT IDENTITY(1,1), test VARCHAR(120), result VARCHAR(4), detail NVARCHAR(400));
 
--- 2. Έλεγχος JSON και μεγέθους
-IF ISJSON(@payload) <> 1
-BEGIN
-    THROW 54000, 'Invalid JSON payload.', 1;
-END;
+DECLARE @d0 DATETIME2(0) = '2025-06-11T00:00:00', @d1 DATETIME2(0) = '2025-06-11T23:59:59';
+DECLARE @p NVARCHAR(4000), @pid BIGINT, @ms VARCHAR(20), @n INT, @d DECIMAL(18,4), @cnt INT;
 
--- Το raw_payload του υπάρχοντος schema είναι NVARCHAR(4000).
-IF DATALENGTH(@payload) > 8000
-BEGIN
-    THROW 54002, 'Payload exceeds the current storage limit.', 1;
-END;
+DELETE FROM [dbo].[METER_READING] WHERE meter_id = @m AND reading_timestamp >= @d0 AND reading_timestamp <= @d1;
 
--- 3. Μετατροπή timestamp σε UTC
-DECLARE @timestamp_with_zone DATETIMEOFFSET(7) =
-    TRY_CONVERT(
-        DATETIMEOFFSET(7),
-        JSON_VALUE(@payload, '$.Transmission_Timestamp')
-    );
-
-DECLARE @reading_time DATETIME2(7) =
-    CAST(
-        SWITCHOFFSET(@timestamp_with_zone, '+00:00')
-        AS DATETIME2(7)
-    );
-
--- Οι μετρήσεις πρέπει να αντιστοιχούν σε διάστημα 15 λεπτών.
-IF @reading_time IS NULL
-   OR DATEPART(MINUTE, @reading_time) % 15 <> 0
-   OR DATEPART(SECOND, @reading_time) <> 0
-   OR DATEPART(NANOSECOND, @reading_time) <> 0
-BEGIN
-    THROW 54001, 'Invalid timestamp or non-15-minute slot.', 1;
-END;
-
--- 4. Μετατροπή των μετρήσεων JSON σε γραμμές
-DECLARE @readings TABLE (
-    obis_code VARCHAR(20),
-    reading_value DECIMAL(18,4),
-    unit VARCHAR(20)
-);
-
-INSERT INTO @readings (
-    obis_code,
-    reading_value,
-    unit
-)
-SELECT
-    obis_code,
-    reading_value,
-    unit
-FROM OPENJSON(@payload, '$.Telemetry_Payload')
-WITH (
-    obis_code VARCHAR(20) '$.obis',
-    reading_value DECIMAL(18,4) '$.value',
-    unit VARCHAR(20) '$.unit'
-);
-
--- 5. Έλεγχος ότι υπάρχουν μετρήσεις
-IF NOT EXISTS (
-    SELECT 1
-    FROM @readings
-)
-BEGIN
-    THROW 54003, 'Packet contains no readings.', 1;
-END;
-
--- 6. Έλεγχος OBIS, μονάδας και τιμής
-IF EXISTS (
-    SELECT 1
-    FROM @readings AS incoming
-    LEFT JOIN dbo.OBIS_CODE AS expected
-        ON expected.obis_code = incoming.obis_code
-    WHERE expected.obis_code IS NULL
-       OR incoming.unit IS NULL
-       OR incoming.unit <> expected.unit
-       OR incoming.reading_value IS NULL
-)
-BEGIN
-    THROW 54004, 'Unknown OBIS, wrong unit or missing value.', 1;
-END;
-
--- 7. Έλεγχος για επαναλαμβανόμενο OBIS μέσα στο ίδιο packet
-IF EXISTS (
-    SELECT obis_code
-    FROM @readings
-    GROUP BY obis_code
-    HAVING COUNT(*) > 1
-)
-BEGIN
-    THROW 54005, 'Duplicate OBIS code inside the packet.', 1;
-END;
-
+/* S1: three 1.8.0 packets at 09:00, 09:15 and 09:45 (09:30 is missing) */
 BEGIN TRY
-    BEGIN TRANSACTION;
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T09:00:00Z","Cell_Signal_Strength_dBm":-90,"Network_Type":"NB_IOT","Telemetry_Payload":[{"obis":"1.8.0","value":1000.0000,"unit":"kWh"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S1a packet row keeps the raw JSON and links the meter',
+           CASE WHEN EXISTS (SELECT 1 FROM [dbo].[TELEMETRY_PACKET]
+                             WHERE packet_id = @pid AND raw_payload = @p AND match_status = 'MATCHED' AND meter_id = @m
+                               AND transmission_timestamp = '2025-06-11T09:00:00' AND signal_dbm = -90)
+                THEN 'PASS' ELSE 'FAIL' END, CONCAT(@ms, ' / readings ', @n);
 
-    -- 8. Εντοπισμός ενεργού και εγκεκριμένου μετρητή
-    SELECT @meter_id = meter_id
-    FROM dbo.METER WITH (UPDLOCK, HOLDLOCK)
-    WHERE network_identifier =
-        JSON_VALUE(@payload, '$.Meter_Network_ID')
-      AND status = 'ACTIVE'
-      AND approval_status = 'APPROVED';
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T09:15:00Z","Telemetry_Payload":[{"obis":"1.8.0","value":1000.5000,"unit":"kWh"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T09:45:00Z","Telemetry_Payload":[{"obis":"1.8.0","value":1001.5000,"unit":"kWh"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
 
-    IF @meter_id IS NULL
-    BEGIN
-        THROW 54006, 'No active and approved meter found.', 1;
-    END;
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S1b readings are PENDING, not final, with the packet id and no VEE rule yet',
+           CASE WHEN COUNT(*) = 3 AND SUM(CASE WHEN status = 'PENDING' AND is_final = 0 AND packet_id IS NOT NULL
+                                                    AND vee_rule IS NULL AND original_value IS NULL THEN 1 ELSE 0 END) = 3
+                THEN 'PASS' ELSE 'FAIL' END, CONCAT(COUNT(*), ' readings')
+    FROM [dbo].[METER_READING] WHERE meter_id = @m AND reading_timestamp >= @d0 AND reading_timestamp <= @d1;
 
-    -- 9. Αποτροπή αποθήκευσης των ίδιων μετρήσεων δεύτερη φορά
-    IF EXISTS (
-        SELECT 1
-        FROM dbo.METER_READING AS existing
-        JOIN @readings AS incoming
-            ON incoming.obis_code = existing.obis_code
-        WHERE existing.meter_id = @meter_id
-          AND existing.reading_timestamp = @reading_time
-    )
-    BEGIN
-        THROW 54007, 'Readings already exist for this slot.', 1;
-    END;
-
-    -- 10. Αποθήκευση του αρχικού packet
-    INSERT INTO dbo.TELEMETRY_PACKET (
-        meter_network_id,
-        transmission_timestamp,
-        network_type,
-        signal_strength_dbm,
-        raw_payload,
-        match_status,
-        processed_at,
-        meter_id
-    )
-    VALUES (
-        JSON_VALUE(@payload, '$.Meter_Network_ID'),
-        @reading_time,
-        JSON_VALUE(@payload, '$.Network_Type'),
-        TRY_CONVERT(
-            SMALLINT,
-            JSON_VALUE(@payload, '$.Cell_Signal_Strength_dBm')
-        ),
-        @payload,
-        'MATCHED',
-        SYSUTCDATETIME(),
-        @meter_id
-    );
-
-    SET @packet_id = CONVERT(BIGINT, SCOPE_IDENTITY());
-
-    -- 11. Αποθήκευση μετρήσεων που περιμένουν VEE
-    INSERT INTO dbo.METER_READING (
-        reading_timestamp,
-        [value],
-        validation_status,
-        value_source,
-        is_final,
-        packet_id,
-        meter_id,
-        obis_code
-    )
-    SELECT
-        @reading_time,
-        reading_value,
-        'PENDING',
-        'TELEMETRY',
-        0,
-        @packet_id,
-        @meter_id,
-        obis_code
-    FROM @readings;
-
-    COMMIT TRANSACTION;
-
-    -- 12. Εμφάνιση του packet που αποθηκεύτηκε
-    SELECT
-        packet_id,
-        meter_network_id,
-        transmission_timestamp,
-        match_status,
-        meter_id
-    FROM dbo.TELEMETRY_PACKET
-    WHERE packet_id = @packet_id;
-
-    -- 13. Εμφάνιση των δύο μετρήσεων
-    SELECT
-        reading_id,
-        packet_id,
-        meter_id,
-        reading_timestamp,
-        obis_code,
-        [value],
-        validation_status,
-        value_source,
-        is_final
-    FROM dbo.METER_READING
-    WHERE packet_id = @packet_id
-    ORDER BY obis_code;
-
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S1c delta_value: NULL for the first reading, 0.5 after it, NULL after a missing slot',
+           CASE WHEN MAX(CASE WHEN reading_timestamp = '2025-06-11T09:00:00' AND delta_value IS NULL THEN 1 ELSE 0 END) = 1
+                 AND MAX(CASE WHEN reading_timestamp = '2025-06-11T09:15:00' AND delta_value = 0.5 THEN 1 ELSE 0 END) = 1
+                 AND MAX(CASE WHEN reading_timestamp = '2025-06-11T09:45:00' AND delta_value IS NULL THEN 1 ELSE 0 END) = 1
+                THEN 'PASS' ELSE 'FAIL' END, NULL
+    FROM [dbo].[METER_READING] WHERE meter_id = @m AND obis_code = '1.8.0' AND reading_timestamp >= @d0 AND reading_timestamp <= @d1;
 END TRY
-BEGIN CATCH
-    IF XACT_STATE() <> 0
-        ROLLBACK TRANSACTION;
+BEGIN CATCH INSERT INTO #results (test, result, detail) VALUES ('S1 storage and delta', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
 
-    THROW;
-END CATCH;
+/* S2: the late packet of 09:30 arrives -> its own energy, and the energy of the 09:45 reading is recomputed */
+BEGIN TRY
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T09:30:00Z","Telemetry_Payload":[{"obis":"1.8.0","value":1001.0000,"unit":"kWh"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S2 late packet (09:30): delta 0.5, and the already stored 09:45 reading is recomputed to 0.5',
+           CASE WHEN @n = 1
+                 AND MAX(CASE WHEN reading_timestamp = '2025-06-11T09:30:00' AND delta_value = 0.5 THEN 1 ELSE 0 END) = 1
+                 AND MAX(CASE WHEN reading_timestamp = '2025-06-11T09:45:00' AND delta_value = 0.5 THEN 1 ELSE 0 END) = 1
+                THEN 'PASS' ELSE 'FAIL' END, NULL
+    FROM [dbo].[METER_READING] WHERE meter_id = @m AND obis_code = '1.8.0' AND reading_timestamp >= @d0 AND reading_timestamp <= @d1;
+END TRY
+BEGIN CATCH INSERT INTO #results (test, result, detail) VALUES ('S2 late packet', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+
+/* S3: a timestamp that is not on a 15-minute slot is floored (the first version rejected it) */
+BEGIN TRY
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T10:07:30Z","Telemetry_Payload":[{"obis":"1.8.0","value":1002.0000,"unit":"kWh"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S3 10:07:30 -> reading in the 10:00 slot, the packet keeps the real time',
+           CASE WHEN @ms = 'MATCHED' AND @n = 1
+                 AND EXISTS (SELECT 1 FROM [dbo].[METER_READING] WHERE packet_id = @pid AND reading_timestamp = '2025-06-11T10:00:00')
+                 AND EXISTS (SELECT 1 FROM [dbo].[TELEMETRY_PACKET] WHERE packet_id = @pid AND transmission_timestamp = '2025-06-11T10:07:30')
+                THEN 'PASS' ELSE 'FAIL' END, CONCAT(@ms, ' / readings ', @n);
+END TRY
+BEGIN CATCH INSERT INTO #results (test, result, detail) VALUES ('S3 off-slot timestamp', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+
+/* S4: an OBIS code the system does not know -> one UNSUPPORTED_OBIS event, the known code is still stored */
+BEGIN TRY
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T10:15:00Z","Telemetry_Payload":[{"obis":"1.8.0","value":1002.5000,"unit":"kWh"},{"obis":"99.9.9","value":5,"unit":"X"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S4 unknown OBIS 99.9.9 -> UNSUPPORTED_OBIS event, only 1.8.0 stored',
+           CASE WHEN @ms = 'MATCHED' AND @n = 1
+                 AND EXISTS (SELECT 1 FROM [dbo].[EVENT] WHERE packet_id = @pid AND event_type = 'UNSUPPORTED_OBIS' AND description LIKE N'%99.9.9%')
+                 AND NOT EXISTS (SELECT 1 FROM [dbo].[METER_READING] WHERE packet_id = @pid AND obis_code = '99.9.9')
+                 AND EXISTS (SELECT 1 FROM [dbo].[METER_READING] WHERE packet_id = @pid AND obis_code = '1.8.0')
+                THEN 'PASS' ELSE 'FAIL' END, CONCAT(@ms, ' / readings ', @n);
+END TRY
+BEGIN CATCH INSERT INTO #results (test, result, detail) VALUES ('S4 unknown OBIS', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+
+/* S5: the same OBIS twice in one packet -> one reading (the first version threw an error);
+       an INSTANTANEOUS code has no delta_value */
+BEGIN TRY
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T10:30:00Z","Telemetry_Payload":[{"obis":"32.7.0","value":230.0000,"unit":"V"},{"obis":"32.7.0","value":231.0000,"unit":"V"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
+    SELECT @cnt = COUNT(*) FROM [dbo].[METER_READING] WHERE packet_id = @pid AND obis_code = '32.7.0';
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S5 duplicate OBIS inside one packet -> exactly one reading, delta_value NULL for a voltage',
+           CASE WHEN @ms = 'MATCHED' AND @n = 1 AND @cnt = 1
+                 AND EXISTS (SELECT 1 FROM [dbo].[METER_READING] WHERE packet_id = @pid AND obis_code = '32.7.0' AND delta_value IS NULL AND status = 'PENDING')
+                THEN 'PASS' ELSE 'FAIL' END, CONCAT(@ms, ' / readings ', @n, ' / stored ', @cnt);
+END TRY
+BEGIN CATCH INSERT INTO #results (test, result, detail) VALUES ('S5 duplicate OBIS', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+
+/* S6: a value that is not a number -> the pair is dropped (current io behaviour: no error, no event).
+       The first version treated a missing value as an error; the spec only says missing pairs are not errors. */
+BEGIN TRY
+    SET @p = N'{"Meter_Network_ID":"DEMO-NET-001","Transmission_Timestamp":"2025-06-11T10:45:00Z","Telemetry_Payload":[{"obis":"1.8.0","value":"abc","unit":"kWh"}]}';
+    EXEC [dbo].[sp_IngestTelemetryPacket] @p, 1, @pid OUTPUT, @ms OUTPUT, @n OUTPUT;
+    INSERT INTO #results (test, result, detail)
+    SELECT 'S6 non-numeric value -> packet kept as MATCHED, 0 readings (pair dropped)',
+           CASE WHEN @ms = 'MATCHED' AND @n = 0
+                 AND EXISTS (SELECT 1 FROM [dbo].[TELEMETRY_PACKET] WHERE packet_id = @pid AND match_status = 'MATCHED')
+                 AND NOT EXISTS (SELECT 1 FROM [dbo].[METER_READING] WHERE packet_id = @pid)
+                THEN 'PASS' ELSE 'FAIL' END, CONCAT(@ms, ' / readings ', @n);
+END TRY
+BEGIN CATCH INSERT INTO #results (test, result, detail) VALUES ('S6 non-numeric value', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+
+/* ===========================================================================
+   SUMMARY
+   =========================================================================== */
+SELECT seq, result, test, detail FROM #results ORDER BY seq;
+SELECT result, COUNT(*) AS tests FROM #results GROUP BY result;
+
+SELECT r.reading_timestamp, r.obis_code, r.[value], r.delta_value, r.status, r.vee_rule, r.packet_id
+FROM [dbo].[METER_READING] AS r
+WHERE r.meter_id = @m AND r.reading_timestamp >= @d0 AND r.reading_timestamp <= @d1
+ORDER BY r.reading_timestamp, r.obis_code;
+
+/* ===========================================================================
+   CLEAN-UP: remove what this test wrote (events, readings, packets of the test day 2025-06-11).
+   The results above were already produced, so nothing is lost. The seeds (DEMO-NET-001 and its
+   transformers) stay on purpose so the test can be run again. The audit log is append-only
+   (TR03), so its VEE_RUN / status lines stay by design.
+   =========================================================================== */
+DELETE e FROM [dbo].[EVENT] AS e
+JOIN [dbo].[TELEMETRY_PACKET] AS p ON p.packet_id = e.packet_id
+WHERE p.meter_network_id LIKE 'DEMO-%' AND p.transmission_timestamp >= '2025-06-11' AND p.transmission_timestamp < '2025-06-12';
+DECLARE @clean_events INT = @@ROWCOUNT;
+DELETE FROM [dbo].[METER_READING] WHERE meter_id = @m AND reading_timestamp >= '2025-06-11' AND reading_timestamp < '2025-06-12';
+DECLARE @clean_readings INT = @@ROWCOUNT;
+DELETE FROM [dbo].[TELEMETRY_PACKET]
+WHERE meter_network_id LIKE 'DEMO-%' AND transmission_timestamp >= '2025-06-11' AND transmission_timestamp < '2025-06-12';
+DECLARE @clean_packets INT = @@ROWCOUNT;
+PRINT 'clean-up: ' + CAST(@clean_events AS VARCHAR(10)) + ' events, ' + CAST(@clean_readings AS VARCHAR(10))
+      + ' readings, ' + CAST(@clean_packets AS VARCHAR(10)) + ' packets deleted.';
+
+DECLARE @fails INT = (SELECT COUNT(*) FROM #results WHERE result <> 'PASS');
+DECLARE @total INT = (SELECT COUNT(*) FROM #results);
+PRINT 'test_telemetry_storage.sql: ' + CAST(@total AS VARCHAR(10)) + ' tests, ' + CAST(@fails AS VARCHAR(10)) + ' not passed.';
+DROP TABLE #results;
