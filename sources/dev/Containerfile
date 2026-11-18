@@ -1,0 +1,18 @@
+# Development image: PHP 8.3 + Apache + Microsoft ODBC Driver 18 + the SQLSRV / PDO_SQLSRV extensions.
+# Only a local test harness: the application itself is plain PHP and runs the same under XAMPP or the UCY web server
+# (anything that has PHP >= 8.1 with the sqlsrv extension).
+FROM docker.io/library/php:8.3-apache
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl gnupg2 ca-certificates unixodbc-dev libgssapi-krb5-2 $PHPIZE_DEPS \
+ && curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+ && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list \
+ && apt-get update \
+ && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
+ && pecl install sqlsrv pdo_sqlsrv \
+ && docker-php-ext-enable sqlsrv pdo_sqlsrv \
+ && rm -rf /var/lib/apt/lists/* /tmp/pear
+
+# the web root is sources/public; everything else (src/, areas/) stays outside it
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf

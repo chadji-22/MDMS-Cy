@@ -92,6 +92,7 @@ After **F5** look at the **Results** pane (bottom). Each test file produces seve
 | `Invalid object name 'dbo.METER'` | wrong database in the toolbar drop-down, or the build was not run |
 | `FAIL` in a row | read `test` (expected) against `detail` (observed) and the data grids below |
 | a `FAIL` with `detail` = an error text | the error came from the procedure itself; run the procedure by hand (e.g. `EXEC dbo.sp_RunVEE ...`). Error 3915 hides the real error behind `INSERT ... EXEC` |
+| build log says `The transaction log for database '...' is full` (a different meter fails in `import.sql` each run, then `Some active meters still have readings that are not final`) | the shared server's log filled up after several rebuilds in a row. Run `CHECKPOINT;` on your database, wait a minute, and run `build_all.sql` once more. Avoid rebuilding repeatedly back to back |
 | `The audit log is append-only` | you tried to delete from `AUDIT_LOG`; leave it, it is meant to keep its rows |
 
 The project's own suite is `tests.sql` (in the `phaseB` folder, run after the build): it must also end with
