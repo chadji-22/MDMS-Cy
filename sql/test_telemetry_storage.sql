@@ -16,7 +16,7 @@
    So this script now calls the real procedure and checks the rows it leaves behind.
 
    Needs: import.sql, seed_grid.sql, seed_telemetry_demo.sql.
-   Re-runnable: the readings of the test day (2025-06-11) are deleted first.
+   Cleans up after itself (see the CLEAN-UP block at the end). Re-runnable: the readings of the test day (2025-06-11) are deleted first.
    ============================================================================ */
 SET NOCOUNT ON;
 
@@ -145,6 +145,24 @@ SELECT r.reading_timestamp, r.obis_code, r.[value], r.delta_value, r.status, r.v
 FROM [dbo].[METER_READING] AS r
 WHERE r.meter_id = @m AND r.reading_timestamp >= @d0 AND r.reading_timestamp <= @d1
 ORDER BY r.reading_timestamp, r.obis_code;
+
+/* ===========================================================================
+   CLEAN-UP: remove what this test wrote (events, readings, packets of the test day 2025-06-11).
+   The results above were already produced, so nothing is lost. The seeds (DEMO-NET-001 and its
+   transformers) stay on purpose so the test can be run again. The audit log is append-only
+   (TR03), so its VEE_RUN / status lines stay by design.
+   =========================================================================== */
+DELETE e FROM [dbo].[EVENT] AS e
+JOIN [dbo].[TELEMETRY_PACKET] AS p ON p.packet_id = e.packet_id
+WHERE p.meter_network_id LIKE 'DEMO-%' AND p.transmission_timestamp >= '2025-06-11' AND p.transmission_timestamp < '2025-06-12';
+DECLARE @clean_events INT = @@ROWCOUNT;
+DELETE FROM [dbo].[METER_READING] WHERE meter_id = @m AND reading_timestamp >= '2025-06-11' AND reading_timestamp < '2025-06-12';
+DECLARE @clean_readings INT = @@ROWCOUNT;
+DELETE FROM [dbo].[TELEMETRY_PACKET]
+WHERE meter_network_id LIKE 'DEMO-%' AND transmission_timestamp >= '2025-06-11' AND transmission_timestamp < '2025-06-12';
+DECLARE @clean_packets INT = @@ROWCOUNT;
+PRINT 'clean-up: ' + CAST(@clean_events AS VARCHAR(10)) + ' events, ' + CAST(@clean_readings AS VARCHAR(10))
+      + ' readings, ' + CAST(@clean_packets AS VARCHAR(10)) + ' packets deleted.';
 
 DECLARE @fails INT = (SELECT COUNT(*) FROM #results WHERE result <> 'PASS');
 DECLARE @total INT = (SELECT COUNT(*) FROM #results);
