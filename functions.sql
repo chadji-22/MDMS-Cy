@@ -22,7 +22,9 @@ CREATE OR ALTER FUNCTION [dbo].[fn_Floor15] (@ts DATETIME2(0))
 RETURNS DATETIME2(0)
 AS
 BEGIN
-    RETURN DATEADD(MINUTE, (DATEDIFF(MINUTE, '2000-01-01', @ts) / 15) * 15, CAST('2000-01-01' AS DATETIME2(0)));
+    -- integer floor: also correct before 2000-01-01, where DATEDIFF is negative and "/ 15" would round toward zero
+    DECLARE @m INT = DATEDIFF(MINUTE, '2000-01-01', @ts);
+    RETURN DATEADD(MINUTE, @m - ((@m % 15) + 15) % 15, CAST('2000-01-01' AS DATETIME2(0)));
 END;
 GO
 
