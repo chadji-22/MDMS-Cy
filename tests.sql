@@ -668,6 +668,37 @@ FROM (VALUES (CAST('1999-12-31 23:59:59' AS DATETIME2(0)), CAST('1999-12-31 23:4
 WHERE [dbo].[fn_Floor15](v.t) <> v.expected;
 
 /* ===========================================================================
+   L. CONSUMER LOOK-UPS for the web pages (B3): service types and suppliers, wrong role refused
+   =========================================================================== */
+CREATE TABLE #st (service_type_id INT, service_name NVARCHAR(100), fee DECIMAL(10,2));
+CREATE TABLE #sp (supplier_org_id INT, supplier_name NVARCHAR(150));
+BEGIN TRY
+    INSERT INTO #st EXEC [dbo].[sp_ListServiceTypes] @c1;
+    INSERT INTO #results
+    SELECT 'L1 consumer lists the active service types (ids for sp_PayServiceFee)',
+           CASE WHEN EXISTS (SELECT 1 FROM #st WHERE service_name = N'METER_CHECK')
+                     AND EXISTS (SELECT 1 FROM #st WHERE service_name = N'HISTORICAL_ACCESS')
+                     AND (SELECT COUNT(*) FROM #st) = (SELECT COUNT(*) FROM [dbo].[SERVICE_TYPE] WHERE is_active = 1) THEN 'PASS' ELSE 'FAIL' END,
+           N'rows: ' + CAST((SELECT COUNT(*) FROM #st) AS NVARCHAR(10));
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('L1 consumer lists the active service types (ids for sp_PayServiceFee)', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+BEGIN TRY
+    INSERT INTO #sp EXEC [dbo].[sp_ListSuppliers] @c1;
+    INSERT INTO #results
+    SELECT 'L2 consumer lists the suppliers only (no aggregators)',
+           CASE WHEN EXISTS (SELECT 1 FROM #sp WHERE supplier_org_id = @sup1)
+                     AND (SELECT COUNT(*) FROM #sp) = (SELECT COUNT(*) FROM [dbo].[ORGANIZATION] WHERE org_type = 'SUPPLIER') THEN 'PASS' ELSE 'FAIL' END,
+           N'rows: ' + CAST((SELECT COUNT(*) FROM #sp) AS NVARCHAR(10));
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('L2 consumer lists the suppliers only (no aggregators)', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+BEGIN TRY
+    EXEC [dbo].[sp_ListServiceTypes] @tech1;
+    INSERT INTO #results VALUES ('L3 technician lists service types -> 50002', 'FAIL', N'no error');
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('L3 technician lists service types -> 50002', CASE WHEN ERROR_NUMBER() = 50002 THEN 'PASS' ELSE 'FAIL' END, LEFT(ERROR_MESSAGE(), 400)); END CATCH
+DROP TABLE #st, #sp;
+
+/* ===========================================================================
    SUMMARY
    =========================================================================== */
 SELECT seq, result, test, detail FROM #results ORDER BY seq;
