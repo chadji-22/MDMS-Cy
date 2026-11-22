@@ -5,9 +5,17 @@
     at least one measured before / after case for an index]
 
    PART 1  a mix of OLTP calls with random valid parameters, each one timed:
-             40 % sp_GetPremiseReadings (1 day)   15 % sp_GetPremiseAggregates   15 % sp_ListMyWorkOrders
-             10 % sp_IngestTelemetryPacket        10 % sp_GetTransformerState    10 % sp_GetDayAheadAggregates
+             30 % sp_GetPremiseReadings (1 day)   10 % sp_GetPremiseAggregates   10 % sp_ListMyWorkOrders
+             10 % sp_IngestTelemetryPacket        10 % sp_GetTransformerState     5 % sp_GetDayAheadAggregates
+             10 % sp_Login                         5 % sp_ListSupplierBills       5 % sp_PayBill
+              5 % sp_SubmitServiceRequest
+           (C2, 22/11/2026: login, bills, payment and service request added. The consumer's own bill list,
+            sp_GetMyBillsAndPayments, returns two result sets of different shapes, which INSERT ... EXEC cannot catch,
+            so the bill list is timed with sp_ListSupplierBills.)
+           Every call that writes (login writes LOGIN_OK, ingest, pay, submit) runs inside a transaction that is
+           rolled back: timed with its writes, nothing stays.
            Report: p95 overall and per procedure, plus the maximum. Target: p95 < 2000 ms.
+           A failed call is still timed; the run is valid only with failed_calls = 0.
    PART 2  batch jobs, timed separately (they are not OLTP).
    PART 3  IX1 before / after: the two queries it serves, with the index, without it, and with it again.
            It DROPS and recreates IX_METER_READING_obis_slot, so it runs only when run_index_test = 1.
@@ -56,21 +64,41 @@ SELECT ROW_NUMBER() OVER (ORDER BY meter_id) AS rn, network_id INTO #meters
 FROM [dbo].[METER] WHERE status = 'ACTIVE';
 SELECT ROW_NUMBER() OVER (ORDER BY transformer_id) AS rn, transformer_id INTO #transformers
 FROM [dbo].[TRANSFORMER] WHERE [level] >= 2;
+-- logins of the demo accounts of import.sql (password Passw0rd!23; the synthetic ones use Synthetic!23)
+SELECT ROW_NUMBER() OVER (ORDER BY user_id) AS rn, email INTO #logins
+FROM [dbo].[USER_ACCOUNT] WHERE is_active = 1 AND anonymized_at IS NULL AND email LIKE '%@example.cy' AND email LIKE 'consumer%';
+-- open bills with something left to pay (paid 0.01 inside a rolled-back transaction)
+SELECT ROW_NUMBER() OVER (ORDER BY v.bill_id) AS rn, v.bill_id, v.user_id INTO #open_bills
+FROM [dbo].[view_BILL_BALANCE] AS v JOIN [dbo].[USER_ACCOUNT] AS u ON u.user_id = v.user_id
+WHERE v.status IN ('ISSUED', 'PARTIALLY_PAID', 'OVERDUE') AND v.remaining >= 0.01 AND u.is_active = 1;   -- not a forgotten user
+-- the bill list is for supplier users (aggregators see aggregates only)
+SELECT ROW_NUMBER() OVER (ORDER BY user_id) AS rn, user_id INTO #supplier_users
+FROM [dbo].[USER_ACCOUNT] WHERE role_code = 'SUPPLIER' AND is_active = 1;
+-- consumer + premise pairs for a service request
+SELECT ROW_NUMBER() OVER (ORDER BY p.premise_id) AS rn, p.premise_id, p.user_id INTO #requests
+FROM [dbo].[PREMISE] AS p JOIN [dbo].[USER_ACCOUNT] AS u ON u.user_id = p.user_id
+WHERE u.is_active = 1;                                                     -- not a forgotten user
 DECLARE @n_premises INT = (SELECT COUNT(*) FROM #premises), @n_tech INT = (SELECT COUNT(*) FROM #technicians),
         @n_org INT = (SELECT COUNT(*) FROM #org_users), @n_meters INT = (SELECT COUNT(*) FROM #meters),
-        @n_tr INT = (SELECT COUNT(*) FROM #transformers);
+        @n_tr INT = (SELECT COUNT(*) FROM #transformers), @n_logins INT = (SELECT COUNT(*) FROM #logins),
+        @n_bills INT = (SELECT COUNT(*) FROM #open_bills), @n_req INT = (SELECT COUNT(*) FROM #requests),
+        @n_sup INT = (SELECT COUNT(*) FROM #supplier_users);
 
 -- the calls, in random order
 CREATE TABLE #calls (id INT IDENTITY(1,1) PRIMARY KEY, proc_name VARCHAR(40) NOT NULL, r1 INT NOT NULL, r2 INT NOT NULL);
 WITH d AS (SELECT v FROM (VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) AS x(v)),
 n AS (SELECT TOP (@calls) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS n FROM d AS a CROSS JOIN d AS b CROSS JOIN d AS c CROSS JOIN d AS e CROSS JOIN d AS f)
 INSERT INTO #calls (proc_name, r1, r2)
-SELECT CASE WHEN (n.n * 37) % 100 < 40 THEN 'sp_GetPremiseReadings'
-            WHEN (n.n * 37) % 100 < 55 THEN 'sp_GetPremiseAggregates'
-            WHEN (n.n * 37) % 100 < 70 THEN 'sp_ListMyWorkOrders'
-            WHEN (n.n * 37) % 100 < 80 THEN 'sp_IngestTelemetryPacket'
-            WHEN (n.n * 37) % 100 < 90 THEN 'sp_GetTransformerState'
-            ELSE 'sp_GetDayAheadAggregates' END,
+SELECT CASE WHEN (n.n * 37) % 100 < 30 THEN 'sp_GetPremiseReadings'
+            WHEN (n.n * 37) % 100 < 40 THEN 'sp_GetPremiseAggregates'
+            WHEN (n.n * 37) % 100 < 50 THEN 'sp_ListMyWorkOrders'
+            WHEN (n.n * 37) % 100 < 60 THEN 'sp_IngestTelemetryPacket'
+            WHEN (n.n * 37) % 100 < 70 THEN 'sp_GetTransformerState'
+            WHEN (n.n * 37) % 100 < 75 THEN 'sp_GetDayAheadAggregates'
+            WHEN (n.n * 37) % 100 < 85 THEN 'sp_Login'
+            WHEN (n.n * 37) % 100 < 90 THEN 'sp_ListSupplierBills'
+            WHEN (n.n * 37) % 100 < 95 THEN 'sp_PayBill'
+            ELSE 'sp_SubmitServiceRequest' END,
        ABS(CHECKSUM(NEWID())) % 1000000, ABS(CHECKSUM(NEWID())) % 1000000
 FROM n
 ORDER BY NEWID();
@@ -86,7 +114,14 @@ CREATE TABLE #s_state (transformer_id INT, name NVARCHAR(100), [level] TINYINT, 
                        reference_15_min DATETIME2(0), import_kwh DECIMAL(20,4), export_kwh DECIMAL(20,4), meter_count INT, computed_at DATETIME2(0),
                        load_pct DECIMAL(9,2), frequency_hz DECIMAL(18,4), frequency_at DATETIME2(0));
 CREATE TABLE #s_da ([day] DATE, transformer_id INT, transformer_name NVARCHAR(100), import_kwh DECIMAL(38,4), export_kwh DECIMAL(38,4), net_kwh DECIMAL(38,4), meter_count INT);
-CREATE TABLE #timings (id INT PRIMARY KEY, proc_name VARCHAR(40) NOT NULL, ms DECIMAL(12,3) NOT NULL, failed BIT NOT NULL);
+CREATE TABLE #s_login (user_id INT, role_code VARCHAR(20), full_name NVARCHAR(150), approval_status VARCHAR(20), organization_id INT);
+CREATE TABLE #s_bills (bill_id INT, issue_date DATE, due_date DATE, period_start DATE, period_end DATE, amount DECIMAL(12,2),
+                       paid DECIMAL(12,2), remaining DECIMAL(12,2), status VARCHAR(20), premise_id INT, user_id INT,
+                       supplier_org_id INT, supplier_name NVARCHAR(150));
+CREATE TABLE #s_pay (payment_id INT, bill_id INT, remaining DECIMAL(12,2), bill_status VARCHAR(20));
+CREATE TABLE #s_req (work_order_id INT, status VARCHAR(20));
+CREATE TABLE #timings (id INT PRIMARY KEY, proc_name VARCHAR(40) NOT NULL, ms DECIMAL(12,3) NOT NULL, failed BIT NOT NULL, err NVARCHAR(200) NULL);
+DECLARE @email VARCHAR(255), @bill INT, @pw NVARCHAR(128) = N'Passw0rd!23', @err NVARCHAR(200);
 
 DECLARE @id INT, @proc VARCHAR(40), @r1 INT, @r2 INT, @t0 DATETIME2(7), @failed BIT;
 DECLARE @premise INT, @actor INT, @from DATETIME2(0), @to DATETIME2(0), @d_from DATE, @d_to DATE, @root INT, @json NVARCHAR(4000), @net VARCHAR(60);
@@ -120,6 +155,14 @@ BEGIN
     END
     ELSE IF @proc = 'sp_GetTransformerState'
         SELECT @root = transformer_id FROM #transformers WHERE rn = @r1 % @n_tr + 1;
+    ELSE IF @proc = 'sp_Login'
+        SELECT @email = email FROM #logins WHERE rn = @r1 % @n_logins + 1;
+    ELSE IF @proc = 'sp_ListSupplierBills'
+        SELECT @actor = user_id FROM #supplier_users WHERE rn = @r1 % @n_sup + 1;
+    ELSE IF @proc = 'sp_PayBill'
+        SELECT @bill = bill_id, @actor = user_id FROM #open_bills WHERE rn = @r1 % @n_bills + 1;
+    ELSE IF @proc = 'sp_SubmitServiceRequest'
+        SELECT @premise = premise_id, @actor = user_id FROM #requests WHERE rn = @r1 % @n_req + 1;
     ELSE
     BEGIN
         SELECT @actor = user_id FROM #org_users WHERE rn = @r1 % @n_org + 1;
@@ -143,18 +186,41 @@ BEGIN
         END
         ELSE IF @proc = 'sp_GetTransformerState'
             INSERT INTO #s_state EXEC [dbo].[sp_GetTransformerState] @tso, @root, NULL;
+        ELSE IF @proc = 'sp_Login'
+        BEGIN
+            BEGIN TRANSACTION;                        -- sp_Login writes LOGIN_OK to AUDIT_LOG
+            INSERT INTO #s_login EXEC [dbo].[sp_Login] @email, @pw;
+            ROLLBACK TRANSACTION;
+        END
+        ELSE IF @proc = 'sp_ListSupplierBills'
+            INSERT INTO #s_bills EXEC [dbo].[sp_ListSupplierBills] @actor, NULL, NULL, NULL, 1, 50;
+        ELSE IF @proc = 'sp_PayBill'
+        BEGIN
+            BEGIN TRANSACTION;                        -- the payment (and the bill lock) are undone
+            INSERT INTO #s_pay EXEC [dbo].[sp_PayBill] @actor, @bill, 0.01, 'CARD', NULL;
+            ROLLBACK TRANSACTION;
+        END
+        ELSE IF @proc = 'sp_SubmitServiceRequest'
+        BEGIN
+            BEGIN TRANSACTION;
+            INSERT INTO #s_req EXEC [dbo].[sp_SubmitServiceRequest] @actor, @premise, NULL, 'FAULT_REPAIR', N'perf.sql';
+            ROLLBACK TRANSACTION;
+        END
         ELSE
             INSERT INTO #s_da EXEC [dbo].[sp_GetDayAheadAggregates] @actor, @d_from, @d_to, 2, NULL;
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
         SET @failed = 1;
+        SET @err = LEFT(CAST(ERROR_NUMBER() AS NVARCHAR(10)) + N' ' + ERROR_MESSAGE(), 200);
     END CATCH
-    INSERT INTO #timings (id, proc_name, ms, failed) VALUES (@id, @proc, DATEDIFF(MICROSECOND, @t0, SYSDATETIME()) / 1000.0, @failed);
+    INSERT INTO #timings (id, proc_name, ms, failed, err)
+    VALUES (@id, @proc, DATEDIFF(MICROSECOND, @t0, SYSDATETIME()) / 1000.0, @failed, CASE WHEN @failed = 1 THEN @err END);
 
     IF @id % 500 = 0
     BEGIN
         TRUNCATE TABLE #s_read; TRUNCATE TABLE #s_agg; TRUNCATE TABLE #s_wo; TRUNCATE TABLE #s_state; TRUNCATE TABLE #s_da;
+        TRUNCATE TABLE #s_login; TRUNCATE TABLE #s_bills; TRUNCATE TABLE #s_pay; TRUNCATE TABLE #s_req;
     END
     FETCH NEXT FROM c INTO @id, @proc, @r1, @r2;
 END
@@ -186,6 +252,9 @@ SELECT DISTINCT proc_name,
        CASE WHEN PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY ms) OVER (PARTITION BY proc_name) < 2000 THEN 'MET' ELSE 'NOT MET' END
 FROM #timings
 ORDER BY proc_name;
+
+-- a failed call is fast and would flatter p95: list them (expected: no rows)
+SELECT proc_name, err AS failure, COUNT(*) AS calls FROM #timings WHERE failed = 1 GROUP BY proc_name, err ORDER BY proc_name;
 GO
 
 /* ===========================================================================
