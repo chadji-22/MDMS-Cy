@@ -22,8 +22,8 @@ work orders, no 0.01 payments, no extra login rows.
 ## Results (ms)
 | Procedure | Use case | Calls | Mean | p50 | **p95** | Max | Failed |
 |---|---|---:|---:|---:|---:|---:|---:|
-| `sp_GetPremiseReadings` (1 day) | consumer readings §1.2 | 3,000 | 8.02 | 4.24 | **18.00** | 199.12 | 0 |
-| `sp_GetPremiseAggregates` (whole range, DAY) | consumer totals §1.2 | 1,000 | 3.84 | 4.19 | **5.41** | 9.64 | 0 |
+| `sp_GetPremiseReadings` (1 day) | premise readings §1.2, **called as DSO** ¹ | 3,000 | 8.02 | 4.24 | **18.00** | 199.12 | 0 |
+| `sp_GetPremiseAggregates` (whole range, DAY) | premise totals §1.2, **called as DSO** ¹ | 1,000 | 3.84 | 4.19 | **5.41** | 9.64 | 0 |
 | `sp_ListMyWorkOrders` | technician jobs §2.2 | 1,000 | 3.60 | 3.33 | **4.81** | 50.55 | 0 |
 | `sp_IngestTelemetryPacket` | packet ingestion §3.1 | 1,000 | 11.49 | 11.06 | **13.96** | 84.96 | 0 |
 | `sp_GetTransformerState` | TSO tree state §4.2 | 1,000 | 6.39 | 6.31 | **8.48** | 13.26 | 0 |
@@ -37,6 +37,9 @@ work orders, no 0.01 payments, no extra login rows.
 Batch job, timed separately (not OLTP): `sp_RefreshTransformerState` on the whole tree, 193.84 ms.
 
 ## Notes
+- ¹ `perf.sql` calls the two premise procedures with the DSO as actor, so any premise can be read. The consumer's
+  extra step, the past-data purchase check (`fn_CanViewReadings`), is therefore **not** in these timings. The consumer path
+  is exercised functionally by `sources/tests/consumer_pages.sh` (current month free, past month refused / bought).
 - **Two earlier runs were not counted.** The 300-call trial and the first 10,000 run had failed calls (wrong parameter
   pools: aggregator users for the supplier bill list, and bills / premises of the forgotten user). A failed call is fast
   and makes p95 look better, so `perf.sql` now lists every failure and the pools only use active users of the right role.
