@@ -21,8 +21,11 @@ Limit for the manual: email / SMS are not really sent; a real gateway would read
   the officer job raises `THRESHOLD_EXCEEDED` for October (60.42 kWh), TR23 records EMAIL + SMS, both `SIMULATED`.
 - `events_simulated_notifications.png`: the same, on consumer8's events page.
 - `tests.sql` section M (M1–M6): both channels → 2 SIMULATED rows with the right recipients and no SENT; both off → none;
-  SMS without phone → FAILED; consumer list; other premise → 50002; no forgotten user keeps a recipient.
-  Run on `ichara09` after an additive deploy: **82/82 PASS**; telemetry tests **26/26 PASS**; `select.sql` UC-01…UC-20 no error.
+  SMS without phone → FAILED; consumer list; other premise → 50002; M6 runs the real right-to-be-forgotten flow
+  (submit, review, pre-approve, approval by a second officer, execute) in a rolled-back transaction and checks the
+  stored recipient is erased. Mutation check: with `io`'s `sp_ExecuteGdprRequest` (no step 4) M6 FAILS (recipient
+  still there); with the B11 version it passes.
+  Run on `ichara09` after an additive deploy, with the C1 data present: **82/82 PASS**; telemetry tests **26/26 PASS**; `select.sql` UC-01…UC-20 no error.
 - `sources/tests/consumer_pages.sh`: 53/53 (read-only part), including the notifications section and the 50002 refusal.
 
 Not yet run: `build_all.sql` twice on a fresh database (the rebuild of the shared DB needs Ioannis's go-ahead).

@@ -748,11 +748,37 @@ BEGIN TRY
     INSERT INTO #results VALUES ('M5 notifications of another consumer''s premise -> 50002', 'FAIL', N'no error');
 END TRY
 BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('M5 notifications of another consumer''s premise -> 50002', CASE WHEN ERROR_NUMBER() = 50002 THEN 'PASS' ELSE 'FAIL' END, LEFT(ERROR_MESSAGE(), 400)); END CATCH
-INSERT INTO #results
-SELECT 'M6 forgotten users: no notification keeps an email or phone number',
-       CASE WHEN NOT EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] AS n JOIN [dbo].[USER_ACCOUNT] AS u ON u.user_id = n.user_id
-                             WHERE u.anonymized_at IS NOT NULL AND n.recipient IS NOT NULL) THEN 'PASS' ELSE 'FAIL' END, NULL;
-DROP TABLE #nt;
+-- M6: the right to be forgotten erases the stored recipients (sp_ExecuteGdprRequest step 4). The real flow, rolled back:
+-- consumer7 gets a notification, submits the request, officer1 reviews and pre-approves, officer2 approves, it is executed.
+DECLARE @c7 INT, @m7 INT, @before INT, @after INT, @anon BIT;
+SELECT @c7 = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'consumer7@example.cy';
+SELECT TOP (1) @m7 = m.meter_id FROM [dbo].[METER] AS m JOIN [dbo].[PREMISE] AS p ON p.premise_id = m.premise_id
+WHERE p.user_id = @c7 AND m.removed_at IS NULL;
+CREATE TABLE #gs (gdpr_request_id INT, status VARCHAR(20));
+CREATE TABLE #gx (gdpr_request_id INT, status VARCHAR(20), readings_deleted INT);
+BEGIN TRY
+    BEGIN TRANSACTION;
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_email = 1 WHERE user_id = @c7;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-04-30', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M6', @m7);
+    SELECT @before = COUNT(*) FROM [dbo].[NOTIFICATION] WHERE user_id = @c7 AND recipient IS NOT NULL;
+    INSERT INTO #gs EXEC [dbo].[sp_SubmitGdprRequest] @c7, 'RIGHT_TO_BE_FORGOTTEN', NULL;
+    SELECT @gdpr = gdpr_request_id FROM #gs;
+    INSERT INTO #gs EXEC [dbo].[sp_AdvanceGdprRequest] @off1, @gdpr, 'UNDER_REVIEW', NULL;
+    INSERT INTO #gs EXEC [dbo].[sp_AdvanceGdprRequest] @off1, @gdpr, 'PRE_APPROVED', NULL;
+    INSERT INTO #gs EXEC [dbo].[sp_AdvanceGdprRequest] @off2, @gdpr, 'APPROVED', NULL;
+    INSERT INTO #gx EXEC [dbo].[sp_ExecuteGdprRequest] @off1, @gdpr;
+    SELECT @after = COUNT(*) FROM [dbo].[NOTIFICATION] WHERE user_id = @c7 AND recipient IS NOT NULL;
+    SELECT @n = COUNT(*) FROM [dbo].[NOTIFICATION] WHERE user_id = @c7;
+    SELECT @anon = CASE WHEN anonymized_at IS NOT NULL THEN 1 ELSE 0 END FROM [dbo].[USER_ACCOUNT] WHERE user_id = @c7;
+    ROLLBACK TRANSACTION;
+    INSERT INTO #results VALUES ('M6 right to be forgotten executed: the notifications stay, their email / phone is erased',
+           CASE WHEN @before >= 1 AND @after = 0 AND @n >= 1 AND @anon = 1 THEN 'PASS' ELSE 'FAIL' END,
+           N'with recipient before: ' + CAST(@before AS NVARCHAR(10)) + N', after: ' + CAST(@after AS NVARCHAR(10))
+           + N', notifications kept: ' + CAST(@n AS NVARCHAR(10)));
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('M6 right to be forgotten erases notification recipients', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+DROP TABLE #nt, #gs, #gx;
 
 /* ===========================================================================
    SUMMARY
