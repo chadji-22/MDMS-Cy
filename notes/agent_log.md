@@ -126,8 +126,10 @@ Next:      after the go-ahead: rebuild ×2 + all tests on the B11 head, merge B3
 ### State left on the course DB `ichara09` (shared)
 - Added (additively, no rebuild): procedures `sp_ListServiceTypes`, `sp_ListSuppliers`, `sp_ListMyNotifications`;
   table `NOTIFICATION` + FKs + `IX_NOTIFICATION_user`; trigger `tr_EVENT_notify`; `sp_ExecuteGdprRequest` step 4.
-  These exist in the DB but are not on `io` yet: until the merge, a teammate who runs `build_all.sql` from `io`
-  removes them (harmless; my branches re-add them).
+  These exist in the DB but are not on `io` yet. If a teammate runs `build_all.sql` from `io` before the merge, `io`'s
+  `create.sql` does not know `NOTIFICATION`: its FKs are dropped, but the table (with its rows) and `IX_NOTIFICATION_user`
+  stay as orphans, `tr_EVENT_notify` disappears with `EVENT`, and the 3 new procedures stay. Their build summary will
+  then show **113 procedures and 15 indexes instead of the expected 110 and 14**. That is this, not a fault in their work.
 - Data added: synthetic batches SYN1 (2 consumers × 2 days, trial) and SYN2 (8 × 2, C1); page-test writes as
   consumer9 / consumer7 (threshold set and removed, a cancelled request, a METER_CHECK fee, a retention request for
   meter 11, last month bought for premise 9); consumer8 threshold 5 kWh + one THRESHOLD_EXCEEDED event with 2 SIMULATED
@@ -144,3 +146,17 @@ Next:      after the go-ahead: rebuild ×2 + all tests on the B11 head, merge B3
 - Decide on the rebuild (Blocked 1) and on merging/pushing.
 - C3: open the four `evidence/C3/*.sqlplan` in SSMS 22 and save screenshots of the graphical plans (2 min).
 - Later: upload `10.zip` to Moodle before Fri 4/12/2026 12:00, print `docx/`, rehearse the oral exam.
+
+## 2026-11-22 19:00 — follow-ups after review
+```
+Done:      B3  pages re-checked on the large set: read-only run 59/59 incl. 8 checks as syn2_000004 (current month
+               free with real rows, no purchase); 2 screenshots                      0cf6ed7 (B3 branch)
+           B11 rebased onto B3; M6 replaced by the real GDPR flow (submit, review, pre-approve, approve by a 2nd officer,
+               execute) in a rolled-back transaction; mutation check: FAILS with io's sp_ExecuteGdprRequest, PASSES with B11's
+                                                                                      9155eaf (B11 branch)
+           C1  tests.sql H3 failed after C1: it compared every root with ALL meters; each generator batch builds its own
+               tree. Fixed per root (fn_TransformerSubtree)                           b0d5035 on C-perf, cherry-picked to B11
+           C2  report states that readings/totals were timed as the DSO (consumer purchase check not in the timings)
+Tests:     tests.sql 82/82 on the B11 head, with the C1 data present; io's tests.sql + H3 fix: 73/73
+Blocked:   unchanged (Q5: fresh build_all x2; no merge, no push)
+```

@@ -4,6 +4,9 @@
 
 ## Q5 (open) — the fresh-database proof and the merges
 - `build_all.sql` twice + all tests on a fresh database is required before merging SQL changes into `io` (brief §1). The only database is the shared `ichara09`; rebuilding it was blocked by the permission system because it drops every table.
+- Important for option 3: the edits to `create.sql`, `drop.sql` and `build_all.sql` (B11) have **never been executed as
+  written**. The shared DB received the B11 objects from a separate scratch script with its own `ALTER TABLE`. Only a
+  fresh `build_all.sql` run proves the committed scripts.
 - Options: (1) **you allow one rebuild cycle of `ichara09`** (back to the `import.sql` state, then I rerun C1, ~6 s, and the tests); (2) a local SQL Server 2022 in Podman (no admin), then the proof runs there; (3) merge on the strength of the additive deploy + 82/82 tests, and let Eliana's C6 fresh-database run be the proof.
 
 Format: what I tried · what failed · options. Recommended option first.
