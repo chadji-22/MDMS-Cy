@@ -1,0 +1,62 @@
+PASS no session: /consumer/ redirects to login (303)
+PASS no session: /consumer/readings.php redirects to login (303)
+PASS no session: /consumer/aggregates.php redirects to login (303)
+PASS no session: /consumer/history.php redirects to login (303)
+PASS no session: /consumer/events.php redirects to login (303)
+PASS no session: /consumer/requests.php redirects to login (303)
+PASS no session: /consumer/request.php?id=1 redirects to login (303)
+PASS no session: /consumer/bills.php redirects to login (303)
+PASS no session: /consumer/gdpr.php redirects to login (303)
+PASS officer1@mdms.cy on /consumer/ is refused (403)
+PASS officer1@mdms.cy on /consumer/readings.php is refused (403)
+PASS officer1@mdms.cy on /consumer/bills.php is refused (403)
+PASS officer1@mdms.cy on /consumer/gdpr.php is refused (403)
+PASS tech1@mdms.cy on /consumer/ is refused (403)
+PASS tech1@mdms.cy on /consumer/readings.php is refused (403)
+PASS tech1@mdms.cy on /consumer/bills.php is refused (403)
+PASS tech1@mdms.cy on /consumer/gdpr.php is refused (403)
+PASS dso@mdms.cy on /consumer/ is refused (403)
+PASS dso@mdms.cy on /consumer/readings.php is refused (403)
+PASS dso@mdms.cy on /consumer/bills.php is refused (403)
+PASS dso@mdms.cy on /consumer/gdpr.php is refused (403)
+PASS billing@eacsupply.cy on /consumer/ is refused (403)
+PASS billing@eacsupply.cy on /consumer/readings.php is refused (403)
+PASS billing@eacsupply.cy on /consumer/bills.php is refused (403)
+PASS billing@eacsupply.cy on /consumer/gdpr.php is refused (403)
+PASS consumer2 logs in
+PASS consumer menu lists the 8 pages
+PASS consumer2 opens /consumer/ (200)
+PASS consumer2 opens /consumer/readings.php (200)
+PASS consumer2 opens /consumer/aggregates.php (200)
+PASS consumer2 opens /consumer/history.php (200)
+PASS consumer2 opens /consumer/events.php (200)
+PASS consumer2 opens /consumer/requests.php (200)
+PASS consumer2 opens /consumer/bills.php (200)
+PASS consumer2 opens /consumer/gdpr.php (200)
+PASS prosumer premise 3, bought days: import and export side by side
+PASS premise 4, past month not bought: 50008 message and the reason, not an empty table
+PASS totals of premise 4, past month not bought: 50008 message
+PASS totals of premise 3 (bought): daily table with import and export
+PASS another consumer's premise: 'Permission denied: not your premise.'
+PASS window longer than 31 days: 50004 message
+PASS history quote for premise 4, last month: price and buy button
+PASS history quote for the current month: cannot be bought
+PASS unknown request id: 'Work order not found.'
+PASS events of premise 3: the 198.5 V undervoltage event
+PASS bills page: bills and payment history of consumer2
+PASS POST without CSRF token is refused (403)
+PASS add premise with a bad postal code: 50004 from the database
+PASS buy the current month: refused with 50008 ('current month is free')
+PASS pay someone else's bill #1: refused
+PASS right to be forgotten without the confirmation box: refused, nothing submitted
+PASS W1 set a threshold of 250 kWh on premise 11
+PASS W2 remove the threshold
+PASS W3 notification preferences: email + SMS
+PASS W4 submit a fault request, land on its history page
+PASS W5 cancel it; the history shows SUBMITTED -> CANCELLED
+PASS W6 pay the METER_CHECK fee (amount taken from the database)
+PASS W7a buy last month for premise 11 (retention 1 month): refused with the retention reason
+PASS W8 retention request: submitted, or 50005 if one is already open
+PASS W9 the request is listed with its history
+PASS W7b buy last month for premise 9, then its readings are visible
+consumer_pages.sh: 61 passed, 0 failed
