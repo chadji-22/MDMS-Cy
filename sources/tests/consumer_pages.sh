@@ -82,6 +82,27 @@ check "pay someone else's bill #1: refused" 'echo "$out" | alert | grep -q -E "n
 out=$(post /consumer/gdpr.php -d "request_type=RIGHT_TO_BE_FORGOTTEN")
 check "right to be forgotten without the confirmation box: refused, nothing submitted" 'echo "$out" | alert | grep -q "tick the box"'
 
+# --- large data set (C1, sp_GenerateSyntheticData): the current month is free, with real rows ------------------
+# Runs only when the synthetic prosumer of batch SYN2 exists (password of the generator: Synthetic!23).
+SYN="${SYN_EMAIL:-syn2_000004@synthetic.cy}"
+: > "$JAR"; t="$(token)"
+code=$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -c "$JAR" --data-urlencode "_csrf=$t" --data-urlencode "email=$SYN" \
+       --data-urlencode "password=${SYN_PASSWORD:-Synthetic!23}" "$BASE/login.php")
+if [ "$code" = "303" ]; then
+  SP=$(body "$BASE/consumer/" | sed -n 's/.*readings.php?premise_id=\([0-9]*\)".*/\1/p' | head -1)
+  MS=$(date -u +%Y-%m-01); TODAY=$(date -u +%Y-%m-%d)
+  out=$(body "$BASE/consumer/readings.php?premise_id=$SP&from=$MS&to=$TODAY")
+  check "large set: $SYN, current month without any purchase: readings shown (free), import and export" \
+        'echo "$out" | grep -q "slots" && echo "$out" | grep -q "Export 2.8.0" && ! echo "$out" | grep -q "not bought"' "$(echo "$out" | alert)"
+  out=$(body "$BASE/consumer/aggregates.php?premise_id=$SP&period=DAY&from=$MS&to=$TODAY")
+  check "large set: daily totals of the current month (final aggregates)" 'echo "$out" | grep -q "Export 2.8.0 (PV)" && echo "$out" | grep -q "<td class=\"mono\">$(date -u +%Y-%m)-"' "$(echo "$out" | alert)"
+  for p in /consumer/ /consumer/history.php /consumer/events.php /consumer/requests.php /consumer/bills.php /consumer/gdpr.php; do
+    check "large set: $SYN opens $p (200)" '[ "$(status "$BASE$p")" = "200" ]'
+  done
+else
+  echo "SKIP large-set checks: $SYN cannot log in (run evidence/C1/c1_large_set.sql first)"
+fi
+
 # --- write flows (WRITE=1), as consumer9 ---------------------------------------------------------------
 if [ "${WRITE:-0}" = "1" ]; then
   login consumer9@example.cy >/dev/null

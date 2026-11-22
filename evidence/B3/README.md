@@ -29,6 +29,11 @@ service fee, retention-limited purchase refused, purchase accepted, GDPR request
 B1 tests after the change: `tests/smoke.sh` all passed; `tests/errors_test.php` all passed with `APP_DEBUG=0`
 (its "hides the SQL text" case fails by design when the container runs with `APP_DEBUG=1`, also on `io` without B3).
 
-## Not yet done
-- The large data set run (C1) is not done: the course DB has ~7 MB free (cap 27 MB). The pages were run on the small set only.
-- Screenshots were rendered with headless Chrome from the pages' real HTML (same CSS); times are UTC.
+## Large data set (C1)
+After C1 (`evidence/C1`, batch SYN2) the read-only part was run again: **59 / 59** (`consumer_pages_run_readonly_large.txt`).
+The 8 extra checks log in as the synthetic prosumer `syn2_000004@synthetic.cy` and show the **current month free** rule
+with real rows (no purchase): readings with import / export side by side, daily totals of the current month (the 21/11 row
+comes from the VEE + finalize run of C1), and every page opens.
+Screenshots: `11_large_set_readings_current_month.png`, `12_large_set_totals_current_month.png`.
+
+Screenshots were rendered with headless Chrome from the pages' real HTML (same CSS); times are UTC.
