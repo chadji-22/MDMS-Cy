@@ -65,6 +65,9 @@ out=$(body "$BASE/consumer/request.php?id=999999")
 check "unknown request id: 'Work order not found.'" '[ "$(echo "$out" | alert)" = "Work order not found." ]' "$(echo "$out" | alert)"
 out=$(body "$BASE/consumer/events.php?premise_id=3")
 check "events of premise 3: the 198.5 V undervoltage event" 'echo "$out" | grep -q "Undervoltage"'
+check "events page: the notifications section explains that delivery is simulated (B11)" 'echo "$out" | grep -q "<h2>Notifications</h2>" && echo "$out" | grep -q "delivery is <strong>simulated</strong>"'
+out=$(body "$BASE/consumer/events.php?premise_id=1")
+check "notifications of another consumer's premise: refused (50002)" '[ "$(echo "$out" | alert)" = "Permission denied: not your premise." ]' "$(echo "$out" | alert)"
 out=$(body "$BASE/consumer/bills.php")
 check "bills page: bills and payment history of consumer2" 'echo "$out" | grep -q "<h2>Bills</h2>" && echo "$out" | grep -q "HISTORICAL_ACCESS"'
 

@@ -22,7 +22,7 @@ GO
 
 -- v5 tables + every table name used by v3/v4, so an old database is cleaned too
 DROP TABLE IF EXISTS
-    dbo.AUDIT_LOG, dbo.GDPR_REQUEST, dbo.PAYMENT, dbo.BILL, dbo.TARIFF,
+    dbo.NOTIFICATION, dbo.AUDIT_LOG, dbo.GDPR_REQUEST, dbo.PAYMENT, dbo.BILL, dbo.TARIFF,
     dbo.REMOTE_COMMAND, dbo.WORK_ORDER, dbo.SERVICE_TYPE, dbo.EVENT,
     dbo.TRANSFORMER_CURRENT_STATE, dbo.AGGREGATE, dbo.TRANSFORMER_READING,
     dbo.METER_READING, dbo.TELEMETRY_PACKET, dbo.OBIS_CODE, dbo.DOCUMENT,

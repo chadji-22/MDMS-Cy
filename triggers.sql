@@ -1,6 +1,6 @@
 /* ============================================================================
    EPL342 - Databases  |  MDMS-Cy  |  Group 10
-   triggers.sql  -  Build Spec §8 (TR01 - TR22)
+   triggers.sql  -  Build Spec §8 (TR01 - TR22) + TR23 (B11 notifications, 22/11/2026)
    Guard triggers  : RAISERROR('[51xxx] ...', 16, 1); ROLLBACK TRANSACTION; RETURN;   (lecture 18)
    Audit triggers  : INSERT INTO AUDIT_LOG ... FROM inserted / deleted                (lab 10)
    The actor comes from SESSION_CONTEXT (set by sp__SetActor).
@@ -620,7 +620,7 @@ GO
 
 -- TR21 [project.pdf §1.2 p.6: the consumer is told when consumption passes the threshold they set]
 -- Fires when final DAY aggregates of 1.8.0 are inserted: month-to-date against the premise threshold,
--- one THRESHOLD_EXCEEDED event per meter per month. PHP sends the email / SMS (notify_email / notify_sms).
+-- one THRESHOLD_EXCEEDED event per meter per month. TR23 records the email / SMS (notify_email / notify_sms).
 CREATE OR ALTER TRIGGER [dbo].[tr_AGGREGATE_threshold_alert]
 ON [dbo].[AGGREGATE]
 AFTER INSERT
@@ -655,5 +655,36 @@ BEGIN
 END;
 GO
 
-PRINT 'triggers.sql: TR01 - TR22 created (23 triggers; TR22 is one on BILL and one on PAYMENT).';
+-- TR23 [project.pdf §1.2 p.6: the consumer is notified by email or SMS, as they chose]   (added 22/11/2026, task B11)
+-- Fires for every THRESHOLD_EXCEEDED event, whoever raised it (TR21 or sp_CheckConsumptionThresholds), in the same
+-- transaction. One NOTIFICATION row per channel the premise owner has switched on; no gateway is connected, so the
+-- status is SIMULATED (an SMS without a phone number is FAILED). Forgotten / inactive users get nothing.
+CREATE OR ALTER TRIGGER [dbo].[tr_EVENT_notify]
+ON [dbo].[EVENT]
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS (SELECT 1 FROM inserted WHERE event_type = 'THRESHOLD_EXCEEDED' AND meter_id IS NOT NULL)
+        RETURN;
+
+    INSERT INTO [dbo].[NOTIFICATION] (channel, recipient, status, message, event_id, user_id)
+    SELECT c.channel, c.recipient,
+           CASE WHEN c.recipient IS NULL THEN 'FAILED' ELSE 'SIMULATED' END,
+           CASE WHEN c.recipient IS NULL THEN N'No phone number in the profile. ' ELSE N'' END
+           + N'Premise #' + CAST(p.premise_id AS NVARCHAR(12)) + N': ' + ISNULL(i.description, N'consumption threshold exceeded'),
+           i.event_id, u.user_id
+    FROM inserted AS i
+    JOIN [dbo].[METER] AS m ON m.meter_id = i.meter_id
+    JOIN [dbo].[PREMISE] AS p ON p.premise_id = m.premise_id
+    JOIN [dbo].[USER_ACCOUNT] AS u ON u.user_id = p.user_id
+    CROSS APPLY (SELECT 'EMAIL' AS channel, CAST(u.email AS VARCHAR(255)) AS recipient WHERE u.notify_email = 1
+                 UNION ALL
+                 SELECT 'SMS', CAST(u.phone AS VARCHAR(255)) WHERE u.notify_sms = 1) AS c
+    WHERE i.event_type = 'THRESHOLD_EXCEEDED'
+      AND u.is_active = 1 AND u.anonymized_at IS NULL;
+END;
+GO
+
+PRINT 'triggers.sql: TR01 - TR23 created (24 triggers; TR22 is one on BILL and one on PAYMENT).';
 GO

@@ -699,6 +699,59 @@ BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('L3 techni
 DROP TABLE #st, #sp;
 
 /* ===========================================================================
+   M. NOTIFICATIONS (B11, TR23): a THRESHOLD_EXCEEDED event records one SIMULATED notification per chosen channel
+      Everything inside a transaction that is rolled back, so the demo data stays as it is.
+   =========================================================================== */
+DECLARE @ev BIGINT, @ev2 BIGINT, @ev3 BIGINT, @c1_email VARCHAR(255), @c1_phone VARCHAR(20);
+CREATE TABLE #nt (notification_id BIGINT, created_at DATETIME2(0), channel VARCHAR(10), recipient VARCHAR(255), status VARCHAR(12),
+                  message NVARCHAR(500), event_id BIGINT, event_type VARCHAR(40), event_timestamp DATETIME2(0), premise_id INT, meter_id INT);
+BEGIN TRY
+    BEGIN TRANSACTION;
+    SELECT @c1_email = email, @c1_phone = phone FROM [dbo].[USER_ACCOUNT] WHERE user_id = @c1;
+    -- email + SMS on
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_email = 1, notify_sms = 1 WHERE user_id = @c1;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-01-31', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M1', @m1);
+    SET @ev = SCOPE_IDENTITY();
+    -- both off
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_email = 0, notify_sms = 0 WHERE user_id = @c1;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-02-28', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M2', @m1);
+    SET @ev2 = SCOPE_IDENTITY();
+    -- SMS only, no phone number
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_sms = 1, phone = NULL WHERE user_id = @c1;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-03-31', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M3', @m1);
+    SET @ev3 = SCOPE_IDENTITY();
+    INSERT INTO #nt EXEC [dbo].[sp_ListMyNotifications] @c1, @p1;
+
+    SELECT @n = CASE WHEN (SELECT COUNT(*) FROM [dbo].[NOTIFICATION] WHERE event_id = @ev) = 2
+                          AND EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE event_id = @ev AND channel = 'EMAIL' AND status = 'SIMULATED' AND recipient = @c1_email AND user_id = @c1)
+                          AND EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE event_id = @ev AND channel = 'SMS' AND status = 'SIMULATED' AND recipient = @c1_phone)
+                          AND NOT EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE status = 'SENT') THEN 1 ELSE 0 END,
+           @n2 = (SELECT COUNT(*) FROM [dbo].[NOTIFICATION] WHERE event_id = @ev2),
+           @id = CASE WHEN (SELECT COUNT(*) FROM [dbo].[NOTIFICATION] WHERE event_id = @ev3) = 1
+                           AND EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE event_id = @ev3 AND channel = 'SMS' AND status = 'FAILED' AND recipient IS NULL) THEN 1 ELSE 0 END;
+    SET @txt = CASE WHEN (SELECT COUNT(*) FROM #nt WHERE event_id IN (@ev, @ev3)) = 3 AND NOT EXISTS (SELECT 1 FROM #nt WHERE premise_id <> @p1) THEN N'ok' ELSE N'list wrong' END;
+    ROLLBACK TRANSACTION;
+    INSERT INTO #results VALUES ('M1 threshold event, email + SMS on: two SIMULATED notifications with the recipients (none SENT)', CASE WHEN @n = 1 THEN 'PASS' ELSE 'FAIL' END, NULL);
+    INSERT INTO #results VALUES ('M2 threshold event, both channels off: no notification', CASE WHEN @n2 = 0 THEN 'PASS' ELSE 'FAIL' END, N'rows: ' + CAST(@n2 AS NVARCHAR(10)));
+    INSERT INTO #results VALUES ('M3 SMS chosen but no phone number: recorded as FAILED', CASE WHEN @id = 1 THEN 'PASS' ELSE 'FAIL' END, NULL);
+    INSERT INTO #results VALUES ('M4 sp_ListMyNotifications: the consumer sees them for the premise', CASE WHEN @txt = N'ok' THEN 'PASS' ELSE 'FAIL' END, @txt);
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('M1-M4 notifications', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+BEGIN TRY
+    EXEC [dbo].[sp_ListMyNotifications] @c3, @p1;
+    INSERT INTO #results VALUES ('M5 notifications of another consumer''s premise -> 50002', 'FAIL', N'no error');
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('M5 notifications of another consumer''s premise -> 50002', CASE WHEN ERROR_NUMBER() = 50002 THEN 'PASS' ELSE 'FAIL' END, LEFT(ERROR_MESSAGE(), 400)); END CATCH
+INSERT INTO #results
+SELECT 'M6 forgotten users: no notification keeps an email or phone number',
+       CASE WHEN NOT EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] AS n JOIN [dbo].[USER_ACCOUNT] AS u ON u.user_id = n.user_id
+                             WHERE u.anonymized_at IS NOT NULL AND n.recipient IS NOT NULL) THEN 'PASS' ELSE 'FAIL' END, NULL;
+DROP TABLE #nt;
+
+/* ===========================================================================
    SUMMARY
    =========================================================================== */
 SELECT seq, result, test, detail FROM #results ORDER BY seq;
