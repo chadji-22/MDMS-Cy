@@ -568,14 +568,17 @@ FROM (SELECT s.transformer_id, s.obis_code, s.sum_value AS parent_sum,
       JOIN [dbo].[TRANSFORMER] AS t ON t.transformer_id = s.transformer_id
       WHERE t.[level] > 1) AS x;
 
--- the root's DAY aggregate = the sum of the meters' DAY aggregates of that day
+-- the root's DAY aggregate = the sum of the DAY aggregates of the meters UNDER THAT ROOT on that day
+-- (22/11/2026: per root, because every sp_GenerateSyntheticData batch builds its own tree with its own root)
 INSERT INTO #results
 SELECT 'H3 transformer DAY aggregate of the root = sum of the meter DAY aggregates',
        CASE WHEN COUNT(*) > 0 AND SUM(CASE WHEN x.root_value = x.meters_value THEN 0 ELSE 1 END) = 0 THEN 'PASS' ELSE 'FAIL' END,
-       N'days checked: ' + CAST(COUNT(*) AS NVARCHAR(10))
+       N'root-days checked: ' + CAST(COUNT(*) AS NVARCHAR(10))
 FROM (SELECT a.period_start, a.[value] AS root_value,
              (SELECT SUM(m.[value]) FROM [dbo].[AGGREGATE] AS m
-              WHERE m.meter_id IS NOT NULL AND m.period_type = 'DAY' AND m.obis_code = '1.8.0' AND m.period_start = a.period_start) AS meters_value
+              JOIN [dbo].[METER] AS mt ON mt.meter_id = m.meter_id
+              WHERE m.period_type = 'DAY' AND m.obis_code = '1.8.0' AND m.period_start = a.period_start
+                AND mt.transformer_id IN (SELECT s.transformer_id FROM [dbo].[fn_TransformerSubtree](t.transformer_id) AS s)) AS meters_value
       FROM [dbo].[AGGREGATE] AS a
       JOIN [dbo].[TRANSFORMER] AS t ON t.transformer_id = a.transformer_id AND t.parent_transformer_id IS NULL
       WHERE a.period_type = 'DAY' AND a.obis_code = '1.8.0') AS x;
