@@ -576,5 +576,31 @@ BEGIN
 END;
 GO
 
-PRINT 'procedures_02_consumer.sql: 14 procedures created.';
+-- [project.pdf §1.2 p.6: the consumer is notified by email or SMS]   (added 22/11/2026, task B11)
+-- The notifications recorded by TR23 for the actor, newest first; optionally for one premise.
+-- status SIMULATED = no mail / SMS gateway is connected; nothing was really sent.
+CREATE OR ALTER PROCEDURE [dbo].[sp_ListMyNotifications]
+    @actor_user_id INT,
+    @premise_id    INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'CONSUMER';
+
+    IF @premise_id IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM [dbo].[PREMISE] WHERE premise_id = @premise_id AND user_id = @actor_user_id)
+        THROW 50002, 'Permission denied: not your premise.', 1;
+
+    SELECT n.notification_id, n.created_at, n.channel, n.recipient, n.status, n.message,
+           n.event_id, e.event_type, e.event_timestamp, m.premise_id, e.meter_id
+    FROM [dbo].[NOTIFICATION] AS n
+    JOIN [dbo].[EVENT] AS e ON e.event_id = n.event_id
+    LEFT JOIN [dbo].[METER] AS m ON m.meter_id = e.meter_id
+    WHERE n.user_id = @actor_user_id
+      AND (@premise_id IS NULL OR m.premise_id = @premise_id)
+    ORDER BY n.created_at DESC, n.notification_id DESC;
+END;
+GO
+
+PRINT 'procedures_02_consumer.sql: 15 procedures created.';
 GO

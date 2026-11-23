@@ -568,14 +568,17 @@ FROM (SELECT s.transformer_id, s.obis_code, s.sum_value AS parent_sum,
       JOIN [dbo].[TRANSFORMER] AS t ON t.transformer_id = s.transformer_id
       WHERE t.[level] > 1) AS x;
 
--- the root's DAY aggregate = the sum of the meters' DAY aggregates of that day
+-- the root's DAY aggregate = the sum of the DAY aggregates of the meters UNDER THAT ROOT on that day
+-- (22/11/2026: per root, because every sp_GenerateSyntheticData batch builds its own tree with its own root)
 INSERT INTO #results
 SELECT 'H3 transformer DAY aggregate of the root = sum of the meter DAY aggregates',
        CASE WHEN COUNT(*) > 0 AND SUM(CASE WHEN x.root_value = x.meters_value THEN 0 ELSE 1 END) = 0 THEN 'PASS' ELSE 'FAIL' END,
-       N'days checked: ' + CAST(COUNT(*) AS NVARCHAR(10))
+       N'root-days checked: ' + CAST(COUNT(*) AS NVARCHAR(10))
 FROM (SELECT a.period_start, a.[value] AS root_value,
              (SELECT SUM(m.[value]) FROM [dbo].[AGGREGATE] AS m
-              WHERE m.meter_id IS NOT NULL AND m.period_type = 'DAY' AND m.obis_code = '1.8.0' AND m.period_start = a.period_start) AS meters_value
+              JOIN [dbo].[METER] AS mt ON mt.meter_id = m.meter_id
+              WHERE m.period_type = 'DAY' AND m.obis_code = '1.8.0' AND m.period_start = a.period_start
+                AND mt.transformer_id IN (SELECT s.transformer_id FROM [dbo].[fn_TransformerSubtree](t.transformer_id) AS s)) AS meters_value
       FROM [dbo].[AGGREGATE] AS a
       JOIN [dbo].[TRANSFORMER] AS t ON t.transformer_id = a.transformer_id AND t.parent_transformer_id IS NULL
       WHERE a.period_type = 'DAY' AND a.obis_code = '1.8.0') AS x;
@@ -697,6 +700,85 @@ BEGIN TRY
 END TRY
 BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('L3 technician lists service types -> 50002', CASE WHEN ERROR_NUMBER() = 50002 THEN 'PASS' ELSE 'FAIL' END, LEFT(ERROR_MESSAGE(), 400)); END CATCH
 DROP TABLE #st, #sp;
+
+/* ===========================================================================
+   M. NOTIFICATIONS (B11, TR23): a THRESHOLD_EXCEEDED event records one SIMULATED notification per chosen channel
+      Everything inside a transaction that is rolled back, so the demo data stays as it is.
+   =========================================================================== */
+DECLARE @ev BIGINT, @ev2 BIGINT, @ev3 BIGINT, @c1_email VARCHAR(255), @c1_phone VARCHAR(20);
+CREATE TABLE #nt (notification_id BIGINT, created_at DATETIME2(0), channel VARCHAR(10), recipient VARCHAR(255), status VARCHAR(12),
+                  message NVARCHAR(500), event_id BIGINT, event_type VARCHAR(40), event_timestamp DATETIME2(0), premise_id INT, meter_id INT);
+BEGIN TRY
+    BEGIN TRANSACTION;
+    SELECT @c1_email = email, @c1_phone = phone FROM [dbo].[USER_ACCOUNT] WHERE user_id = @c1;
+    -- email + SMS on
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_email = 1, notify_sms = 1 WHERE user_id = @c1;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-01-31', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M1', @m1);
+    SET @ev = SCOPE_IDENTITY();
+    -- both off
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_email = 0, notify_sms = 0 WHERE user_id = @c1;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-02-28', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M2', @m1);
+    SET @ev2 = SCOPE_IDENTITY();
+    -- SMS only, no phone number
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_sms = 1, phone = NULL WHERE user_id = @c1;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-03-31', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M3', @m1);
+    SET @ev3 = SCOPE_IDENTITY();
+    INSERT INTO #nt EXEC [dbo].[sp_ListMyNotifications] @c1, @p1;
+
+    SELECT @n = CASE WHEN (SELECT COUNT(*) FROM [dbo].[NOTIFICATION] WHERE event_id = @ev) = 2
+                          AND EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE event_id = @ev AND channel = 'EMAIL' AND status = 'SIMULATED' AND recipient = @c1_email AND user_id = @c1)
+                          AND EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE event_id = @ev AND channel = 'SMS' AND status = 'SIMULATED' AND recipient = @c1_phone)
+                          AND NOT EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE status = 'SENT') THEN 1 ELSE 0 END,
+           @n2 = (SELECT COUNT(*) FROM [dbo].[NOTIFICATION] WHERE event_id = @ev2),
+           @id = CASE WHEN (SELECT COUNT(*) FROM [dbo].[NOTIFICATION] WHERE event_id = @ev3) = 1
+                           AND EXISTS (SELECT 1 FROM [dbo].[NOTIFICATION] WHERE event_id = @ev3 AND channel = 'SMS' AND status = 'FAILED' AND recipient IS NULL) THEN 1 ELSE 0 END;
+    SET @txt = CASE WHEN (SELECT COUNT(*) FROM #nt WHERE event_id IN (@ev, @ev3)) = 3 AND NOT EXISTS (SELECT 1 FROM #nt WHERE premise_id <> @p1) THEN N'ok' ELSE N'list wrong' END;
+    ROLLBACK TRANSACTION;
+    INSERT INTO #results VALUES ('M1 threshold event, email + SMS on: two SIMULATED notifications with the recipients (none SENT)', CASE WHEN @n = 1 THEN 'PASS' ELSE 'FAIL' END, NULL);
+    INSERT INTO #results VALUES ('M2 threshold event, both channels off: no notification', CASE WHEN @n2 = 0 THEN 'PASS' ELSE 'FAIL' END, N'rows: ' + CAST(@n2 AS NVARCHAR(10)));
+    INSERT INTO #results VALUES ('M3 SMS chosen but no phone number: recorded as FAILED', CASE WHEN @id = 1 THEN 'PASS' ELSE 'FAIL' END, NULL);
+    INSERT INTO #results VALUES ('M4 sp_ListMyNotifications: the consumer sees them for the premise', CASE WHEN @txt = N'ok' THEN 'PASS' ELSE 'FAIL' END, @txt);
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('M1-M4 notifications', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+BEGIN TRY
+    EXEC [dbo].[sp_ListMyNotifications] @c3, @p1;
+    INSERT INTO #results VALUES ('M5 notifications of another consumer''s premise -> 50002', 'FAIL', N'no error');
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('M5 notifications of another consumer''s premise -> 50002', CASE WHEN ERROR_NUMBER() = 50002 THEN 'PASS' ELSE 'FAIL' END, LEFT(ERROR_MESSAGE(), 400)); END CATCH
+-- M6: the right to be forgotten erases the stored recipients (sp_ExecuteGdprRequest step 4). The real flow, rolled back:
+-- consumer7 gets a notification, submits the request, officer1 reviews and pre-approves, officer2 approves, it is executed.
+DECLARE @c7 INT, @m7 INT, @before INT, @after INT, @anon BIT;
+SELECT @c7 = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'consumer7@example.cy';
+SELECT TOP (1) @m7 = m.meter_id FROM [dbo].[METER] AS m JOIN [dbo].[PREMISE] AS p ON p.premise_id = m.premise_id
+WHERE p.user_id = @c7 AND m.removed_at IS NULL;
+CREATE TABLE #gs (gdpr_request_id INT, status VARCHAR(20));
+CREATE TABLE #gx (gdpr_request_id INT, status VARCHAR(20), readings_deleted INT);
+BEGIN TRY
+    BEGIN TRANSACTION;
+    UPDATE [dbo].[USER_ACCOUNT] SET notify_email = 1 WHERE user_id = @c7;
+    INSERT INTO [dbo].[EVENT] (event_timestamp, event_type, severity, description, meter_id)
+    VALUES ('2099-04-30', 'THRESHOLD_EXCEEDED', 'INFO', N'tests.sql M6', @m7);
+    SELECT @before = COUNT(*) FROM [dbo].[NOTIFICATION] WHERE user_id = @c7 AND recipient IS NOT NULL;
+    INSERT INTO #gs EXEC [dbo].[sp_SubmitGdprRequest] @c7, 'RIGHT_TO_BE_FORGOTTEN', NULL;
+    SELECT @gdpr = gdpr_request_id FROM #gs;
+    INSERT INTO #gs EXEC [dbo].[sp_AdvanceGdprRequest] @off1, @gdpr, 'UNDER_REVIEW', NULL;
+    INSERT INTO #gs EXEC [dbo].[sp_AdvanceGdprRequest] @off1, @gdpr, 'PRE_APPROVED', NULL;
+    INSERT INTO #gs EXEC [dbo].[sp_AdvanceGdprRequest] @off2, @gdpr, 'APPROVED', NULL;
+    INSERT INTO #gx EXEC [dbo].[sp_ExecuteGdprRequest] @off1, @gdpr;
+    SELECT @after = COUNT(*) FROM [dbo].[NOTIFICATION] WHERE user_id = @c7 AND recipient IS NOT NULL;
+    SELECT @n = COUNT(*) FROM [dbo].[NOTIFICATION] WHERE user_id = @c7;
+    SELECT @anon = CASE WHEN anonymized_at IS NOT NULL THEN 1 ELSE 0 END FROM [dbo].[USER_ACCOUNT] WHERE user_id = @c7;
+    ROLLBACK TRANSACTION;
+    INSERT INTO #results VALUES ('M6 right to be forgotten executed: the notifications stay, their email / phone is erased',
+           CASE WHEN @before >= 1 AND @after = 0 AND @n >= 1 AND @anon = 1 THEN 'PASS' ELSE 'FAIL' END,
+           N'with recipient before: ' + CAST(@before AS NVARCHAR(10)) + N', after: ' + CAST(@after AS NVARCHAR(10))
+           + N', notifications kept: ' + CAST(@n AS NVARCHAR(10)));
+END TRY
+BEGIN CATCH IF @@TRANCOUNT > 0 ROLLBACK; INSERT INTO #results VALUES ('M6 right to be forgotten erases notification recipients', 'FAIL', LEFT(ERROR_MESSAGE(), 400)); END CATCH
+DROP TABLE #nt, #gs, #gx;
 
 /* ===========================================================================
    SUMMARY

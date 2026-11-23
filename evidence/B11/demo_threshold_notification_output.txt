@@ -1,0 +1,21 @@
+1. consumer8 sets a monthly threshold of 5 kWh on premise 10
+premise_id|monthly_threshold_kwh
+----------|---------------------
+10|5.0000
+
+2. the officer runs the threshold job for the last day of the previous month
+as_of|premises_checked|alerts_raised
+-----|----------------|-------------
+2026-10-31|2|1
+
+3. consumer8 lists the notifications of the premise
+notification_id|created_at|channel|recipient|status|message|event_id|event_type|event_timestamp|premise_id|meter_id
+---------------|----------|-------|---------|------|-------|--------|----------|---------------|----------|--------
+5|2026-11-22 16:20:58|SMS|99400008|SIMULATED|Premise #10: Month-to-date consumption 60.4200 kWh is above the threshold of 5.0000 kWh.|81|THRESHOLD_EXCEEDED|2026-10-31 00:00:00|10|10
+4|2026-11-22 16:20:58|EMAIL|consumer8@example.cy|SIMULATED|Premise #10: Month-to-date consumption 60.4200 kWh is above the threshold of 5.0000 kWh.|81|THRESHOLD_EXCEEDED|2026-10-31 00:00:00|10|10
+
+4. the events of the premise
+event_id|event_timestamp|event_type|severity|description|meter_id
+--------|---------------|----------|--------|-----------|--------
+81|2026-10-31 00:00:00|THRESHOLD_EXCEEDED|INFO|Month-to-date consumption 60.4200 kWh is above the threshold of 5.0000 kWh.|10
+

@@ -183,6 +183,10 @@ BEGIN
             -- 3. no more alerts for this user
             UPDATE [dbo].[PREMISE] SET monthly_threshold_kwh = NULL
              WHERE user_id = @user_id AND monthly_threshold_kwh IS NOT NULL;
+
+            -- 4. the notifications keep that an alert was raised, but not where it went (email / phone)  [B11]
+            UPDATE [dbo].[NOTIFICATION] SET recipient = NULL
+             WHERE user_id = @user_id AND recipient IS NOT NULL;
         END
 
         SET @comment = @type + N': readings deleted ' + CAST(@deleted AS NVARCHAR(12));

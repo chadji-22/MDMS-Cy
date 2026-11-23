@@ -70,7 +70,7 @@ FROM (SELECT CASE o.type WHEN 'U' THEN '1 tables' WHEN 'V' THEN '2 views' WHEN '
         AND (o.type <> 'U' OR o.name IN ('ROLE','ORGANIZATION','USER_ACCOUNT','TECHNICIAN_AVAILABILITY','TRANSFORMER','PREMISE',
              'METER_TYPE','METER','DOCUMENT','OBIS_CODE','TELEMETRY_PACKET','METER_READING','TRANSFORMER_READING','AGGREGATE',
              'TRANSFORMER_CURRENT_STATE','EVENT','SERVICE_TYPE','WORK_ORDER','REMOTE_COMMAND','TARIFF','BILL','PAYMENT',
-             'GDPR_REQUEST','AUDIT_LOG'))
+             'GDPR_REQUEST','AUDIT_LOG','NOTIFICATION'))
         AND (o.type NOT IN ('P', 'FN') OR o.name LIKE 'sp[_]%' AND o.name NOT LIKE '%diagram%' OR o.name LIKE 'fn[_]%' AND o.name NOT LIKE '%diagram%')
      ) AS x
 GROUP BY x.object_kind
@@ -81,6 +81,6 @@ WHERE i.object_id IN (SELECT object_id FROM sys.tables WHERE schema_id = SCHEMA_
   AND i.is_primary_key = 0 AND i.is_unique_constraint = 0
   AND (i.name LIKE 'IX[_]%' OR i.name = 'UQ_BILL_premise_period')
 ORDER BY 1;
--- expected: 24 tables, 8 views, 8 scalar functions, 2 table functions, 23 triggers, 112 procedures, 14 indexes
+-- expected: 25 tables, 8 views, 8 scalar functions, 2 table functions, 24 triggers, 113 procedures, 15 indexes
 PRINT 'build_all.sql finished.';
 GO

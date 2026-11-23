@@ -108,6 +108,12 @@ CREATE NONCLUSTERED INDEX [IX_PAYMENT_bill]
     WHERE bill_id IS NOT NULL;
 GO
 
+-- 13. [§1.2 p.6] the consumer's notification list (sp_ListMyNotifications)   (added 22/11/2026, task B11)
+DROP INDEX IF EXISTS [IX_NOTIFICATION_user] ON [dbo].[NOTIFICATION];
+CREATE NONCLUSTERED INDEX [IX_NOTIFICATION_user]
+    ON [dbo].[NOTIFICATION] (user_id, created_at);
+GO
+
 -- [AR: added to the catalog] the purge of old packets and the delete check of the FK need the packet of a reading
 DROP INDEX IF EXISTS [IX_METER_READING_packet] ON [dbo].[METER_READING];
 CREATE NONCLUSTERED INDEX [IX_METER_READING_packet]

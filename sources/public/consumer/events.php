@@ -4,7 +4,10 @@
  * [project.pdf §1.2 p.5: where power-quality measurements exist the consumer is told about events such as
  *  undervoltage / overvoltage; §1.2 p.6: the consumer sets consumption thresholds and chooses how to be notified
  *  (email or SMS)]
- * Procedures: sp_GetPremiseEvents, sp_SetPremiseThreshold, sp_GetMyProfile, sp_UpdateMyProfile.
+ * Procedures: sp_GetPremiseEvents, sp_SetPremiseThreshold, sp_GetMyProfile, sp_UpdateMyProfile,
+ *             sp_ListMyNotifications (B11: what TR23 recorded for each THRESHOLD_EXCEEDED event).
+ * B11: no mail / SMS gateway is connected, so a notification is recorded with status SIMULATED and shown as such here;
+ * it is never reported as sent.
  */
 declare(strict_types=1);
 require __DIR__ . '/../../src/bootstrap.php';
@@ -51,9 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $events = [];
+$notifications = [];
 if ($premiseId !== null) {
     try {
         $events = Db::rows('sp_GetPremiseEvents', [$premiseId, null, null]);
+        $notifications = Db::rows('sp_ListMyNotifications', [$premiseId]);
     } catch (DbError $e) {
         $error ??= $e;
     }
@@ -116,6 +121,25 @@ if ($error) {
         <td><?= View::h(EVENT_LABELS[$e['event_type']] ?? $e['event_type']) ?></td>
         <td><span class="badge <?= View::h(strtolower((string) $e['severity'])) ?>"><?= View::h($e['severity']) ?></span></td>
         <td><?= View::h($e['description']) ?></td><td><?= (int) $e['meter_id'] ?></td></tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table></div>
+<?php endif; ?>
+
+<h2>Notifications</h2>
+<p class="muted">One line per channel for every threshold alert. This installation has no email or SMS gateway, so
+  delivery is <strong>simulated</strong>: the message, the channel and the address are recorded, but nothing leaves the system.</p>
+<?php if ($notifications === []): ?>
+  <p class="muted">No notifications for this premise.</p>
+<?php else: ?>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Recorded (UTC)</th><th>Channel</th><th>To</th><th>Status</th><th>Message</th><th>Event</th></tr></thead>
+    <tbody>
+    <?php foreach ($notifications as $n): ?>
+      <tr><td class="mono"><?= View::h(C\ts($n['created_at'])) ?></td><td><?= View::h($n['channel']) ?></td>
+        <td><?= View::h($n['recipient'] ?? '—') ?></td>
+        <td><span class="badge <?= $n['status'] === 'FAILED' ? 'critical' : 'warning' ?>"><?= View::h($n['status']) ?></span></td>
+        <td><?= View::h($n['message']) ?></td><td>#<?= (int) $n['event_id'] ?></td></tr>
     <?php endforeach; ?>
     </tbody>
   </table></div>

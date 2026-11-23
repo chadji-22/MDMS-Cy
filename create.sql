@@ -25,7 +25,7 @@
        VEE values live on METER_READING, every other trail in AUDIT_LOG.
      * Information is stored once (no duplicated columns or parallel tables).
 
-   24 tables, 0 junction tables, 1 weak entity (TECHNICIAN_AVAILABILITY).
+   25 tables (NOTIFICATION added 22/11/2026, task B11), 0 junction tables, 1 weak entity (TECHNICIAN_AVAILABILITY).
    All DATETIME2 values are UTC. Constraint names: PK_/UQ_/CK_/DF_/FK_.
    ============================================================================ */
 
@@ -51,7 +51,7 @@ GO
 
 -- v5 tables + every table name used by v3/v4, so an old database is cleaned too
 DROP TABLE IF EXISTS
-    dbo.AUDIT_LOG, dbo.GDPR_REQUEST, dbo.PAYMENT, dbo.BILL, dbo.TARIFF,
+    dbo.NOTIFICATION, dbo.AUDIT_LOG, dbo.GDPR_REQUEST, dbo.PAYMENT, dbo.BILL, dbo.TARIFF,
     dbo.REMOTE_COMMAND, dbo.WORK_ORDER, dbo.SERVICE_TYPE, dbo.EVENT,
     dbo.TRANSFORMER_CURRENT_STATE, dbo.AGGREGATE, dbo.TRANSFORMER_READING,
     dbo.METER_READING, dbo.TELEMETRY_PACKET, dbo.OBIS_CODE, dbo.DOCUMENT,
@@ -425,6 +425,27 @@ CREATE TABLE dbo.EVENT (
 );
 GO
 
+-- NOTIFICATION: one row per channel when a consumer alert is raised (added 22/11/2026, task B11)
+-- [§1.2 p.6: the consumer chooses to be notified by email or SMS]. Written by TR23 when a THRESHOLD_EXCEEDED event
+-- is inserted. No mail / SMS gateway is connected, so delivery is SIMULATED and recorded as such, never as SENT.
+-- recipient is erased (NULL) when the user's right to be forgotten is executed [§1.4 p.6].
+CREATE TABLE dbo.NOTIFICATION (
+    notification_id  BIGINT IDENTITY(1,1)  NOT NULL,
+    created_at       DATETIME2(0)          NOT NULL  CONSTRAINT DF_NOTIFICATION_created_at DEFAULT SYSUTCDATETIME(),
+    channel          VARCHAR(10)           NOT NULL,
+    recipient        VARCHAR(255)          NULL,                  -- email address or phone number at the time
+    status           VARCHAR(12)           NOT NULL,
+    message          NVARCHAR(500)         NULL,
+    event_id         BIGINT                NOT NULL,
+    user_id          INT                   NOT NULL,
+
+    CONSTRAINT PK_NOTIFICATION PRIMARY KEY (notification_id),
+    CONSTRAINT UQ_NOTIFICATION_event_channel UNIQUE (event_id, channel),       -- one per event and channel
+    CONSTRAINT CK_NOTIFICATION_channel CHECK (channel IN ('EMAIL', 'SMS')),
+    CONSTRAINT CK_NOTIFICATION_status CHECK (status IN ('SIMULATED', 'SENT', 'FAILED'))
+);
+GO
+
 -- SERVICE_TYPE: chargeable services defined by officers (e.g. historical data access, meter check)
 -- [Κοινές αρχές p.5 "τύπους υπηρεσιών"; §1.2 p.6; §1.3 p.6 MDMS-Cy fee]
 CREATE TABLE dbo.SERVICE_TYPE (
@@ -675,6 +696,9 @@ ALTER TABLE dbo.GDPR_REQUEST ADD
     CONSTRAINT FK_GDPR_REQUEST_meter FOREIGN KEY (meter_id) REFERENCES dbo.METER(meter_id);
 ALTER TABLE dbo.AUDIT_LOG ADD
     CONSTRAINT FK_AUDIT_LOG_user FOREIGN KEY (user_id) REFERENCES dbo.USER_ACCOUNT(user_id);
+ALTER TABLE dbo.NOTIFICATION ADD
+    CONSTRAINT FK_NOTIFICATION_event FOREIGN KEY (event_id) REFERENCES dbo.EVENT(event_id) ON DELETE CASCADE,   -- exists only for its event
+    CONSTRAINT FK_NOTIFICATION_user  FOREIGN KEY (user_id)  REFERENCES dbo.USER_ACCOUNT(user_id);
 GO
 
 /* ============================================================================
