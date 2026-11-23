@@ -537,5 +537,44 @@ BEGIN
 END;
 GO
 
-PRINT 'procedures_02_consumer.sql: 12 procedures created.';
+/* ---------------------------------------------------------------------------
+   Look-ups for the consumer screens (added 22/11/2026, task B3).
+   The web application runs as mdms_php, which may only EXECUTE procedures (security.sql), so the ids that
+   sp_PayServiceFee and sp_AddPremise / sp_ChangeSupplier take must come from a procedure too.
+   Read-only, no personal data.
+   --------------------------------------------------------------------------- */
+
+-- [project.pdf §1.3 p.6: the consumer pays the MDMS-Cy fee of a service; Κοινές αρχές p.5: officers define the service types]
+-- The active service types with their fee (the id is what sp_PayServiceFee takes).
+CREATE OR ALTER PROCEDURE [dbo].[sp_ListServiceTypes]
+    @actor_user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'CONSUMER,SYSTEM_OFFICER,SYSTEM_ADMIN';
+
+    SELECT service_type_id, service_name, fee
+    FROM [dbo].[SERVICE_TYPE]
+    WHERE is_active = 1
+    ORDER BY service_name;
+END;
+GO
+
+-- [project.pdf §1.1 p.5, §1.3 p.6: the premise is linked to its supplier; §II.Ε p.3-4 suppliers]
+-- The supplier organizations (the id is what sp_AddPremise / sp_UpdatePremise / sp_ChangeSupplier take).
+CREATE OR ALTER PROCEDURE [dbo].[sp_ListSuppliers]
+    @actor_user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'CONSUMER,SYSTEM_OFFICER,SYSTEM_ADMIN';
+
+    SELECT organization_id AS supplier_org_id, name AS supplier_name
+    FROM [dbo].[ORGANIZATION]
+    WHERE org_type = 'SUPPLIER'
+    ORDER BY name;
+END;
+GO
+
+PRINT 'procedures_02_consumer.sql: 14 procedures created.';
 GO

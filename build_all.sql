@@ -81,6 +81,6 @@ WHERE i.object_id IN (SELECT object_id FROM sys.tables WHERE schema_id = SCHEMA_
   AND i.is_primary_key = 0 AND i.is_unique_constraint = 0
   AND (i.name LIKE 'IX[_]%' OR i.name = 'UQ_BILL_premise_period')
 ORDER BY 1;
--- expected: 24 tables, 8 views, 8 scalar functions, 2 table functions, 23 triggers, 110 procedures, 14 indexes
+-- expected: 24 tables, 8 views, 8 scalar functions, 2 table functions, 23 triggers, 112 procedures, 14 indexes
 PRINT 'build_all.sql finished.';
 GO
