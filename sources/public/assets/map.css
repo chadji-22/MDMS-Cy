@@ -1,0 +1,4 @@
+#map { height: 34rem; max-height: 75vh; border: 1px solid var(--line); border-radius: 8px; }
+#map .leaflet-popup-content table { width: auto; }
+#map .leaflet-popup-content th, #map .leaflet-popup-content td { padding: .15rem .5rem .15rem 0; border: 0; background: none; }
+#map .leaflet-popup-content h3 { margin: 0 0 .3rem; font-size: 1rem; }

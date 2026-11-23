@@ -8,7 +8,7 @@ declare(strict_types=1);
  * the same under Apache, XAMPP or `php -S`.
  */
 
-foreach (['Config', 'DbError', 'Errors', 'Db', 'Auth', 'Csrf', 'Menu', 'View'] as $class) {
+foreach (['Config', 'DbError', 'Errors', 'Db', 'Auth', 'Csrf', 'Menu', 'View', 'Validate', 'Upload', 'Ui', 'Throttle'] as $class) {
     require_once __DIR__ . '/' . $class . '.php';
 }
 

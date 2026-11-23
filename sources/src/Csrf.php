@@ -25,7 +25,7 @@ final class Csrf
     /** Ends the request with 403 unless the posted token is the session's token. */
     public static function verify(): void
     {
-        $sent = (string) ($_POST['_csrf'] ?? '');
+        $sent = is_string($_POST['_csrf'] ?? null) ? $_POST['_csrf'] : '';
         if ($sent === '' || empty($_SESSION['csrf']) || !hash_equals((string) $_SESSION['csrf'], $sent)) {
             View::fail(403, 'Form expired', 'The form is no longer valid. Go back, reload the page and try again.');
         }

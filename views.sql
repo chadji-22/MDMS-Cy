@@ -32,7 +32,8 @@ CREATE OR ALTER VIEW [dbo].[view_ORGANIZATION_USER]
 WITH ENCRYPTION
 AS
 SELECT u.user_id, u.email, u.full_name, u.role_code, u.organization_id,
-       o.name AS organization_name, o.org_type
+       o.name AS organization_name, o.org_type,
+       u.phone                          -- sp_UpdateMyProfile overwrites it, so the profile page must read it first
 FROM [dbo].[USER_ACCOUNT] AS u
 JOIN [dbo].[ORGANIZATION] AS o ON o.organization_id = u.organization_id;
 GO

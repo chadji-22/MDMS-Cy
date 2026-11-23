@@ -3,3 +3,5 @@ src/config.local.php
 *.log
 /var/meter-certificates/
 /var/technician-documents/
+/var/technician-photos/
+/var/throttle/

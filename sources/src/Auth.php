@@ -49,7 +49,8 @@ final class Auth
     public static function login(string $email, string $password): array
     {
         $email = trim($email);
-        if ($email === '' || $password === '' || strlen($email) > 255 || strlen($password) > 128) {
+        if ($email === '' || $password === '' || strlen($email) > 255
+            || (Validate::utf16Length($password) ?? 129) > 128) {
             throw new DbError(DbError::LOGIN, 50006, 401, 'Login failed.');
         }
         // no actor yet: the user is not known until the password is right

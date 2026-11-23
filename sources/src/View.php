@@ -41,6 +41,9 @@ final class View
         header('Content-Security-Policy: ' . implode('; ', $line));
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+            header('Strict-Transport-Security: max-age=31536000');
+        }
         header('Referrer-Policy: same-origin');
         header('Cache-Control: no-store');
     }

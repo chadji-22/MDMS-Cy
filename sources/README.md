@@ -16,7 +16,7 @@ dev/Containerfile  development image (PHP + Apache + ODBC Driver 18 + sqlsrv)
 tests/             errors_test.php, db_integration.php, smoke.sh
 ```
 
-Area owners (see the checklist): consumer = B3 · market = B4 · technician = B5 · staff = B6 · dso = B7 · tso = B8.
+Area owners (see the checklist): account (+ `public/register*.php`) = B2 · consumer = B3 · market = B4 · technician = B5 · staff = B6 · dso = B7 · tso = B8.
 Each person edits only their own `public/<area>/` and `areas/<area>/menu.php`, so nobody collides.
 
 ## Run it
@@ -46,6 +46,13 @@ Point the document root at `sources/public`, and put the settings in `src/config
 
 **C. Without Apache**: `cd sources && php -S 127.0.0.1:8080 -t public` (needs `sqlsrv` in your PHP).
 
+On Windows, `sources/dev/run-web.ps1 -Database <db>` does this: it asks for the password and keeps it only in that process.
+
+PHP needs the `fileinfo` extension, and `display_startup_errors` must be off (the value in `php.ini-production`):
+otherwise an upload larger than `post_max_size` prints a warning before the page and breaks its headers.
+
+Uploads go to `sources/var/<folder>/` (git-ignored, outside the web root). `Upload` creates the folder if PHP may write there.
+
 The database must be built first (`build_all.sql`, which runs `security.sql` and creates the user `mdms_php`).
 
 For technician certificate uploads, create `sources/var/meter-certificates` and make it writable by PHP.
@@ -67,6 +74,11 @@ podman exec -w /var/www/html mdms-web php tests/db_integration.php     # real da
 BASE_URL=http://localhost:8080 bash tests/smoke.sh                     # login, menus, 403s, CSRF, cookies
 ```
 `db_integration.php` expects `tests.sql` to have been run (it uses the meter `SN-TEST-0001`).
+`BASE_URL=... bash tests/accounts.sh` tests B2 (registration, profile, password, technician documents). It leaves one
+consumer and one technician behind, so run it on your own database.
+`php tests/audit_pages.php` (no database needed) checks every page against the rules below and every procedure call against
+the SQL files. `BASE_URL=... bash tests/market_dso_tso.sh` tests B4, B7, B8, B9 and B10; `WRITE=1` adds writes, for your own
+database only.
 Each login appends an audit row (`LOGIN_OK`): do not run the smoke test in a loop on the shared database.
 
 ## How to add a page (recipe)
@@ -108,7 +120,8 @@ View::footer();
 7. **Errors**: catch `DbError`; `getUserMessage()` is safe to show. Unknown/technical errors are already reduced to a
    reference id (the detail is in the server log). `category()` is one of `not_found, permission, state, input,
    duplicate, login, busy, history, guard, server`.
-8. Inline scripts/styles are blocked by the Content-Security-Policy: use files under `public/assets/`. A page that needs an
+8. Check form values with `Validate::...` and files with `Upload::...` (random name, type read from the content).
+9. Inline scripts/styles are blocked by the Content-Security-Policy: use files under `public/assets/`. A page that needs an
    external source (e.g. Leaflet map tiles) adds it: `View::$cspExtra['img-src'][] = 'https://tile.openstreetmap.org';`
    before `View::header()`.
 
@@ -128,4 +141,4 @@ View::footer();
 | Information leak | unknown SQL errors show a reference id; the text goes to the server log only |
 | Clickjacking / sniffing | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, `nosniff` |
 
-Not done yet (for B10): login throttling, `Secure`-only cookies behind HTTPS in production, an audit of every page against rules 1-8.
+B10 added input checks, throttling and an audit of every page: see `SECURITY_NOTES.md`.

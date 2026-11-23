@@ -420,7 +420,7 @@ The per-role views are the "interfaces" the instructor described over the single
 |---|---|---|---|
 | `view_CONSUMER` | user_id, email, full_name, phone, iban, notify_email, notify_sms, is_active, created_at, anonymized_at | USER_ACCOUNT where role_code = 'CONSUMER' | §1.1 p.5 |
 | `view_TECHNICIAN` | user_id, email, full_name, phone, birth_date, photo_path, specialty, approval_status, is_active | role_code = 'TECHNICIAN' | §2.1 p.7 |
-| `view_ORGANIZATION_USER` | user_id, email, full_name, role_code, organization_id, organization_name, org_type | USER_ACCOUNT JOIN ORGANIZATION | §5.1 p.10 |
+| `view_ORGANIZATION_USER` | user_id, email, full_name, role_code, organization_id, organization_name, org_type, phone | USER_ACCOUNT JOIN ORGANIZATION | §5.1 p.10 |
 | `view_STAFF` | user_id, email, full_name, phone, role_code, is_active | role_code IN ('SYSTEM_ADMIN','SYSTEM_OFFICER','DSO','TSO') | Κοινές αρχές p.5 |
 | `view_PREMISE_METER` | premise columns + current meter (meter_id, serial_number, status, transformer_id) + supplier and aggregator names | PREMISE LEFT JOIN METER (removed_at IS NULL) LEFT JOIN ORGANIZATION ×2 | §1.1 p.5, §2.3 p.8 |
 | `view_METER_LOCATION` | meter_id, serial_number, status, latitude, longitude, premise address, transformer name, level-1 rectangle | For Leaflet maps (+10 % bonus, project.pdf p.2) and for technicians' visits (§2.2 p.7) | §2.2 p.7, §4.1 p.9 |
@@ -500,6 +500,7 @@ Each table below is one file. "Actor" lists the roles passed to `sp__AssertRole`
 | `sp_ListUsers` | SYSTEM_ADMIN, SYSTEM_OFFICER | `@role_code = NULL, @approval_status = NULL, @search = NULL, @page, @page_size` | Paged list without hash or salt | Κοινές αρχές p.5 |
 | `sp_AddTechnicianDocument` | TECHNICIAN_ANY (self) | `@doc_type, @doc_code, @issue_date, @expiry_date, @file_path` | doc_type ∈ the 3 technician types; expiry ≥ issue; PENDING | §2.1 p.7; UC-09 |
 | `sp_ResubmitDocument` | TECHNICIAN_ANY (owner) | `@document_id, @file_path, @issue_date, @expiry_date` | Only when REJECTED → PENDING | §2.1 p.7 |
+| `sp_ListMyDocuments` | TECHNICIAN_ANY (self) | — | The technician's own documents with status and `is_current` (not expired); added with the web pages (B2) | §2.1 p.7; UC-09 |
 | `sp_DecideDocument` | SYSTEM_OFFICER | `@document_id, @decision ('APPROVED'/'REJECTED'), @comment` | Guarded UPDATE `WHERE approval_status = 'PENDING'`; the comment goes into AUDIT_LOG through `sp__Log` | Κοινές αρχές p.5; T-05; UC-09, UC-10 |
 | `sp_ListPendingTechnicians` | SYSTEM_OFFICER | `@page, @page_size` | PENDING technicians with a count of their documents per status | §2.1 p.7 |
 | `sp_DecideTechnician` | SYSTEM_OFFICER | `@technician_user_id, @decision ('APPROVED','REJECTED','SUSPENDED'), @comment` | APPROVED requires all 3 technician documents APPROVED and not expired (50004); follows the state machine | §2.1 p.7; UC-09 |

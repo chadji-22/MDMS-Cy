@@ -472,6 +472,24 @@ BEGIN
 END;
 GO
 
+-- [project.pdf §2.1 p.7: the technician follows the documents they sent; UC-09]
+-- file_path is for the application only (it finds the stored file); the page does not show it.
+CREATE OR ALTER PROCEDURE [dbo].[sp_ListMyDocuments]
+    @actor_user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    EXEC [dbo].[sp__AssertRole] @actor_user_id, N'TECHNICIAN_ANY';
+
+    SELECT document_id, doc_type, doc_code, issue_date, expiry_date, file_path, approval_status,
+           CAST(CASE WHEN expiry_date IS NULL OR expiry_date >= CAST(SYSUTCDATETIME() AS DATE)
+                     THEN 1 ELSE 0 END AS BIT) AS is_current
+    FROM [dbo].[DOCUMENT]
+    WHERE user_id = @actor_user_id
+    ORDER BY doc_type, document_id;
+END;
+GO
+
 -- [project.pdf Κοινές αρχές p.5: the officer checks documents and records the result; UC-09, UC-10]
 CREATE OR ALTER PROCEDURE [dbo].[sp_DecideDocument]
     @actor_user_id INT,
@@ -760,5 +778,5 @@ BEGIN
 END;
 GO
 
-PRINT 'procedures_01_accounts.sql: 23 procedures created.';
+PRINT 'procedures_01_accounts.sql: 24 procedures created.';
 GO

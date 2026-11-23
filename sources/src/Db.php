@@ -25,6 +25,12 @@ final class Db
         return [$value, SQLSRV_PARAM_IN, SQLSRV_PHPTYPE_STRING('UTF-8'), SQLSRV_SQLTYPE_NVARCHAR((string) $length)];
     }
 
+    /** Typed parameter: a PHP string sent as NVARCHAR(MAX), for long JSON. */
+    public static function nvMax(?string $value): array
+    {
+        return [$value, SQLSRV_PARAM_IN, SQLSRV_PHPTYPE_STRING('UTF-8'), SQLSRV_SQLTYPE_NVARCHAR('max')];
+    }
+
     /** @return resource */
     private static function conn()
     {

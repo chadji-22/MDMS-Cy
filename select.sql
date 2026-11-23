@@ -131,6 +131,7 @@ BEGIN
     EXEC [dbo].[sp_ResubmitDocument] @tech, @doc, '/uploads/tech/id_demo_clear.pdf', '2021-01-01', '2031-01-01';
     EXEC [dbo].[sp_DecideTechnician] @off1, @tech, 'REJECTED', N'Λείπουν η άδεια και το πιστοποιητικό εκπαίδευσης';
     EXEC [dbo].[sp_ResubmitTechnician] @tech;
+    EXEC [dbo].[sp_ListMyDocuments] @tech;
 END
 SELECT @tech = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'demo.tech@mdms.cy';
 EXEC [dbo].[sp_SetAvailability] @tech, @visit, '09:00', '12:00', N'Πάφος';
