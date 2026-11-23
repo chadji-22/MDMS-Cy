@@ -1,0 +1,28 @@
+PART 1: 10000 calls in 86 s.
+meter_reading_rows|meters|aggregate_rows|data_from|data_to
+------------------|------|--------------|---------|-------
+16127|25|5929|2026-10-27|2026-11-22
+
+proc_name|calls|avg_ms|p50_ms|p95_ms|max_ms|failed_calls|target_p95_under_2s
+---------|-----|------|------|------|------|------------|-------------------
+ALL|10000|7.93|5.49|22.71|199.12|0|MET
+sp_GetDayAheadAggregates|500|28.22|27.61|37.31|53.88|0|MET
+sp_GetPremiseAggregates|1000|3.84|4.19|5.41|9.64|0|MET
+sp_GetPremiseReadings|3000|8.02|4.24|18.00|199.12|0|MET
+sp_GetTransformerState|1000|6.39|6.31|8.48|13.26|0|MET
+sp_IngestTelemetryPacket|1000|11.49|11.06|13.96|84.96|0|MET
+sp_ListMyWorkOrders|1000|3.60|3.33|4.81|50.55|0|MET
+sp_ListSupplierBills|500|7.52|7.33|10.14|55.49|0|MET
+sp_Login|1000|4.49|4.21|6.34|12.20|0|MET
+sp_PayBill|500|8.33|8.08|10.22|75.21|0|MET
+sp_SubmitServiceRequest|500|6.84|6.36|9.03|11.36|0|MET
+
+proc_name|failure|calls
+---------|-------|-----
+
+job|ms
+---|--
+sp_RefreshTransformerState (whole tree)|193.84
+
+PART 3 skipped (run_index_test = 0).
+perf.sql finished.
