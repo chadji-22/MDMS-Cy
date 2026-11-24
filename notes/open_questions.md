@@ -32,7 +32,7 @@ Format: what I tried · what failed · options. Recommended option first.
 - Options:
   1. **New table `NOTIFICATION` (outbox) + `sp_DispatchNotifications` (officer/DSO job, or run after finalize) +
      `sp_ListMyNotifications` (consumer).** A real record, status `SIMULATED`. Schema change: touches `create.sql`, `drop.sql`,
-     the expected counts in `build_all.sql` (24 → 25 tables, 110 → 112 procedures), `tests.sql` (new test), Eliana's data
+     the expected counts in `build_all.sql` (24 → 25 tables, 110 → 113 procedures), `tests.sql` (new test), Eliana's data
      dictionary (D6 "24 tables"), the `.dat` list / `bulk_import.sql` (C4). Done idempotently, tested twice from fresh.
   2. No DB change: the events page derives "SIMULATED · EMAIL · recipient · event #" from `sp_GetPremiseEvents` +
      `sp_GetMyProfile`. Not a record: it changes after the fact if the preferences change.

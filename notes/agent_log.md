@@ -4,14 +4,14 @@
 
 ### Repository
 - Clone `phaseB/MDMS-Cy-io`, branch `io`, clean, up to date with `origin/io` after `git fetch --all`.
-- **Nothing new on any remote branch since 18/11.** Last commits: `c236648` (merge of B1), `4b59de0` (B1 framework),
+- **Nothing new on `io` or `main` since 18/11** (the io clone's refs for `eliana` and `Kostis` were stale, see below). Last commits: `c236648` (merge of B1), `4b59de0` (B1 framework),
   `8deddca` (status/checklist), `b8d46cb` (merge of Kostis's `fn_Floor15` fix), `a871ff2` (Eliana's telemetry tests, ported).
-  `origin/eliana` = `a871ff2`, `origin/Kostis` = `a1ebdfe`, `origin/main` = `bf86c83`.
-- **Mismatch with the brief:** the brief says B5, B6, C4, C5, C6 are done. None of them is on any remote branch
+  `origin/eliana` = `a871ff2`, `origin/Kostis` = `a1ebdfe`, `origin/main` = `bf86c83` (stale refs of the io clone; on GitHub 23/11: `eliana` = `188505e`, `Kostis` = `c236648`, now `5ca548a`).
+- **Mismatch with the brief:** the brief says B5, B6, C4, C5, C6 are done. None of them is on `io` (checked in the io clone; B5, B6 and C4 are on GitHub branch `eliana`, see correction below)
   (no technician/staff pages under `sources/public/`, `data/` holds only `.gitkeep`, no concurrency screenshots, no C6 log).
   `docx/` holds only `.gitkeep`, so **D1 (manual skeleton) does not exist yet** → D2 will be written as standalone files
   `docx/src/manual_consumer.md` and `docx/src/manual_supplier.md`, as the brief allows.
-  If Eliana's work exists unpushed, it must be pushed before E1 moves files.
+  Correction 23/11: Eliana's B5, B6 and C4 are on GitHub branch `eliana` (188505e, 18/11), not merged into io; C5/C6 evidence is on no branch.
 - The checklist in the repo (`PROJECT_STATUS_AND_CHECKLIST.md`) has no task ticked, including B1.
 
 ### Specification (project.pdf, re-read)
@@ -101,15 +101,15 @@ use the course DB `ichara09` with small data (no local server) · B11 = new NOTI
 add sp_ListServiceTypes + sp_ListSuppliers · C1 size: "test it" (sized by measurement for the 27 MB cap).
 
 ```
-Done:      B3  consumer pages, 8 pages + request detail            13e99af, ee1fefd   (branch ioannis/B3-consumer-pages)
+Done:      B3  consumer pages, 8 pages + request detail            05272bd, 31fc6cc   (branch ioannis/B3-consumer-pages)
            B11 NOTIFICATION + TR23 + sp_ListMyNotifications, SIMULATED status, shown on events page,
                GDPR erases recipients                               b1b5bd8           (ioannis/B11-notifications, on top of B3)
            C1  8 consumers x 2 days on ichara09, pipeline OK, METER_READING 16,127
            C2  10,000 calls, 0 failed, p95 22.71 ms (all 10 procedures met; perf.sql PART 1 extended)
            C3  IX1 with/without, actual plans: Scan->Seek, reads 391->7, cost 0.427->0.078
-                                                                    9da95d5           (ioannis/C-perf)
+                                                                    9143daa           (ioannis/C-perf)
            D2  docx/src/manual_consumer.md, manual_supplier.md (B4 placeholders); D11 docx/src/indexes_D11.md;
-               built to .docx with pandoc 3.5 (container)           1d76fdf           (ioannis/D2-D11-docs)
+               built to .docx with pandoc 3.5 (container)           85b0397           (ioannis/D2-D11-docs)
 Evidence:  evidence/B3 (11 screenshots, consumer_pages_run.txt 61/61), evidence/B11, evidence/C1, evidence/C2, evidence/C3
 Tests:     build_all x2 NOT RUN (rebuilding the shared DB was blocked by the permission system; needs Ioannis)
            tests.sql 82/82 (73 old + L1-L3 + M1-M6), on ichara09 after ADDITIVE deploys (CREATE OR ALTER / IF NOT EXISTS)
@@ -117,8 +117,8 @@ Tests:     build_all x2 NOT RUN (rebuilding the shared DB was blocked by the per
            sources/tests/consumer_pages.sh 53/53 read-only, 61/61 with WRITE=1 (before the B11 checks were added)
 Blocked:   1. build_all.sql x2 on a fresh DB (brief §1) before merging B3/B11 into io: needs either the go-ahead to
               rebuild ichara09 (wipes it back to import.sql; C1 set must then be regenerated, ~6 s) or a local server.
-           2. Merging into io / pushing to GitHub not done: waiting for 1 and for Ioannis.
-           3. E1 not started: after merges, and after Eliana pushes B5/B6/C4/C5/C6 (none on any remote branch).
+           2. Pushed to GitHub on 23/11 (four ioannis/* branches); merging into io is not done: waiting for 1 and for Ioannis.
+           3. E1 not started: after merges, and after Eliana's C5/C6 evidence is pushed (B5/B6/C4 are on GitHub branch `eliana`, not yet merged into io).
 Next:      after the go-ahead: rebuild ×2 + all tests on the B11 head, merge B3 -> B11 -> C-perf -> docs into io, push;
            then E1 on its own branch (tell the team first); E3 checklist after E2.
 ```
@@ -150,12 +150,12 @@ Next:      after the go-ahead: rebuild ×2 + all tests on the B11 head, merge B3
 ## 2026-11-22 19:00 — follow-ups after review
 ```
 Done:      B3  pages re-checked on the large set: read-only run 59/59 incl. 8 checks as syn2_000004 (current month
-               free with real rows, no purchase); 2 screenshots                      0cf6ed7 (B3 branch)
+               free with real rows, no purchase); 2 screenshots                      4b60b45 (B3 branch)
            B11 rebased onto B3; M6 replaced by the real GDPR flow (submit, review, pre-approve, approve by a 2nd officer,
                execute) in a rolled-back transaction; mutation check: FAILS with io's sp_ExecuteGdprRequest, PASSES with B11's
-                                                                                      9155eaf (B11 branch)
+                                                                                      0f7bc58 (B11 branch)
            C1  tests.sql H3 failed after C1: it compared every root with ALL meters; each generator batch builds its own
-               tree. Fixed per root (fn_TransformerSubtree)                           b0d5035 on C-perf, cherry-picked to B11
+               tree. Fixed per root (fn_TransformerSubtree)                           5b89d64 on C-perf, same change as cb93163 on B11
            C2  report states that readings/totals were timed as the DSO (consumer purchase check not in the timings)
 Tests:     tests.sql 82/82 on the B11 head, with the C1 data present; io's tests.sql + H3 fix: 73/73
 Blocked:   unchanged (Q5: fresh build_all x2; no merge, no push)
