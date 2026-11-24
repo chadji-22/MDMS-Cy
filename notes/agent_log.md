@@ -160,3 +160,33 @@ Done:      B3  pages re-checked on the large set: read-only run 59/59 incl. 8 ch
 Tests:     tests.sql 82/82 on the B11 head, with the C1 data present; io's tests.sql + H3 fix: 73/73
 Blocked:   unchanged (Q5: fresh build_all x2; no merge, no push)
 ```
+
+## 2026-11-24 22:00 — integration proof (brief v2, step 1)
+```
+Done:      1.1-1.6 on branch ioannis/integration (origin/Kostis 5ca548a + notes). Ancestry: io, eliana, the four
+           ioannis/* code branches are all ancestors of Kostis; ioannis/notes is not (docs only), merged separately.
+           SQL review of `git diff origin/io..origin/Kostis -- '*.sql'`: 8 new procedures (118 = 110 + 8, none removed,
+           no signature change), view_ORGANIZATION_USER gains u.phone, no DROP/ALTER of existing tables, no GRANT/DENY
+           change, security.sql untouched; dynamic SQL only in bulk_import.sql (path checked, names via QUOTENAME).
+Evidence:  evidence/C6-integration/ (README.md has the table)
+Tests:     build_all x2 OK (25 tables, 24 triggers, 118 procedures, 15 indexes) · tests.sql 82/82 · telemetry 26/26 ·
+           select.sql OK (UC-01..20) · web: smoke 23/23, consumer 63/63, accounts 47/47, market 152/152 (+write 160/160) ·
+           pages 531/531 requests OK (59 pages x 8 roles + anonymous)
+Perf:      not part of this step (300 ms check comes after io is updated)
+Advisor:   consulted before step 1.8 (see "Advisor consultation 24/11")
+Issues for K/E: notes/integration_issues.md
+Blocked:   nothing
+Next:      advisor review, then fast-forward io (step 1.8); then the 300 ms check
+```
+Environment notes: the Containerfile in sources/dev builds only the PHP image; SQL Server runs from
+`mcr.microsoft.com/mssql/server:2022-latest`. Podman on WSL cannot change VM memory (it uses the WSL default). Web and SQL
+containers must share a Podman network (host.containers.internal:11433 timed out). All local containers are named `mdms-sql`
+and `mdms-web-local`; the older `mdms-web` (points at ichara09) was not started.
+
+### Advisor consultation 24/11 (before step 1.8)
+Question: is the proof enough to fast-forward io? Advice: not yet. The crawler reports a 200 with a caught-error alert box as OK.
+Do: read the app error log; capture alert text in the crawler; open the detail pages (technician job / install-meter /
+certificates, staff work-order / meter-review / technician-review / gdpr / remote-commands) with real ids; state in the README
+that B5/B6 POST flows are not covered; check that the code under test equals what is published; no force anywhere.
+Done: error log 0 entries; crawler now lists alerts (one benign: consumer/request.php without id); crawl_detail.py 11/11 OK
+(install-meter first failed on a COMPLETED job, correct refusal, retested with the ACCEPTED job 13); README corrected.

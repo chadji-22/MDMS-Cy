@@ -2,7 +2,7 @@
 
 **Answered 22/11:** Q1 → use the course DB with small data · Q2 → NOTIFICATION table (done, B11) · Q3 → two read procedures (done, B3) · Q4 → sized by measurement (done, C1).
 
-## Q5 (open) — the fresh-database proof and the merges
+## Q5 (answered 24/11: option 2, local SQL Server 2022 in Podman; proof in evidence/C6-integration/) — the fresh-database proof and the merges
 - `build_all.sql` twice + all tests on a fresh database is required before merging SQL changes into `io` (brief §1). The only database is the shared `ichara09`; rebuilding it was blocked by the permission system because it drops every table.
 - Important for option 3: the edits to `create.sql`, `drop.sql` and `build_all.sql` (B11) have **never been executed as
   written**. The shared DB received the B11 objects from a separate scratch script with its own `ALTER TABLE`. Only a

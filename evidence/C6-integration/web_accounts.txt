@@ -1,0 +1,49 @@
+PASS the login page links to both registrations
+PASS registration without a CSRF token is refused
+PASS bad input: 422 and one message per field
+PASS a password is never sent back to the browser
+PASS different repeated password is refused
+PASS a password the login would refuse (> 128 characters) is refused at registration
+PASS array parameters are handled (422, no server error)
+PASS a valid consumer is created (303 to the login page)
+PASS ...and the success message is shown
+PASS the same email again: 409 duplicate
+PASS the new consumer logs in with a Greek password
+PASS a logged-in user is sent away from the registration
+PASS profile: own email and IBAN (spaces removed, upper case)
+PASS profile: the name is escaped (no script tag)
+PASS profile: no password or hash in the page
+PASS profile: notification choices kept (email yes, SMS no)
+PASS profile saved (303)
+PASS profile: new values and header name shown, notification choices swapped
+PASS profile: bad input is 422
+PASS the documents page is refused to a consumer (403)
+PASS the photo page is refused to a consumer (403)
+PASS wrong current password: 422 and a clear message
+PASS the same password again is refused
+PASS password changed (303) with a new session id
+PASS ...the session goes on
+PASS the old password no longer works
+PASS the new password works
+PASS a PHP file named .png is refused as a photo
+PASS a date that does not exist is refused
+PASS under 18: the message of the database is shown
+PASS a valid technician is registered (303)
+PASS the pending technician can log in
+PASS home says the registration is PENDING
+PASS the own photo is served as an image
+PASS all three documents are missing
+PASS expiry before issue is refused
+PASS a file that is not a PDF is refused
+PASS a file over 2 MB is refused
+PASS a meter certificate type is refused
+PASS identity card uploaded (303)
+PASS the same document number again: 409
+PASS installer licence without expiry uploaded (303)
+PASS training certificate uploaded (303)
+PASS three PENDING documents, nothing missing, no file path shown
+PASS another person's document cannot be replaced
+PASS apply again is refused while PENDING (409)
+PASS no session: the profile redirects to the login
+
+accounts.sh: all passed

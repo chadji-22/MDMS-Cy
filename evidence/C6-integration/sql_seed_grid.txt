@@ -1,0 +1,13 @@
+transformer_id
+--------------
+17
+
+transformer_id
+--------------
+18
+
+transformer_id name level capacity_kva parent_name min_lat min_lon max_lat max_lon
+-------------- ---- ----- ------------ ----------- ------- ------- ------- -------
+17 DEMO_TX_L2 2 2000.00 TX-L3 Nicosia 35.120000 33.320000 35.220000 33.450000
+18 DEMO_TX_L1 1 500.00 DEMO_TX_L2 35.140000 33.340000 35.180000 33.400000
+

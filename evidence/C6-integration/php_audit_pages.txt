@@ -1,0 +1,18 @@
+review call    public/staff/accounts.php:55  sp_CreateStaffUser: parameters are not a literal list, check by hand
+review call    public/staff/accounts.php:64  sp_CreateOrganizationUser: parameters are not a literal list, check by hand
+review escape  public/consumer/index.php:69  $id
+review escape  public/consumer/index.php:79  $id
+review escape  public/consumer/index.php:80  $id
+review escape  public/consumer/index.php:81  $id
+review escape  public/consumer/request.php:57  $id
+review escape  public/consumer/requests.php:72  $id
+review escape  public/consumer/requests.php:78  $id
+review escape  public/market/index.php:33  (int) array_sum(array_column($rows, $name))
+review escape  public/staff/catalogs.php:154  (string) ($values[$field] ?? '') === (string) $option ? ' selected' : ''
+review escape  public/staff/catalogs.php:160  is_int($options) ? 'maxlength="' . $options . '"' : ''
+review escape  public/staff/catalogs.php:161  $required
+review escape  public/staff/technicians.php:50  $page - 1
+review escape  public/staff/technicians.php:51  $page + 1
+
+116 procedure calls checked, 0 errors, 15 to review.
+Procedures no page calls (18): sp_AcknowledgeCommand, sp_BootstrapAdmin, sp_CancelBill, sp_ChangeSupplier, sp_CheckConsumptionThresholds, sp_CreateWorkOrder, sp_ExecuteGdprRequest, sp_GenerateSyntheticData, sp_ListUsers, sp_MarkOverdueBills, sp_PurgeExpiredReadings, sp_ReplaceMeter, sp_RequestRemoteCommand, sp_SetMeterStatus, sp_SetPremiseAggregator, sp_SetUserActive, sp_UpdateMeterTechnicalData, sp_UpdatePremise
