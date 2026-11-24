@@ -26,9 +26,14 @@ DECLARE @t_end DATETIME2(0) = DATEADD(MINUTE, -15, DATEADD(DAY, 2, @t0));   -- l
 DECLARE @month_start DATE = DATEFROMPARTS(YEAR(@d2), MONTH(@d2), 1);
 DECLARE @bill_year INT = YEAR(@d2), @bill_month INT = MONTH(@d2);
 
+-- Course databases cap the transaction log at 12-20 MB (SIMPLE recovery). The log is reused only after a
+-- checkpoint, so the import checkpoints at every step and every loop round. It changes no data; a login
+-- without the right to checkpoint simply skips it.
+
 /* ---------------------------------------------------------------------------
    1. Administrator and staff   [Κοινές αρχές p.5]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @admin INT, @off1 INT, @off2 INT, @dso INT, @tso INT;
 EXEC [dbo].[sp_BootstrapAdmin] 'admin@mdms.cy', @pw, N'Διαχειριστής Συστήματος';
 SELECT @admin = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'admin@mdms.cy';
@@ -45,6 +50,7 @@ SELECT @tso  = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'tso@mdms.cy';
 /* ---------------------------------------------------------------------------
    2. Suppliers and aggregator, one user each   [§II.Ε p.3-4; §5.1 p.10]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @sup1 INT, @sup2 INT, @agg INT, @sup1_user INT, @sup2_user INT, @agg_user INT;
 EXEC [dbo].[sp_CreateOrganization] @admin, N'EAC Supply',        'SUPPLIER';
 EXEC [dbo].[sp_CreateOrganization] @off1,  N'GreenEnergy Supply', 'SUPPLIER';
@@ -63,6 +69,7 @@ SELECT @agg_user  = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'desk@flexpo
 /* ---------------------------------------------------------------------------
    3. Meter types and tariffs   [Κοινές αρχές p.5]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @type1 INT, @type3 INT;
 EXEC [dbo].[sp_UpsertMeterType] @off1, NULL, 'Single-Phase 1x60A', 1, 60;
 EXEC [dbo].[sp_UpsertMeterType] @off1, NULL, 'Three-Phase 3x80A',  3, 80;
@@ -75,6 +82,7 @@ EXEC [dbo].[sp_UpsertTariff] @off1, NULL, N'Standard', 0.3200, '2026-01-01', NUL
 /* ---------------------------------------------------------------------------
    4. Transformer tree: 1 (L4) -> 2 (L3) -> 4 (L2) -> 8 (L1), with rectangles   [§4.1 p.9]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @tr TABLE (name NVARCHAR(100), lvl TINYINT, kva DECIMAL(10,2), parent NVARCHAR(100),
                    min_lat DECIMAL(9,6), min_lon DECIMAL(9,6), max_lat DECIMAL(9,6), max_lon DECIMAL(9,6));
 INSERT INTO @tr VALUES
@@ -103,6 +111,7 @@ OPEN c_tr;
 FETCH NEXT FROM c_tr INTO @name, @lvl, @kva, @parent, @min_lat, @min_lon, @max_lat, @max_lon;
 WHILE @@FETCH_STATUS = 0
 BEGIN
+    BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
     SET @parent_id = NULL;
     SELECT @parent_id = transformer_id FROM [dbo].[TRANSFORMER] WHERE name = @parent;
     SELECT @lat = (@min_lat + @max_lat) / 2, @lon = (@min_lon + @max_lon) / 2;
@@ -117,6 +126,7 @@ CLOSE c_tr; DEALLOCATE c_tr;
 /* ---------------------------------------------------------------------------
    5. Three technicians: registration, 3 documents, availability for 7 days, approval   [§2.1 p.7; UC-09]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @techs TABLE (n INT, email VARCHAR(255), full_name NVARCHAR(150), phone VARCHAR(20), birth DATE,
                       specialty NVARCHAR(100), district NVARCHAR(30));
 INSERT INTO @techs VALUES
@@ -132,6 +142,7 @@ OPEN c_te;
 FETCH NEXT FROM c_te INTO @n, @email, @full, @phone, @birth, @spec, @district;
 WHILE @@FETCH_STATUS = 0
 BEGIN
+    BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
     SET @path = '/uploads/tech/photo_' + CAST(@n AS VARCHAR(5)) + '.jpg';
     EXEC [dbo].[sp_RegisterTechnician] @email, @pw, @full, @phone, @birth, @path, @spec;
     SELECT @tech = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = @email;
@@ -165,6 +176,7 @@ CLOSE c_te; DEALLOCATE c_te;
 /* ---------------------------------------------------------------------------
    6. Ten consumers, twelve premises (3 prosumers), suppliers and aggregator   [§1.1 p.5; UC-01]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @cons TABLE (n INT, full_name NVARCHAR(150), iban VARCHAR(34), sms BIT);
 INSERT INTO @cons VALUES
  (1, N'Νίκος Παναγιώτου',     'CY17002001280000001200527600', 0),
@@ -184,6 +196,7 @@ OPEN c_co;
 FETCH NEXT FROM c_co INTO @n, @full, @iban, @sms;
 WHILE @@FETCH_STATUS = 0
 BEGIN
+    BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
     SET @email = 'consumer' + CAST(@n AS VARCHAR(5)) + '@example.cy';
     SET @phone = '9940' + RIGHT('0000' + CAST(@n AS VARCHAR(5)), 4);
     EXEC [dbo].[sp_RegisterConsumer] @email, @pw, @full, @phone, @iban, 1, @sms;
@@ -213,6 +226,7 @@ INSERT INTO @prem VALUES
    7. Per premise: add it, then INSTALLATION job -> assign -> accept -> start -> install the meter ->
       3 certificates -> officer approves them -> officer confirms the meter -> job completed   [UC-01, UC-10]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @pn INT, @consumer_n INT, @address NVARCHAR(250), @usage VARCHAR(20), @municipality NVARCHAR(80),
         @parish NVARCHAR(80), @postal CHAR(4), @scheme VARCHAR(20), @supplier_n INT, @in_agg BIT, @tech_n INT, @three BIT;
 DECLARE @consumer INT, @supplier INT, @premise INT, @wo INT, @meter INT, @type INT,
@@ -229,6 +243,7 @@ FETCH NEXT FROM c_pr INTO @pn, @consumer_n, @address, @lat, @lon, @usage, @distr
                           @scheme, @supplier_n, @in_agg, @tech_n, @three;
 WHILE @@FETCH_STATUS = 0
 BEGIN
+    BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
     SELECT @consumer = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'consumer' + CAST(@consumer_n AS VARCHAR(5)) + '@example.cy';
     SELECT @tech = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = 'tech' + CAST(@tech_n AS VARCHAR(5)) + '@mdms.cy';
     SET @supplier = CASE WHEN @supplier_n = 1 THEN @sup1 ELSE @sup2 END;
@@ -289,6 +304,7 @@ CLOSE c_pr; DEALLOCATE c_pr;
         meter 8, slot 20  : one phase current far below the others (phase unbalance)
         plus one packet with an unknown network id and one malformed packet
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 DECLARE @packets TABLE (mn INT, n INT, json NVARCHAR(4000));
 
 WITH d AS (SELECT v FROM (VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) AS x(v)),
@@ -331,6 +347,7 @@ DECLARE @json NVARCHAR(MAX);
 SET @pn = 1;
 WHILE @pn <= 12
 BEGIN
+    BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
     SELECT @json = N'[' + STRING_AGG(CAST(json AS NVARCHAR(MAX)), N',') WITHIN GROUP (ORDER BY n) + N']'
     FROM @packets WHERE mn = @pn;
     EXEC [dbo].[sp_IngestTelemetryBatch] @off1, @json;
@@ -346,6 +363,7 @@ EXEC [dbo].[sp_IngestTelemetryBatch] @dso, @json;
 /* ---------------------------------------------------------------------------
    9. VEE, officer decisions, finalization, transformer aggregates, tree state   [§3.2 p.8-9; §4.2 p.10; UC-16, UC-17]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 EXEC [dbo].[sp_RunVEE] @off1, @t0, @t_end, NULL;
 EXEC [dbo].[sp_ListSuspectReadings] @off1, @t0, @t_end, 1, 50;
 
@@ -377,6 +395,7 @@ EXEC [dbo].[sp_RefreshTransformerState] @tso, NULL;
 /* ---------------------------------------------------------------------------
    10. Bills, payments, historical access, GDPR   [§1.3 p.6; §1.2 p.6; §1.4 p.6-7; UC-03, UC-06, UC-07, UC-08]
    --------------------------------------------------------------------------- */
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
 EXEC [dbo].[sp_IssueMonthlyBills] @sup1_user, @bill_year, @bill_month, NULL;      -- the supplier bills its own customers
 EXEC [dbo].[sp_IssueMonthlyBills] @off1, @bill_year, @bill_month, @sup2;          -- the officer runs it for the other supplier
 

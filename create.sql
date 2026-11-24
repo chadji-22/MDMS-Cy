@@ -68,6 +68,9 @@ DROP TABLE IF EXISTS
     dbo.TECHNICIAN_DOCUMENT, dbo.TECHNICIAN_SPECIALTY, dbo.SPECIALTY, dbo.TECHNICIAN,
     dbo.CONSUMER, dbo.PARISH, dbo.MUNICIPALITY, dbo.DISTRICT, dbo.USER_ROLE;
 GO
+-- free the log space of the drop before the tables are created (course databases cap the log at 12-20 MB)
+BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;
+GO
 
 /* ============================================================================
    1. USERS, ROLES, ORGANIZATIONS   [Κοινές αρχές p.5; §1.1 p.5; §2.1 p.7; §5.1 p.10]

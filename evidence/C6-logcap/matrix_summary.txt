@@ -1,0 +1,37 @@
+(1 row affected)
+baseline exit=0
+=== c12 (log 12 MB, 0=uncapped)
+(1 row affected)
+c12 b1: exit=1 Msg=2 logfull=1 ingest_err=0 vs-baseline=DIFF data 15.44 MB 
+c12 C1 large set exit=1 readings=14581 data 18.63 MB
+c12 b2_after_populated: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 17.69 MB 
+c12 b3: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 18.13 MB 
+c12 tests.sql: tests.sql: 82 tests, 0 not passed.
+c12 telemetry/VEE: files failed=0, tests passed=26 (expect 26)
+c12 select.sql exit=0 UC=20
+c12 b4_final: exit=1 Msg=2 logfull=2 ingest_err=0 vs-baseline=DIFF data 18.31 MB 
+c12 lab table EMPLOYEE rows: 1
+=== c20 (log 20 MB, 0=uncapped)
+(1 row affected)
+c20 b1: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 16.75 MB 
+c20 C1 large set exit=1 readings=14581 data 19.38 MB
+c20 b2_after_populated: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 17.88 MB 
+c20 b3: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 18.31 MB 
+c20 tests.sql: tests.sql: 82 tests, 0 not passed.
+c20 telemetry/VEE: files failed=0, tests passed=26 (expect 26)
+c20 select.sql exit=0 UC=20
+c20 b4_final: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 19.75 MB 
+c20 lab table EMPLOYEE rows: 1
+=== cun (log 0 MB, 0=uncapped)
+(1 row affected)
+cun b1: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 16.75 MB 
+cun C1 large set exit=1 readings=14581 data 19.81 MB
+cun b2_after_populated: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 17.88 MB 
+cun b3: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 18.38 MB 
+cun tests.sql: tests.sql: 82 tests, 0 not passed.
+cun telemetry/VEE: files failed=0, tests passed=26 (expect 26)
+cun select.sql exit=0 UC=20
+cun b4_final: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 19.88 MB 
+cun lab table EMPLOYEE rows: 1
+
+[exited with code 0]
