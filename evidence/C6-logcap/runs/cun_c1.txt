@@ -1,0 +1,31 @@
+batch consumers transformers days readings_from readings_to raw_day_for_vee readings aggregates seconds
+----- --------- ------------ ---- ------------- ----------- --------------- -------- ---------- -------
+SYN1 8 4 2 2026-11-22 00:00:00 2026-11-24 00:00:00 2026-11-23 00:00:00 6486 26 1
+
+status readings_on_raw_day_before_vee
+------ ------------------------------
+PENDING 3222
+
+meters_processed meters_failed readings_valid readings_suspect readings_estimated
+---------------- ------------- -------------- ---------------- ------------------
+8 0 3220 2 32
+
+status readings_on_raw_day_after_vee
+------ -----------------------------
+SUSPECT 2
+ESTIMATED 32
+VALID 3220
+
+day meter_id outcome reason
+--- -------- ------- ------
+2026-11-23 13 FINALIZED NULL
+2026-11-23 14 FINALIZED NULL
+2026-11-23 15 FINALIZED NULL
+2026-11-23 17 FINALIZED NULL
+2026-11-23 18 FINALIZED NULL
+2026-11-23 19 FINALIZED NULL
+2026-11-23 20 FINALIZED NULL
+2026-11-23 16 SKIPPED PENDING or SUSPECT readings: run VEE and decide the suspect ones first
+
+Msg 50003, Level 16, State 1, Server 992b0ca1a74b, Procedure dbo.sp_BuildTransformerAggregates, Line 30
+Some active meters still have readings that are not final for this day; finalize them or use @force = 1.

@@ -1,0 +1,31 @@
+seq result test detail
+--- ------ ---- ------
+1 PASS D0 ingest: 1.8.0 energies NULL / 0.5 / 0.5 / 0.4 / -0.5 / 0.6, all PENDING 6 readings
+2 PASS D0b ingest: 2.8.0 08:45 has no energy yet because 08:30 is missing 3 readings
+3 PASS D1 sp_RunVEE summary: 8 valid, 1 suspect, 1 estimated processed 1, failed 0, valid 8, suspect 1, estimated 1
+4 PASS D2 register went down (09:00) -> SUSPECT / NEGATIVE_DELTA, negative energy kept SUSPECT / NEGATIVE_DELTA / -0.5000
+5 PASS D3 reading after the suspect one (09:15) -> VALID, energy 0.6 against the previous stored value VALID / AUTO / 0.6000
+6 PASS D4 first reading and the normal ones are VALID (08:00 .. 08:45), energies unchanged NULL
+7 PASS D5 2.8.0 gap 08:30 -> ESTIMATED 10.4 (LINEAR_INTERPOLATION, no packet), energy 0.2 ESTIMATED / 10.4000 / 0.2000
+8 PASS D6 2.8.0 08:45 (the reading after the estimated one) -> energy recomputed to 0.2, VALID VALID / 0.2000
+9 PASS D7 nothing was finalized (sp_FinalizeReadings was not called) NULL
+
+result tests
+------ -----
+PASS 9
+
+reading_timestamp obis_code value delta_value status vee_rule is_final
+----------------- --------- ----- ----------- ------ -------- --------
+2025-06-13 08:00:00 1.8.0 1000.0000 NULL VALID AUTO 0
+2025-06-13 08:15:00 1.8.0 1000.5000 0.5000 VALID AUTO 0
+2025-06-13 08:30:00 1.8.0 1001.0000 0.5000 VALID AUTO 0
+2025-06-13 08:45:00 1.8.0 1001.4000 0.4000 VALID AUTO 0
+2025-06-13 09:00:00 1.8.0 1000.9000 -0.5000 SUSPECT NEGATIVE_DELTA 0
+2025-06-13 09:15:00 1.8.0 1001.5000 0.6000 VALID AUTO 0
+2025-06-13 08:00:00 2.8.0 10.0000 NULL VALID AUTO 0
+2025-06-13 08:15:00 2.8.0 10.2000 0.2000 VALID AUTO 0
+2025-06-13 08:30:00 2.8.0 10.4000 0.2000 ESTIMATED LINEAR_INTERPOLATION 0
+2025-06-13 08:45:00 2.8.0 10.6000 0.2000 VALID AUTO 0
+
+clean-up: 0 events, 10 readings, 9 packets deleted.
+test_vee_delta.sql: 9 tests, 0 not passed.

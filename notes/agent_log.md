@@ -190,3 +190,66 @@ certificates, staff work-order / meter-review / technician-review / gdpr / remot
 that B5/B6 POST flows are not covered; check that the code under test equals what is published; no force anywhere.
 Done: error log 0 entries; crawler now lists alerts (one benign: consumer/request.php without id); crawl_detail.py 11/11 OK
 (install-meter first failed on a COMPLETED job, correct refusal, retested with the ACCEPTED job 13); README corrected.
+
+## 2026-11-25 01:00 — course servers and the log cap
+```
+Done:      Read-only probes of both course servers. mssql.cs.ucy.ac.cy = SQL Server 2022 (ntheva, no instance name),
+           ichara09: holds the 22/11 deploy (25 tables, 113 procedures, C1 data 16,127 readings), data 23.9/27 MB,
+           log 12 MB, SIMPLE, RCSI on, no lab tables. mssql.cs.ucy.ac.cy\SQL2025 = SQL Server 2025, ichara09: 11/11
+           deploy (no NOTIFICATION), 25 lab tables, data 25.7/27 MB used (tables only ~8.4 MB), log 20 MB.
+           Local rehearsal with those caps: build_all.sql fails (9002, log full). Cause measured with a probe build;
+           fix on branch ioannis/C6-log-cap: checkpoints between import steps / loop rounds and after the drop.
+Evidence:  evidence/C6-logcap/ (README has the table)
+Tests:     20 MB log and uncapped: build x4 (incl. 2 re-runs on a populated DB) OK, tests.sql 82/82, telemetry 26/26,
+           select.sql UC-01..20, lab table kept, data identical to original io.
+           12 MB log: 2 of 4 builds OK; the failures are the month-end sp_FinalizeReadings (all meters, one transaction).
+Advisor:   (1) before rebuilding the 2022 course DB: do not, rehearse locally with the caps first -> found the 9002.
+           (2) single big DROP theory: measure first -> it was wrong (drop alone 5.8 MB of 20).
+           (3) before committing: compare with original io in a separate worktree, copy evidence out of the scratchpad,
+               commit locally only, no push -> done.
+Corrections to 24/11 statements: the project DB is on the 2022 server, and the 22/11 work ran there (the memory note
+           said \SQL2025); the stored password was never rejected (the first logins sent the wrong text, an extraction
+           bug); the 23/11 secret scan was redone with the real password value: no hit in any branch, tag or file.
+Blocked:   nothing written on either course server; branch not pushed; io unchanged (25928a6).
+Next:      1. 12 MB: apply evidence/C6-logcap/next_import_per_meter_finalize.patch on top, re-run matrix.sh, compare
+              with original io (check MONTH aggregates).
+           2. SQL2025: read-only check of what fills its data file (accelerated database recovery / persistent version
+              store, internal objects) before any rebuild there (risk of error 1105).
+           3. evidence/C1/c1_large_set.sql exits 1 even uncapped (aggregates "not final"); check the UTC date logic.
+           4. Only then: advisor check + Ioannis's go-ahead, rebuild one course DB (20 MB SQL2025 already passes here).
+Local env: containers mdms-sql (127.0.0.1:11433) and mdms-web-local; sa/web passwords are in the session scratchpad
+           only; if gone, recreate mdms-sql (see memory note local-sql-test-environment).
+```
+
+## 2026-11-25 — SQL2025 chosen (Ioannis), preparation
+```
+Done:      create.sql / drop.sql drop only MDMS-Cy objects: the old code dropped every FK of dbo, which on SQL2025 would
+           have removed the 21 FKs of the lab tables. Tested (evidence/C6-logcap/matrix_labfk_summary.txt): 20 MB log and
+           uncapped all green, lab FKs kept, data identical to original io.
+           SQL2025 ichara09 (with Ioannis's approval, after advisor check, guarded by @@SERVERNAME = ntheva\SQL2025):
+           Query Store cleared and turned OFF. Before: READ_WRITE, 6 MB, data 25.69 / 27 MB used. After: OFF, data
+           20.00 MB used. Only query history was lost; it can be turned on again. No build script touches it.
+           Read-only inventory of the lab tables saved: evidence/C6-sql2025/lab_inventory_before_25-11.txt
+           (25 tables with row counts, 21 FKs with columns; script lab_inventory.sql).
+Advisor:   before the Query Store change: guard the server name, clear then OFF, verify, record -> done.
+           Rebuild on SQL2025 needs: matrix green (done), local commit (this), lab inventory (done), advisor review of
+           the exact commands, Ioannis's explicit go-ahead.
+Backup plan for the 2022 server (12 MB log): apply evidence/C6-logcap/next_import_per_meter_finalize.patch on top,
+           re-run matrix.sh at 12 MB, compare with original io (MONTH aggregates); fallback: a smaller demo import.
+           Check its Query Store read-only first.
+Next:      advisor + go-ahead, then on SQL2025: CHECKPOINT, build_all x2, tests.sql, telemetry, select.sql, final build,
+           lab inventory again (must equal the "before" file), evidence in evidence/C6-sql2025/.
+```
+
+## 2026-11-25 13:25 — MDMS-Cy on SQL2025 (go-ahead from Ioannis)
+```
+Done:      evidence/C6-sql2025/run_on_sql2025.sh on mssql.cs.ucy.ac.cy\SQL2025 / ichara09 (code 30ebc4f):
+           build_all x2 OK (25 tables, 24 triggers, 118 procedures), tests.sql 82/82, telemetry 26/26, select.sql
+           UC-01..20, final clean build; data 20.00 / 27 MB; lab tables identical before and after (25 tables, 21 FKs);
+           Query Store OFF. The old 11/11 MDMS deploy there was replaced.
+Advisor:   before the run: guard that the committed scoped-drop code runs, check schema-bound modules / DB triggers /
+           stale objects (none, only SSMS diagram helpers), CR-tolerant inventory compare, ask Ioannis with the facts.
+Not done:  web pages against SQL2025; nothing pushed; io unchanged. io still has the drop-every-FK code: merging this
+           branch into io is a separate decision (advisor + Ioannis).
+Backup plan for 2022: unchanged (see the 2026-11-25 preparation entry).
+```

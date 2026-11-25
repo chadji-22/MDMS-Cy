@@ -1,0 +1,9 @@
+reading_timestamp delta_value previous_intervals average_delta possible_spike
+----------------- ----------- ------------------ ------------- --------------
+2026-11-06 13:15:00 5.0000 4 0.500000 1
+
+meters_processed meters_failed readings_valid readings_suspect readings_estimated
+---------------- ------------- -------------- ---------------- ------------------
+1 0 5 1 0
+
+PASS: the spike preview agrees with sp_RunVEE.

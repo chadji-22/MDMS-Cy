@@ -1,0 +1,1597 @@
+--- create.sql ---
+p
+-
+PROBE|before create.sql|file=1|used=0.48
+
+(1 row affected)
+MDMS-Cy schema v6 (final) created.
+p
+-
+PROBE|after create.sql|file=2|used=0.90
+
+--- functions.sql ---
+functions.sql: 10 functions created.
+--- views.sql ---
+views.sql: 8 views created.
+--- procedures_00_internal.sql ---
+procedures_00_internal.sql: 8 internal helpers created.
+--- triggers.sql ---
+triggers.sql: TR01 - TR23 created (24 triggers; TR22 is one on BILL and one on PAYMENT).
+--- procedures_01_accounts.sql ---
+procedures_01_accounts.sql: 24 procedures created.
+--- procedures_02_consumer.sql ---
+procedures_02_consumer.sql: 15 procedures created.
+--- procedures_03_workorders.sql ---
+procedures_03_workorders.sql: 11 procedures created.
+--- procedures_04_meters.sql ---
+procedures_04_meters.sql: 8 procedures created.
+--- procedures_05_commands.sql ---
+procedures_05_commands.sql: 7 procedures created.
+--- procedures_06_telemetry.sql ---
+procedures_06_telemetry.sql: 10 procedures created.
+--- procedures_07_grid.sql ---
+procedures_07_grid.sql: 11 procedures created.
+--- procedures_08_billing.sql ---
+procedures_08_billing.sql: 8 procedures created.
+--- procedures_09_gdpr.sql ---
+procedures_09_gdpr.sql: 4 procedures created.
+--- procedures_10_market.sql ---
+procedures_10_market.sql: 3 procedures created.
+--- procedures_11_admin.sql ---
+procedures_11_admin.sql: 8 procedures created.
+--- procedures_12_generator.sql ---
+procedures_12_generator.sql: 1 procedure created.
+--- indexes.sql ---
+indexes.sql: indexes created.
+--- security.sql ---
+security.sql: role mdms_app configured.
+security.sql: user mdms_php (no login) is a member of mdms_app.
+security.sql: READ_COMMITTED_SNAPSHOT is ON.
+--- import.sql ---
+p
+-
+PROBE|before L33 sp_BootstrapAdmin|file=3|used=0.74
+
+user_id
+-------
+1
+
+p
+-
+PROBE|after L33 sp_BootstrapAdmin|file=3|used=0.80
+
+p
+-
+PROBE|before L36 sp_CreateStaffUser|file=3|used=0.64
+
+user_id
+-------
+2
+
+p
+-
+PROBE|after L36 sp_CreateStaffUser|file=3|used=0.69
+
+p
+-
+PROBE|before L37 sp_CreateStaffUser|file=3|used=0.73
+
+user_id
+-------
+3
+
+p
+-
+PROBE|after L37 sp_CreateStaffUser|file=3|used=0.74
+
+p
+-
+PROBE|before L38 sp_CreateStaffUser|file=3|used=0.75
+
+user_id
+-------
+4
+
+p
+-
+PROBE|after L38 sp_CreateStaffUser|file=3|used=0.76
+
+p
+-
+PROBE|before L39 sp_CreateStaffUser|file=3|used=0.78
+
+user_id
+-------
+5
+
+p
+-
+PROBE|after L39 sp_CreateStaffUser|file=3|used=0.79
+
+p
+-
+PROBE|before L49 sp_CreateOrganization|file=3|used=0.80
+
+organization_id
+---------------
+1
+
+p
+-
+PROBE|after L49 sp_CreateOrganization|file=3|used=0.82
+
+p
+-
+PROBE|before L50 sp_CreateOrganization|file=3|used=0.63
+
+organization_id
+---------------
+2
+
+p
+-
+PROBE|after L50 sp_CreateOrganization|file=3|used=0.64
+
+p
+-
+PROBE|before L51 sp_CreateOrganization|file=3|used=0.67
+
+organization_id
+---------------
+3
+
+p
+-
+PROBE|after L51 sp_CreateOrganization|file=3|used=0.68
+
+p
+-
+PROBE|before L56 sp_CreateOrganizationUser|file=3|used=0.69
+
+user_id role_code
+------- ---------
+6 SUPPLIER
+
+p
+-
+PROBE|after L56 sp_CreateOrganizationUser|file=3|used=0.71
+
+p
+-
+PROBE|before L57 sp_CreateOrganizationUser|file=3|used=0.75
+
+user_id role_code
+------- ---------
+7 SUPPLIER
+
+p
+-
+PROBE|after L57 sp_CreateOrganizationUser|file=3|used=0.76
+
+p
+-
+PROBE|before L58 sp_CreateOrganizationUser|file=3|used=0.78
+
+user_id role_code
+------- ---------
+8 AGGREGATOR
+
+p
+-
+PROBE|after L58 sp_CreateOrganizationUser|file=3|used=0.79
+
+p
+-
+PROBE|before L67 sp_UpsertMeterType|file=3|used=0.80
+
+meter_type_id
+-------------
+1
+
+p
+-
+PROBE|after L67 sp_UpsertMeterType|file=3|used=0.82
+
+p
+-
+PROBE|before L68 sp_UpsertMeterType|file=3|used=0.66
+
+meter_type_id
+-------------
+2
+
+p
+-
+PROBE|after L68 sp_UpsertMeterType|file=3|used=0.66
+
+tariff_id
+---------
+1
+
+p
+-
+PROBE|before L73 sp_UpsertTariff|file=3|used=0.75
+
+tariff_id
+---------
+2
+
+p
+-
+PROBE|after L73 sp_UpsertTariff|file=3|used=0.78
+
+transformer_id
+--------------
+1
+
+transformer_id
+--------------
+2
+
+transformer_id
+--------------
+3
+
+transformer_id
+--------------
+4
+
+transformer_id
+--------------
+5
+
+transformer_id
+--------------
+6
+
+transformer_id
+--------------
+7
+
+transformer_id
+--------------
+8
+
+transformer_id
+--------------
+9
+
+transformer_id
+--------------
+10
+
+transformer_id
+--------------
+11
+
+transformer_id
+--------------
+12
+
+transformer_id
+--------------
+13
+
+transformer_id
+--------------
+14
+
+transformer_id
+--------------
+15
+
+user_id approval_status
+------- ---------------
+9 PENDING
+
+document_id
+-----------
+1
+
+document_id
+-----------
+2
+
+document_id
+-----------
+3
+
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-24 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-25 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-26 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-27 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-28 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-29 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-30 08:00:00
+
+document_id approval_status
+----------- ---------------
+1 APPROVED
+
+document_id approval_status
+----------- ---------------
+2 APPROVED
+
+document_id approval_status
+----------- ---------------
+3 APPROVED
+
+user_id approval_status
+------- ---------------
+9 APPROVED
+
+user_id approval_status
+------- ---------------
+10 PENDING
+
+document_id
+-----------
+4
+
+document_id
+-----------
+5
+
+document_id
+-----------
+6
+
+user_id avail_date start_time
+------- ---------- ----------
+10 2026-11-24 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+10 2026-11-25 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+10 2026-11-26 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+10 2026-11-27 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+10 2026-11-28 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+10 2026-11-29 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+10 2026-11-30 08:00:00
+
+document_id approval_status
+----------- ---------------
+4 APPROVED
+
+document_id approval_status
+----------- ---------------
+5 APPROVED
+
+document_id approval_status
+----------- ---------------
+6 APPROVED
+
+user_id approval_status
+------- ---------------
+10 APPROVED
+
+user_id approval_status
+------- ---------------
+11 PENDING
+
+document_id
+-----------
+7
+
+document_id
+-----------
+8
+
+document_id
+-----------
+9
+
+user_id avail_date start_time
+------- ---------- ----------
+11 2026-11-24 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+11 2026-11-25 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+11 2026-11-26 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+11 2026-11-27 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+11 2026-11-28 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+11 2026-11-29 08:00:00
+
+user_id avail_date start_time
+------- ---------- ----------
+11 2026-11-30 08:00:00
+
+document_id approval_status
+----------- ---------------
+7 APPROVED
+
+document_id approval_status
+----------- ---------------
+8 APPROVED
+
+document_id approval_status
+----------- ---------------
+9 APPROVED
+
+user_id approval_status
+------- ---------------
+11 APPROVED
+
+user_id
+-------
+12
+
+user_id
+-------
+13
+
+user_id
+-------
+14
+
+user_id
+-------
+15
+
+user_id
+-------
+16
+
+user_id
+-------
+17
+
+user_id
+-------
+18
+
+user_id
+-------
+19
+
+user_id
+-------
+20
+
+user_id
+-------
+21
+
+premise_id
+----------
+1
+
+work_order_id status
+------------- ------
+1 SUBMITTED
+
+work_order_id status
+------------- ------
+1 ASSIGNED
+
+work_order_id status
+------------- ------
+1 ACCEPTED
+
+work_order_id status
+------------- ------
+1 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+1 PENDING 15
+
+document_id
+-----------
+10
+
+document_id
+-----------
+11
+
+document_id
+-----------
+12
+
+document_id approval_status
+----------- ---------------
+10 APPROVED
+
+document_id approval_status
+----------- ---------------
+11 APPROVED
+
+document_id approval_status
+----------- ---------------
+12 APPROVED
+
+meter_id status
+-------- ------
+1 ACTIVE
+
+work_order_id status
+------------- ------
+1 COMPLETED
+
+premise_id
+----------
+2
+
+premise_id aggregator_org_id
+---------- -----------------
+2 3
+
+work_order_id status
+------------- ------
+2 SUBMITTED
+
+work_order_id status
+------------- ------
+2 ASSIGNED
+
+work_order_id status
+------------- ------
+2 ACCEPTED
+
+work_order_id status
+------------- ------
+2 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+2 PENDING 11
+
+document_id
+-----------
+13
+
+document_id
+-----------
+14
+
+document_id
+-----------
+15
+
+document_id approval_status
+----------- ---------------
+13 APPROVED
+
+document_id approval_status
+----------- ---------------
+14 APPROVED
+
+document_id approval_status
+----------- ---------------
+15 APPROVED
+
+meter_id status
+-------- ------
+2 ACTIVE
+
+work_order_id status
+------------- ------
+2 COMPLETED
+
+premise_id
+----------
+3
+
+premise_id aggregator_org_id
+---------- -----------------
+3 3
+
+work_order_id status
+------------- ------
+3 SUBMITTED
+
+work_order_id status
+------------- ------
+3 ASSIGNED
+
+work_order_id status
+------------- ------
+3 ACCEPTED
+
+work_order_id status
+------------- ------
+3 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+3 PENDING 9
+
+document_id
+-----------
+16
+
+document_id
+-----------
+17
+
+document_id
+-----------
+18
+
+document_id approval_status
+----------- ---------------
+16 APPROVED
+
+document_id approval_status
+----------- ---------------
+17 APPROVED
+
+document_id approval_status
+----------- ---------------
+18 APPROVED
+
+meter_id status
+-------- ------
+3 ACTIVE
+
+work_order_id status
+------------- ------
+3 COMPLETED
+
+premise_id
+----------
+4
+
+work_order_id status
+------------- ------
+4 SUBMITTED
+
+work_order_id status
+------------- ------
+4 ASSIGNED
+
+work_order_id status
+------------- ------
+4 ACCEPTED
+
+work_order_id status
+------------- ------
+4 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+4 PENDING 12
+
+document_id
+-----------
+19
+
+document_id
+-----------
+20
+
+document_id
+-----------
+21
+
+document_id approval_status
+----------- ---------------
+19 APPROVED
+
+document_id approval_status
+----------- ---------------
+20 APPROVED
+
+document_id approval_status
+----------- ---------------
+21 APPROVED
+
+meter_id status
+-------- ------
+4 ACTIVE
+
+work_order_id status
+------------- ------
+4 COMPLETED
+
+premise_id
+----------
+5
+
+work_order_id status
+------------- ------
+5 SUBMITTED
+
+work_order_id status
+------------- ------
+5 ASSIGNED
+
+work_order_id status
+------------- ------
+5 ACCEPTED
+
+work_order_id status
+------------- ------
+5 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+5 PENDING 15
+
+document_id
+-----------
+22
+
+document_id
+-----------
+23
+
+document_id
+-----------
+24
+
+document_id approval_status
+----------- ---------------
+22 APPROVED
+
+document_id approval_status
+----------- ---------------
+23 APPROVED
+
+document_id approval_status
+----------- ---------------
+24 APPROVED
+
+meter_id status
+-------- ------
+5 ACTIVE
+
+work_order_id status
+------------- ------
+5 COMPLETED
+
+premise_id
+----------
+6
+
+work_order_id status
+------------- ------
+6 SUBMITTED
+
+work_order_id status
+------------- ------
+6 ASSIGNED
+
+work_order_id status
+------------- ------
+6 ACCEPTED
+
+work_order_id status
+------------- ------
+6 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+6 PENDING 12
+
+document_id
+-----------
+25
+
+document_id
+-----------
+26
+
+document_id
+-----------
+27
+
+document_id approval_status
+----------- ---------------
+25 APPROVED
+
+document_id approval_status
+----------- ---------------
+26 APPROVED
+
+document_id approval_status
+----------- ---------------
+27 APPROVED
+
+meter_id status
+-------- ------
+6 ACTIVE
+
+work_order_id status
+------------- ------
+6 COMPLETED
+
+premise_id
+----------
+7
+
+premise_id aggregator_org_id
+---------- -----------------
+7 3
+
+work_order_id status
+------------- ------
+7 SUBMITTED
+
+work_order_id status
+------------- ------
+7 ASSIGNED
+
+work_order_id status
+------------- ------
+7 ACCEPTED
+
+work_order_id status
+------------- ------
+7 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+7 PENDING 14
+
+document_id
+-----------
+28
+
+document_id
+-----------
+29
+
+document_id
+-----------
+30
+
+document_id approval_status
+----------- ---------------
+28 APPROVED
+
+document_id approval_status
+----------- ---------------
+29 APPROVED
+
+document_id approval_status
+----------- ---------------
+30 APPROVED
+
+meter_id status
+-------- ------
+7 ACTIVE
+
+work_order_id status
+------------- ------
+7 COMPLETED
+
+premise_id
+----------
+8
+
+work_order_id status
+------------- ------
+8 SUBMITTED
+
+work_order_id status
+------------- ------
+8 ASSIGNED
+
+work_order_id status
+------------- ------
+8 ACCEPTED
+
+work_order_id status
+------------- ------
+8 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+8 PENDING 8
+
+document_id
+-----------
+31
+
+document_id
+-----------
+32
+
+document_id
+-----------
+33
+
+document_id approval_status
+----------- ---------------
+31 APPROVED
+
+document_id approval_status
+----------- ---------------
+32 APPROVED
+
+document_id approval_status
+----------- ---------------
+33 APPROVED
+
+meter_id status
+-------- ------
+8 ACTIVE
+
+work_order_id status
+------------- ------
+8 COMPLETED
+
+premise_id
+----------
+9
+
+work_order_id status
+------------- ------
+9 SUBMITTED
+
+work_order_id status
+------------- ------
+9 ASSIGNED
+
+work_order_id status
+------------- ------
+9 ACCEPTED
+
+work_order_id status
+------------- ------
+9 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+9 PENDING 14
+
+document_id
+-----------
+34
+
+document_id
+-----------
+35
+
+document_id
+-----------
+36
+
+document_id approval_status
+----------- ---------------
+34 APPROVED
+
+document_id approval_status
+----------- ---------------
+35 APPROVED
+
+document_id approval_status
+----------- ---------------
+36 APPROVED
+
+meter_id status
+-------- ------
+9 ACTIVE
+
+work_order_id status
+------------- ------
+9 COMPLETED
+
+premise_id
+----------
+10
+
+premise_id aggregator_org_id
+---------- -----------------
+10 3
+
+work_order_id status
+------------- ------
+10 SUBMITTED
+
+work_order_id status
+------------- ------
+10 ASSIGNED
+
+work_order_id status
+------------- ------
+10 ACCEPTED
+
+work_order_id status
+------------- ------
+10 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+10 PENDING 13
+
+document_id
+-----------
+37
+
+document_id
+-----------
+38
+
+document_id
+-----------
+39
+
+document_id approval_status
+----------- ---------------
+37 APPROVED
+
+document_id approval_status
+----------- ---------------
+38 APPROVED
+
+document_id approval_status
+----------- ---------------
+39 APPROVED
+
+meter_id status
+-------- ------
+10 ACTIVE
+
+work_order_id status
+------------- ------
+10 COMPLETED
+
+premise_id
+----------
+11
+
+work_order_id status
+------------- ------
+11 SUBMITTED
+
+work_order_id status
+------------- ------
+11 ASSIGNED
+
+work_order_id status
+------------- ------
+11 ACCEPTED
+
+work_order_id status
+------------- ------
+11 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+11 PENDING 10
+
+document_id
+-----------
+40
+
+document_id
+-----------
+41
+
+document_id
+-----------
+42
+
+document_id approval_status
+----------- ---------------
+40 APPROVED
+
+document_id approval_status
+----------- ---------------
+41 APPROVED
+
+document_id approval_status
+----------- ---------------
+42 APPROVED
+
+meter_id status
+-------- ------
+11 ACTIVE
+
+work_order_id status
+------------- ------
+11 COMPLETED
+
+premise_id
+----------
+12
+
+work_order_id status
+------------- ------
+12 SUBMITTED
+
+work_order_id status
+------------- ------
+12 ASSIGNED
+
+work_order_id status
+------------- ------
+12 ACCEPTED
+
+work_order_id status
+------------- ------
+12 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+12 PENDING 10
+
+document_id
+-----------
+43
+
+document_id
+-----------
+44
+
+document_id
+-----------
+45
+
+document_id approval_status
+----------- ---------------
+43 APPROVED
+
+document_id approval_status
+----------- ---------------
+44 APPROVED
+
+document_id approval_status
+----------- ---------------
+45 APPROVED
+
+meter_id status
+-------- ------
+12 ACTIVE
+
+work_order_id status
+------------- ------
+12 COMPLETED
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 384
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+191 191 0 0 0 0 382
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 576
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 1344
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 384
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 384
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 576
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 1344
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 384
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 576
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 384
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+192 192 0 0 0 0 1344
+
+p
+-
+PROBE|before L344 sp_IngestTelemetryBatch|file=7|used=1.13
+
+packets matched unmatched quarantined comm_error errors readings_inserted
+------- ------- --------- ----------- ---------- ------ -----------------
+2 0 1 0 1 0 0
+
+p
+-
+PROBE|after L344 sp_IngestTelemetryBatch|file=7|used=1.15
+
+p
+-
+PROBE|before L349 sp_RunVEE|file=7|used=1.17
+
+meters_processed meters_failed readings_valid readings_suspect readings_estimated
+---------------- ------------- -------------- ---------------- ------------------
+12 0 8060 2 1
+
+p
+-
+PROBE|after L349 sp_RunVEE|file=9|used=2.36
+
+p
+-
+PROBE|before L350 sp_ListSuspectReadings|file=9|used=1.54
+
+reading_id meter_id serial_number obis_code reading_timestamp value delta_value vee_rule vee_note previous_value next_value
+---------- -------- ------------- --------- ----------------- ----- ----------- -------- -------- -------------- ----------
+201 1 SN-2026-0001 1.8.0 2026-10-31 01:00:00 1057.1500 25.6000 SPIKE Energy 25.6000 against a recent average of 0.3500 1031.5500 1031.9700
+203 1 SN-2026-0001 1.8.0 2026-10-31 01:15:00 1031.9700 -25.1800 NEGATIVE_DELTA Cumulative register is lower than in the previous slot 1057.1500 1032.2100
+
+p
+-
+PROBE|after L350 sp_ListSuspectReadings|file=9|used=1.57
+
+p
+-
+PROBE|before L362 sp_EditReading|file=9|used=1.36
+
+reading_id status value
+---------- ------ -----
+201 EDITED 1031.7600
+
+p
+-
+PROBE|after L362 sp_EditReading|file=9|used=1.39
+
+reading_id status
+---------- ------
+203 VALID
+
+p
+-
+PROBE|before L371 sp_FinalizeReadings|file=9|used=1.46
+
+day meter_id outcome reason
+--- -------- ------- ------
+2026-10-30 1 FINALIZED NULL
+2026-10-30 2 FINALIZED NULL
+2026-10-30 3 FINALIZED NULL
+2026-10-30 4 FINALIZED NULL
+2026-10-30 5 FINALIZED NULL
+2026-10-30 6 FINALIZED NULL
+2026-10-30 7 FINALIZED NULL
+2026-10-30 8 FINALIZED NULL
+2026-10-30 9 FINALIZED NULL
+2026-10-30 10 FINALIZED NULL
+2026-10-30 11 FINALIZED NULL
+2026-10-30 12 FINALIZED NULL
+
+p
+-
+PROBE|after L371 sp_FinalizeReadings|file=9|used=3.09
+
+day meter_id outcome reason
+--- -------- ------- ------
+2026-10-31 1 FINALIZED NULL
+2026-10-31 2 FINALIZED NULL
+2026-10-31 3 FINALIZED NULL
+2026-10-31 4 FINALIZED NULL
+2026-10-31 5 FINALIZED NULL
+2026-10-31 6 FINALIZED NULL
+2026-10-31 7 FINALIZED NULL
+2026-10-31 8 FINALIZED NULL
+2026-10-31 9 FINALIZED NULL
+2026-10-31 10 FINALIZED NULL
+2026-10-31 11 FINALIZED NULL
+2026-10-31 12 FINALIZED NULL
+
+p
+-
+PROBE|before L373 sp_BuildTransformerAggregates|file=9|used=2.26
+
+day quarter_hour_rows day_rows month_rows year_rows
+--- ----------------- -------- ---------- ---------
+2026-10-30 2304 24 0 0
+
+p
+-
+PROBE|after L373 sp_BuildTransformerAggregates|file=9|used=2.62
+
+p
+-
+PROBE|before L374 sp_BuildTransformerAggregates|file=9|used=2.68
+
+day quarter_hour_rows day_rows month_rows year_rows
+--- ----------------- -------- ---------- ---------
+2026-10-31 2304 24 0 0
+
+p
+-
+PROBE|after L374 sp_BuildTransformerAggregates|file=9|used=3.57
+
+p
+-
+PROBE|before L375 sp_RefreshTransformerState|file=9|used=3.60
+
+reference_15_min rows_written
+---------------- ------------
+2026-10-31 23:45:00 30
+
+p
+-
+PROBE|after L375 sp_RefreshTransformerState|file=9|used=3.68
+
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+period_start premise_id outcome bill_id kwh amount reason
+------------ ---------- ------- ------- --- ------ ------
+2026-10-01 1 BILLED 1 60.4200 19.33 NULL
+2026-10-01 2 BILLED 2 60.4200 19.33 NULL
+2026-10-01 4 BILLED 3 60.4200 19.33 NULL
+2026-10-01 6 BILLED 4 60.4200 19.33 NULL
+2026-10-01 8 BILLED 5 60.4200 19.33 NULL
+2026-10-01 10 BILLED 6 55.3800 17.72 NULL
+2026-10-01 12 BILLED 7 60.4200 19.33 NULL
+
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+period_start premise_id outcome bill_id kwh amount reason
+------------ ---------- ------- ------- --- ------ ------
+2026-10-01 3 BILLED 8 55.3800 17.72 NULL
+2026-10-01 5 BILLED 9 60.4200 19.33 NULL
+2026-10-01 7 BILLED 10 55.3800 17.72 NULL
+2026-10-01 9 BILLED 11 60.4200 19.33 NULL
+2026-10-01 11 BILLED 12 60.4200 19.33 NULL
+
+p
+-
+PROBE|before L389 sp_PayBill|file=9|used=1.54
+
+payment_id bill_id remaining bill_status
+---------- ------- --------- -----------
+1 1 9.66 PARTIALLY_PAID
+
+p
+-
+PROBE|after L389 sp_PayBill|file=9|used=1.63
+
+p
+-
+PROBE|before L390 sp_PayBill|file=9|used=1.75
+
+payment_id bill_id remaining bill_status
+---------- ------- --------- -----------
+2 1 0.00 PAID
+
+p
+-
+PROBE|after L390 sp_PayBill|file=9|used=1.77
+
+p
+-
+PROBE|before L396 sp_GetHistoricalAccessQuote|file=9|used=1.84
+
+meter_id access_from access_to months fee_per_month amount earliest_date_kept can_buy
+-------- ----------- --------- ------ ------------- ------ ------------------ -------
+3 2026-10-01 2026-10-31 1 2.00 2.00 2023-11-24 1
+
+p
+-
+PROBE|after L396 sp_GetHistoricalAccessQuote|file=9|used=1.86
+
+p
+-
+PROBE|before L397 sp_BuyHistoricalAccess|file=9|used=1.91
+
+payment_id amount
+---------- ------
+3 2.00
+
+p
+-
+PROBE|after L397 sp_BuyHistoricalAccess|file=9|used=1.93
+
+p
+-
+PROBE|before L403 sp_SubmitGdprRequest|file=9|used=2.01
+
+gdpr_request_id status
+--------------- ------
+1 SUBMITTED
+
+p
+-
+PROBE|after L403 sp_SubmitGdprRequest|file=9|used=2.04
+
+p
+-
+PROBE|before L405 sp_AdvanceGdprRequest|file=9|used=1.45
+
+gdpr_request_id status
+--------------- ------
+1 UNDER_REVIEW
+
+p
+-
+PROBE|after L405 sp_AdvanceGdprRequest|file=9|used=1.52
+
+p
+-
+PROBE|before L406 sp_AdvanceGdprRequest|file=9|used=1.55
+
+gdpr_request_id status
+--------------- ------
+1 PRE_APPROVED
+
+p
+-
+PROBE|after L406 sp_AdvanceGdprRequest|file=9|used=1.56
+
+p
+-
+PROBE|before L407 sp_AdvanceGdprRequest|file=9|used=1.55
+
+gdpr_request_id status
+--------------- ------
+1 APPROVED
+
+p
+-
+PROBE|after L407 sp_AdvanceGdprRequest|file=9|used=1.56
+
+p
+-
+PROBE|before L408 sp_ExecuteGdprRequest|file=9|used=1.36
+
+gdpr_request_id status readings_deleted
+--------------- ------ ----------------
+1 EXECUTED 0
+
+p
+-
+PROBE|after L408 sp_ExecuteGdprRequest|file=9|used=1.41
+
+p
+-
+PROBE|before L413 sp_SubmitGdprRequest|file=9|used=1.46
+
+gdpr_request_id status
+--------------- ------
+2 SUBMITTED
+
+p
+-
+PROBE|after L413 sp_SubmitGdprRequest|file=9|used=1.50
+
+p
+-
+PROBE|before L415 sp_AdvanceGdprRequest|file=9|used=1.55
+
+gdpr_request_id status
+--------------- ------
+2 UNDER_REVIEW
+
+p
+-
+PROBE|after L415 sp_AdvanceGdprRequest|file=9|used=1.56
+
+p
+-
+PROBE|before L416 sp_AdvanceGdprRequest|file=9|used=1.59
+
+gdpr_request_id status
+--------------- ------
+2 PRE_APPROVED
+
+p
+-
+PROBE|after L416 sp_AdvanceGdprRequest|file=9|used=1.59
+
+p
+-
+PROBE|before L417 sp_AdvanceGdprRequest|file=9|used=1.36
+
+gdpr_request_id status
+--------------- ------
+2 APPROVED
+
+p
+-
+PROBE|after L417 sp_AdvanceGdprRequest|file=9|used=1.36
+
+p
+-
+PROBE|before L418 sp_ExecuteGdprRequest|file=9|used=1.38
+
+gdpr_request_id status readings_deleted
+--------------- ------ ----------------
+2 EXECUTED 0
+
+p
+-
+PROBE|after L418 sp_ExecuteGdprRequest|file=9|used=1.41
+
+table_name row_count
+---------- ---------
+AGGREGATE 4701
+AUDIT_LOG 364
+BILL 12
+DOCUMENT 45
+EVENT 4
+GDPR_REQUEST 2
+METER 12
+METER_READING 8063
+METER_TYPE 2
+ORGANIZATION 3
+PAYMENT 3
+PREMISE 12
+TARIFF 2
+TECHNICIAN_AVAILABILITY 21
+TELEMETRY_PACKET 2305
+TRANSFORMER 15
+TRANSFORMER_CURRENT_STATE 30
+USER_ACCOUNT 21
+WORK_ORDER 12
+
+import.sql finished.
+object_kind objects
+----------- -------
+1 tables 25
+2 views 8
+3 scalar functions 8
+4 table functions 2
+5 triggers 24
+6 procedures 118
+7 indexes (non-key, of indexes.sql) 15
+
+build_all.sql finished.

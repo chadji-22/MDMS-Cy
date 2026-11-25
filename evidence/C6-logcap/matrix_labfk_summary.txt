@@ -1,0 +1,21 @@
+baseline exit=0
+=== c20 (log 20 MB, 0=uncapped)
+c20 b1: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 16.88 MB 
+c20 C1 large set exit=1 readings=14585 data 19.38 MB
+c20 b2_after_populated: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 18.06 MB 
+c20 b3: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 18.38 MB 
+c20 tests.sql: tests.sql: 82 tests, 0 not passed.
+c20 telemetry/VEE: files failed=0, tests passed=26 (expect 26)
+c20 select.sql exit=0 UC=20
+c20 b4_final: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 20.00 MB 
+c20 lab: 3 lab FKs, 3 rows  (expect: 3 lab FKs, 3 rows)
+=== cun (log 0 MB, 0=uncapped)
+cun b1: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 16.88 MB 
+cun C1 large set exit=1 readings=14585 data 19.38 MB
+cun b2_after_populated: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 17.94 MB 
+cun b3: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 18.50 MB 
+cun tests.sql: tests.sql: 82 tests, 0 not passed.
+cun telemetry/VEE: files failed=0, tests passed=26 (expect 26)
+cun select.sql exit=0 UC=20
+cun b4_final: exit=0 Msg=0 logfull=0 ingest_err=0 vs-baseline=SAME data 20.13 MB 
+cun lab: 3 lab FKs, 3 rows  (expect: 3 lab FKs, 3 rows)

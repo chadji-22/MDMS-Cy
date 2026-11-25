@@ -1,0 +1,14 @@
+final log file size: file=10 | probes read: 74
+file growth MB | used delta MB | statement
+     0     5.90   L349 sp_RunVEE
+     0     1.90   create.sql
+     0     1.40   L371 sp_FinalizeReadings
+     0     0.88   L374 sp_BuildTransformerAggregates
+     0     0.26   L373 sp_BuildTransformerAggregates
+     0     0.08   L389 sp_PayBill
+     0     0.07   L375 sp_RefreshTransformerState
+     0     0.06   L405 sp_AdvanceGdprRequest
+     0     0.05   L418 sp_ExecuteGdprRequest
+     0     0.05   L408 sp_ExecuteGdprRequest
+     0     0.04   L33 sp_BootstrapAdmin
+     0     0.03   L413 sp_SubmitGdprRequest
