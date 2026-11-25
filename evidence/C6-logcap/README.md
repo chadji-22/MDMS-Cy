@@ -38,3 +38,14 @@ d2, so the MONTH aggregates must be checked).
 **Other notes.** `evidence/C1/c1_large_set.sql` exits 1 even without a cap ("not final" in its aggregate step); it is an
 evidence script, not a deliverable, to look at separately (it ran near midnight UTC). The populated rehearsal reached
 about 19-20 MB of data, less than the real course databases (24-25.7 MB).
+
+## 25/11: drop only MDMS-Cy objects (lab tables keep their foreign keys)
+
+`create.sql` and `drop.sql` used to drop **every** foreign key of the `dbo` schema. On the SQL2025 database that would
+have removed the 21 foreign keys of the lab tables (`L8_*`). Both files now keep the 62 MDMS-Cy table names in one list,
+drop only the foreign keys that touch those tables, then drop the tables one per statement (smaller transactions).
+
+`matrix_labfk.sh` (lab tables `DEPARTMENT`, `EMPLOYEE`, `L8_ORDERS` linked by 3 foreign keys, `labcheck.sql`) →
+`matrix_labfk_summary.txt`: with a 20 MB log and uncapped, build x4 (two re-runs on a populated DB) identical to the
+baseline, tests.sql 82/82, telemetry/VEE 26/26, select.sql UC-01..20, 3 lab FKs and 3 lab rows kept, and the baseline
+equals the original `io` data.

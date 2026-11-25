@@ -220,3 +220,23 @@ Next:      1. 12 MB: apply evidence/C6-logcap/next_import_per_meter_finalize.pat
 Local env: containers mdms-sql (127.0.0.1:11433) and mdms-web-local; sa/web passwords are in the session scratchpad
            only; if gone, recreate mdms-sql (see memory note local-sql-test-environment).
 ```
+
+## 2026-11-25 — SQL2025 chosen (Ioannis), preparation
+```
+Done:      create.sql / drop.sql drop only MDMS-Cy objects: the old code dropped every FK of dbo, which on SQL2025 would
+           have removed the 21 FKs of the lab tables. Tested (evidence/C6-logcap/matrix_labfk_summary.txt): 20 MB log and
+           uncapped all green, lab FKs kept, data identical to original io.
+           SQL2025 ichara09 (with Ioannis's approval, after advisor check, guarded by @@SERVERNAME = ntheva\SQL2025):
+           Query Store cleared and turned OFF. Before: READ_WRITE, 6 MB, data 25.69 / 27 MB used. After: OFF, data
+           20.00 MB used. Only query history was lost; it can be turned on again. No build script touches it.
+           Read-only inventory of the lab tables saved: evidence/C6-sql2025/lab_inventory_before_25-11.txt
+           (25 tables with row counts, 21 FKs with columns; script lab_inventory.sql).
+Advisor:   before the Query Store change: guard the server name, clear then OFF, verify, record -> done.
+           Rebuild on SQL2025 needs: matrix green (done), local commit (this), lab inventory (done), advisor review of
+           the exact commands, Ioannis's explicit go-ahead.
+Backup plan for the 2022 server (12 MB log): apply evidence/C6-logcap/next_import_per_meter_finalize.patch on top,
+           re-run matrix.sh at 12 MB, compare with original io (MONTH aggregates); fallback: a smaller demo import.
+           Check its Query Store read-only first.
+Next:      advisor + go-ahead, then on SQL2025: CHECKPOINT, build_all x2, tests.sql, telemetry, select.sql, final build,
+           lab inventory again (must equal the "before" file), evidence in evidence/C6-sql2025/.
+```
