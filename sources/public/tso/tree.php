@@ -44,8 +44,8 @@ if ($error) {
     View::error($error);
 }
 ?>
-<?php if ($root !== null): ?><p><a href="/tso/tree.php">Show the whole tree</a></p><?php endif; ?>
-<?php if (Auth::role() === 'TSO'): ?><p><a href="/tso/transformer.php">Add a transformer</a></p><?php endif; ?>
+<?php if ($root !== null): ?><p><a href="<?= View::base() ?>/tso/tree.php">Show the whole tree</a></p><?php endif; ?>
+<?php if (Auth::role() === 'TSO'): ?><p><a href="<?= View::base() ?>/tso/transformer.php">Add a transformer</a></p><?php endif; ?>
 <?php if ($tree === [] && !$error): ?>
   <p class="flash">There are no transformers yet.</p>
 <?php elseif ($tree !== []): ?>
@@ -57,15 +57,15 @@ if ($error) {
       <td class="num"><?= (int) $t['meters_connected'] ?></td><td class="num"><?= $t['meters_reporting'] === null ? '—' : (int) $t['meters_reporting'] ?></td>
       <td class="num"><?= View::h(Ui::num($t['import_kwh'])) ?></td><td class="num"><?= View::h(Ui::num($t['export_kwh'])) ?></td>
       <td class="mono"><?= View::h(Ui::ts($t['reference_15_min'])) ?></td>
-      <td class="links"><a href="/tso/tree.php?root=<?= (int) $t['transformer_id'] ?>">Subtree</a>
-        <?php if (Auth::role() === 'TSO'): ?><a href="/tso/transformer.php?id=<?= (int) $t['transformer_id'] ?>">Edit</a><?php endif; ?></td></tr>
+      <td class="links"><a href="<?= View::base() ?>/tso/tree.php?root=<?= (int) $t['transformer_id'] ?>">Subtree</a>
+        <?php if (Auth::role() === 'TSO'): ?><a href="<?= View::base() ?>/tso/transformer.php?id=<?= (int) $t['transformer_id'] ?>">Edit</a><?php endif; ?></td></tr>
   <?php endforeach; ?></tbody>
 </table></div>
 <?php endif; ?>
 
 <?php if ($canRefresh && $tree !== []): ?>
 <h2>Refresh one transformer and its ancestors</h2>
-<form method="post" action="/tso/tree.php" class="filters">
+<form method="post" action="<?= View::base() ?>/tso/tree.php" class="filters">
   <?= Csrf::field() ?>
   <label>Level-1 transformer <select name="transformer_id" required><?= Ui::options(['' => 'Choose'] + Ui::transformerOptions($tree, 1), '') ?></select></label>
   <label>Slot (UTC) <input type="datetime-local" step="900" name="slot" required></label>

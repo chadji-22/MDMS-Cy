@@ -55,15 +55,27 @@ final class Db
         // Informational messages (PRINT, "rows affected") must not turn a successful call into an error.
         sqlsrv_configure('WarningsReturnAsErrors', 0);
 
-        $name = Config::get('DB_NAME');
-        $user = Config::get('DB_USER');
+        // from the settings, or from the Connect page (kept in the session): see Connect
+        [$name, $user, $pass] = Connect::credentials();
         if ($name === '' || $user === '') {
             throw new DbError(DbError::SERVER, 0, 500, 'The database is not configured (DB_NAME / DB_USER / DB_PASS).');
         }
-        $conn = sqlsrv_connect(Config::get('DB_HOST'), [
+        $conn = sqlsrv_connect(Config::get('DB_HOST'), self::options($name, $user, $pass));
+        if ($conn === false) {
+            throw Errors::fromSqlsrv(sqlsrv_errors(), 'connect');
+        }
+        self::runAs($conn);
+        return $conn;
+    }
+
+    /** sqlsrv_connect() options; the password is only passed through, never logged. */
+    private static function options(string $name, string $user, string $pass): array
+    {
+        return [
             'Database'               => $name,
             'UID'                    => $user,
-            'PWD'                    => Config::get('DB_PASS'),
+            'PWD'                    => $pass,
+            'Encrypt'                => true,      // as the Lab 7 skeleton; ODBC Driver 17 would not encrypt otherwise
             'TrustServerCertificate' => Config::flag('DB_TRUST_CERT'),
             'CharacterSet'           => 'UTF-8',
             'ReturnDatesAsStrings'   => true,
@@ -72,11 +84,44 @@ final class Db
             'ConnectionPooling'      => false,
             'ApplicationIntent'      => 'ReadWrite',
             'APP'                    => 'MDMS-Cy web',
-        ]);
-        if ($conn === false) {
-            throw Errors::fromSqlsrv(sqlsrv_errors(), 'connect');
-        }
+        ];
+    }
 
+    /**
+     * Connect page: tries a database login (and the switch to DB_RUN_AS) without keeping the connection.
+     * Returns null when it works, otherwise a message that is safe to show (no password, no SQL detail).
+     */
+    public static function test(string $name, string $user, string $pass): ?string
+    {
+        if (!function_exists('sqlsrv_connect')) {
+            return 'The PHP sqlsrv extension is not installed on this server.';
+        }
+        sqlsrv_configure('WarningsReturnAsErrors', 0);
+        $conn = sqlsrv_connect(Config::get('DB_HOST'), self::options($name, $user, $pass));
+        if ($conn === false) {
+            $errors = sqlsrv_errors() ?? [];
+            $codes = array_map(static fn(array $e): int => (int) ($e['code'] ?? 0), $errors);
+            if (in_array(4060, $codes, true)) {
+                return 'The login works, but it cannot open the database "' . $name . '". Check the database name.';
+            }
+            if (in_array(18456, $codes, true)) {
+                return 'Login failed: check the login name and the password.';
+            }
+            return Errors::fromSqlsrv($errors, 'connect page')->getUserMessage();   // logged with a reference
+        }
+        try {
+            self::runAs($conn);
+        } catch (DbError $e) {
+            return 'The login works, but the database is not ready for the application (restricted user '
+                . Config::get('DB_RUN_AS') . '): ' . $e->getUserMessage();
+        }
+        sqlsrv_close($conn);
+        return null;
+    }
+
+    /** @param resource $conn */
+    private static function runAs($conn): void
+    {
         // Least privilege: from here on this connection is the login-less user of the role mdms_app.
         $runAs = Config::get('DB_RUN_AS');
         if ($runAs !== '') {
@@ -92,7 +137,6 @@ final class Db
             }
             sqlsrv_free_stmt($st);
         }
-        return $conn;
     }
 
     /**

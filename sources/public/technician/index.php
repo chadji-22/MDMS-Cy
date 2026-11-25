@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         Db::callAsActor($action['procedure'], $params);
         View::flash('ok', $action['message']);
-        header('Location: /technician/', true, 303);
+        header('Location: ' . View::url('/technician/'), true, 303);
         exit;
     } catch (DbError $exception) {
         $error = $exception;
@@ -73,7 +73,7 @@ try {
 
         foreach ($jobs as $job) {
             $jobId = View::h($job['work_order_id']);
-            echo '<tr><td><a href="/technician/job.php?id=' . $jobId . '">#' . $jobId . '</a></td>'
+            echo '<tr><td><a href="' . View::base() . '/technician/job.php?id=' . $jobId . '">#' . $jobId . '</a></td>'
                 . '<td>' . View::h($job['work_type']) . '</td>'
                 . '<td>' . View::h($job['status']) . '</td>'
                 . '<td>' . View::h($job['premise_address'] ?? '—');
@@ -94,7 +94,7 @@ try {
                 if ($action['status'] !== $job['status']) {
                     continue;
                 }
-                echo '<form method="post" action="/technician/">' . Csrf::field()
+                echo '<form method="post" action="' . View::base() . '/technician/">' . Csrf::field()
                     . '<input type="hidden" name="work_order_id" value="' . View::h($job['work_order_id']) . '">'
                     . '<input type="hidden" name="action" value="' . View::h($actionName) . '">';
                 if ($actionName === 'decline') {
@@ -110,9 +110,9 @@ try {
 
             if ($job['work_type'] === 'INSTALLATION' && in_array($job['status'], ['ACCEPTED', 'IN_PROGRESS'], true)) {
                 if ($job['meter_id'] === null) {
-                    echo '<a href="/technician/install-meter.php?id=' . $jobId . '">Register meter</a>';
+                    echo '<a href="' . View::base() . '/technician/install-meter.php?id=' . $jobId . '">Register meter</a>';
                 } else {
-                    echo '<a href="/technician/meter-certificates.php?id=' . View::h($job['meter_id']) . '">Meter certificates</a>';
+                    echo '<a href="' . View::base() . '/technician/meter-certificates.php?id=' . View::h($job['meter_id']) . '">Meter certificates</a>';
                 }
             }
 

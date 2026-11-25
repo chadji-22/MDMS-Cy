@@ -1,6 +1,6 @@
 # MDMS-Cy web application (`sources/`)
 
-Plain PHP ≥ 8.1 with the SQLSRV driver. No Composer, no framework. Every page only calls stored procedures.
+Plain PHP ≥ 8.0 with the SQLSRV driver (the UCY web server runs 8.0.30). No Composer, no framework. Every page only calls stored procedures.
 Task **B1** (framework) is this folder; pages are tasks B2–B9.
 
 ## Layout
@@ -26,9 +26,10 @@ Settings are read from environment variables (or from `src/config.local.php`, wh
 
 | Variable | Meaning |
 |---|---|
-| `DB_HOST` | `mssql.cs.ucy.ac.cy` (SQL Server 2022; not `...\SQL2025`) |
-| `DB_NAME`, `DB_USER`, `DB_PASS` | your database, login, password |
+| `DB_HOST` | `mssql.cs.ucy.ac.cy\SQL2025` (our current build, since 25/11); `mssql.cs.ucy.ac.cy` is the 2022 instance |
+| `DB_NAME`, `DB_USER`, `DB_PASS` | your database, login, password. **`DB_PASS` empty** = the Connect page (`public/connect.php`, Lab 7 style) asks for the database login once per browser session and keeps it only in the PHP session; `DB_NAME`/`DB_USER` are then pre-filled |
 | `DB_RUN_AS` | `mdms_php` (default): the connection switches to this restricted user, see *Security* |
+| `BASE_PATH` | `''` (default) when `public/` is the site root; the URL folder otherwise, e.g. `/~ichara09/mdms` (see **D**) |
 | `APP_DEBUG` | `1` on your own machine only: enables `/health.php` and shows technical detail |
 
 **A. Podman or Docker (what the framework was developed with)**
@@ -41,10 +42,19 @@ DB_PASS="$SQLCMDPASSWORD" podman run -d --name mdms-web -p 8080:80 \
 ```
 On Windows Git Bash prefix the command with `MSYS_NO_PATHCONV=1` and use `$(pwd -W)` for the folder.
 
-**B. XAMPP / UCY web server**: PHP ≥ 8.1 with the `sqlsrv` extension (Microsoft Drivers for PHP) and ODBC Driver 17/18.
+**B. XAMPP / UCY web server**: PHP ≥ 8.0 with the `sqlsrv` extension (Microsoft Drivers for PHP) and ODBC Driver 17/18.
 Point the document root at `sources/public`, and put the settings in `src/config.local.php`.
 
 **C. Without Apache**: `cd sources && php -S 127.0.0.1:8080 -t public` (needs `sqlsrv` in your PHP).
+
+**D. Department web server (`https://students.cs.ucy.ac.cy/~<login>/mdms/`)**: `public_html` cannot be pointed at
+`public/`, so the whole `sources/` folder goes to `~/mdms/` (outside `public_html`) and only `public/` is made visible with a
+symbolic link. Steps and permissions: `notes/B12-subfolder-deploy.md`. PHP runs there as `apache` (PHP 8.0.30), so any
+file PHP can read is readable by every account: keep `DB_PASS` empty and connect on the Connect page.
+```
+~/mdms/                    src/ areas/ public/ var/      (src/config.local.php: settings WITHOUT the password, BASE_PATH = /~<login>/mdms)
+~/public_html/mdms   ->    ~/mdms/public
+```
 
 On Windows, `sources/dev/run-web.ps1 -Database <db>` does this: it asks for the password and keeps it only in that process.
 
@@ -81,6 +91,12 @@ the SQL files. `BASE_URL=... bash tests/market_dso_tso.sh` tests B4, B7, B8, B9 
 database only.
 Each login appends an audit row (`LOGIN_OK`): do not run the smoke test in a loop on the shared database.
 
+`BASE_URL=... DB_FORM_PASS=... bash tests/connect.sh` tests the Connect page (an instance without `DB_PASS`).
+`python tests/crawl_links.py <BASE_URL>` logs in as every role and checks every link stays under `BASE_PATH`.
+`BASE_URL=... [WRITE=1] [DB_FORM_PASS=...] bash tests/run_all.sh` runs all HTTP tests with a summary.
+`sources/dev/ucy-replica.sh` starts a replica of the department server (PHP 8.0.30) that installs `deploy/mdms-app.zip`.
+Who tests what, manual tests and the merge gate: `../TESTING_PLAN.md`. Deployment: `../deploy/DEPLOY.md`.
+
 ## How to add a page (recipe)
 
 1. Create `public/<area>/premises.php`:
@@ -97,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {         // 2. every POST: CSRF firs
     try {
         Db::callAsActor('sp_SetPremiseThreshold', [(int) $_POST['premise_id'], (float) $_POST['kwh']]);
         View::flash('ok', 'Saved.');
-        header('Location: /consumer/premises.php', true, 303); exit;
+        header('Location: ' . View::url('/consumer/premises.php'), true, 303); exit;   // or Ui::redirect('/consumer/premises.php')
     } catch (DbError $e) { $error = $e; }            // 3. show the database's own message
 }
 $rows = Db::rows('sp_ListMyPremises');               // 4. read through a procedure
@@ -124,6 +140,10 @@ View::footer();
 9. Inline scripts/styles are blocked by the Content-Security-Policy: use files under `public/assets/`. A page that needs an
    external source (e.g. Leaflet map tiles) adds it: `View::$cspExtra['img-src'][] = 'https://tile.openstreetmap.org';`
    before `View::header()`.
+10. **Links go through the base path** (the app may live in a sub-folder, `BASE_PATH`): in HTML
+    `href="<?= View::base() ?>/consumer/bills.php"` or `href="<?= View::href($appPath) ?>"`; in PHP
+    `header('Location: ' . View::url('/consumer/'))`. `Ui::redirect()`, `Ui::pager()` and the `areas/*/menu.php` entries take
+    plain application paths (`/tso/tree.php`) and add the base themselves. `tests/audit_pages.php` fails on a bare `"/..."` link.
 
 ## Security (what B1 provides, for the security document D9)
 
@@ -137,7 +157,7 @@ View::footer();
 | CSRF | one token per session, `hash_equals`, required on every POST (logout included) |
 | XSS | `View::h()`; Content-Security-Policy `default-src 'self'`, no inline script/style |
 | Login enumeration | the same status and message for a wrong password, an unknown email, an inactive and an anonymised user |
-| Open redirect | `?next=` is accepted only as a path of this site |
+| Open redirect | `?next=` is accepted only as a path of this application (under `BASE_PATH`, no `..`); the session cookie path is `BASE_PATH/` |
 | Information leak | unknown SQL errors show a reference id; the text goes to the server log only |
 | Clickjacking / sniffing | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, `nosniff` |
 

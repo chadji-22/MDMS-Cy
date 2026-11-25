@@ -44,7 +44,7 @@ if (!isset($catalogs[$catalog])) {
 }
 [$title, $key, $procedure, $fields] = $catalogs[$catalog];
 $formatDecimal = static fn (string $value): string => preg_replace('/\A(-?)\./', '${1}0.', $value);
-$route = '/staff/catalogs.php?catalog=' . rawurlencode($catalog);
+$route = View::url('/staff/catalogs.php?catalog=' . rawurlencode($catalog));   // full URL path (base included)
 $editKey = filter_input(INPUT_GET, 'edit');
 $rows = [];
 $selected = null;
@@ -127,7 +127,7 @@ View::header($title);
 <nav aria-label="Reference catalogs">
     <ul class="cards">
         <?php foreach ($catalogs as $id => $entry): ?>
-            <li><a href="/staff/catalogs.php?catalog=<?= View::h($id) ?>"<?= $id === $catalog ? ' aria-current="page"' : '' ?>><?= View::h($entry[0]) ?></a></li>
+            <li><a href="<?= View::base() ?>/staff/catalogs.php?catalog=<?= View::h($id) ?>"<?= $id === $catalog ? ' aria-current="page"' : '' ?>><?= View::h($entry[0]) ?></a></li>
         <?php endforeach; ?>
     </ul>
 </nav>

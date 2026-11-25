@@ -27,7 +27,7 @@ if ($history === []) {
 $job = $history[0];
 View::header('Job #' . $jobId);
 ?>
-<p><a href="/technician/">Back to My Jobs</a></p>
+<p><a href="<?= View::base() ?>/technician/">Back to My Jobs</a></p>
 <dl>
     <dt>Type</dt><dd><?= View::h($job['work_type']) ?></dd>
     <dt>Status</dt><dd><?= View::h($job['current_status']) ?></dd>

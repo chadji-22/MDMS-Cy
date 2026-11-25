@@ -44,7 +44,7 @@ $sections = [
 
 View::header('System statistics');
 ?>
-<form method="get" action="/staff/statistics.php" class="card">
+<form method="get" action="<?= View::base() ?>/staff/statistics.php" class="card">
     <label>From date (UTC) <input type="date" name="from" value="<?= View::h($from) ?>" required></label>
     <label>Until date (UTC, exclusive) <input type="date" name="until" value="<?= View::h($until) ?>" required></label>
     <button type="submit">Run report</button>

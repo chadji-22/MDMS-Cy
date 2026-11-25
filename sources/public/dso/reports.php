@@ -59,7 +59,7 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="get" action="/dso/reports.php" class="filters">
+<form method="get" action="<?= View::base() ?>/dso/reports.php" class="filters">
   <label>Report <select name="report"><?= Ui::options(REPORTS, $report) ?></select></label>
   <label>Transformer <select name="transformer" required><?= Ui::options(['' => 'Choose'] + Ui::transformerOptions($tree), $in['transformer']) ?></select></label>
   <label>From (UTC) <input type="datetime-local" name="from" value="<?= View::h($in['from']) ?>" required></label>
@@ -108,7 +108,7 @@ if ($error) {
 <?php endif; ?>
 
 <?php if ($rows !== null && $rows !== [] && $report !== 'voltage'): ?>
-  <form method="post" action="/dso/reports.php">
+  <form method="post" action="<?= View::base() ?>/dso/reports.php">
     <?= Csrf::field() ?>
     <input type="hidden" name="report" value="<?= View::h($report) ?>">
     <?php foreach ($in as $name => $v): ?><input type="hidden" name="<?= View::h($name) ?>" value="<?= View::h($v) ?>"><?php endforeach; ?>

@@ -8,7 +8,7 @@ use Mdms\{Auth, Csrf, Db, DbError, View};
 Auth::requireRole('SYSTEM_ADMIN', 'SYSTEM_OFFICER');
 
 $isAdmin = Auth::role() === 'SYSTEM_ADMIN';
-$route = '/staff/accounts.php';
+$route = View::url('/staff/accounts.php');   // full URL path (base included)
 $staffRoles = ['SYSTEM_OFFICER' => 'System officer', 'DSO' => 'DSO', 'TSO' => 'TSO'];
 $organizationTypes = ['SUPPLIER' => 'Supplier', 'AGGREGATOR' => 'Aggregator'];
 $error = null;

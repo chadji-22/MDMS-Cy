@@ -46,9 +46,9 @@ if ($done !== null): ?>
     <?= View::h(Ui::ts($done['from'])) ?> – <?= View::h(Ui::ts($done['to'])) ?>: <?= (int) ($done['meters_processed'] ?? 0) ?> meters processed,
     <?= (int) ($done['meters_failed'] ?? 0) ?> failed. Readings: <?= (int) ($done['readings_valid'] ?? 0) ?> valid,
     <?= (int) ($done['readings_suspect'] ?? 0) ?> suspect, <?= (int) ($done['readings_estimated'] ?? 0) ?> estimated.
-    <?php if ((int) ($done['readings_suspect'] ?? 0) > 0): ?><a href="/dso/suspects.php">Decide the suspect readings</a><?php endif; ?></p>
+    <?php if ((int) ($done['readings_suspect'] ?? 0) > 0): ?><a href="<?= View::base() ?>/dso/suspects.php">Decide the suspect readings</a><?php endif; ?></p>
 <?php endif; ?>
-<form method="post" action="/dso/vee.php" class="card">
+<form method="post" action="<?= View::base() ?>/dso/vee.php" class="card">
   <?= Csrf::field() ?>
   <label>First slot (UTC) <input type="datetime-local" step="900" name="from" value="<?= View::h($in['from']) ?>" required></label>
   <label>Last slot (UTC, included) <input type="datetime-local" step="900" name="to" value="<?= View::h($in['to']) ?>" required></label>

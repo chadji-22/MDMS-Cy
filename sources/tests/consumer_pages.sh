@@ -5,8 +5,11 @@
 # Needs the data of import.sql (password Passw0rd!23). Every login appends one audit row (LOGIN_OK).
 # [project.pdf §1.1-§1.4 p.5-7; §IV p.13 security: unauthorised access is refused]
 BASE="${BASE_URL:-http://localhost:8080}"
+# the application may be served from a sub-folder (BASE_PATH): P is the path part of BASE_URL, EP the same URL-encoded
+P=$(printf '%s' "$BASE" | sed -E 's#^https?://[^/]+##; s#/+$##'); EP=$(printf '%s' "$P" | sed 's#/#%2F#g')
 PW="${DEMO_PASSWORD:-Passw0rd!23}"
 JAR="$(mktemp)"; trap 'rm -f "$JAR"' EXIT
+. "$(dirname "$0")/connect_lib.sh"   # dbconnect: the Connect page, when DB_FORM_PASS is set
 fail=0; pass=0
 ok()  { echo "PASS $1"; pass=$((pass+1)); }
 bad() { echo "FAIL $1  ${2:-}"; fail=$((fail+1)); }
@@ -14,7 +17,7 @@ check() { if eval "$2"; then ok "$1"; else bad "$1" "${3:-}"; fi; }
 token() { curl -s -b "$JAR" -c "$JAR" "$BASE${1:-/login.php}" | sed -n 's/.*name="_csrf" value="\([^"]*\)".*/\1/p' | head -1; }
 status() { curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -c "$JAR" "$@"; }
 body()   { curl -s -b "$JAR" -c "$JAR" "$@"; }
-login()  { : > "$JAR"; local t; t="$(token)"; curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -c "$JAR" \
+login()  { : > "$JAR"; dbconnect; local t; t="$(token)"; curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -c "$JAR" \
              --data-urlencode "_csrf=$t" --data-urlencode "email=$1" --data-urlencode "password=$PW" "$BASE/login.php"; }
 post()   { local page="$1"; shift; local t; t="$(token "$page")"; curl -s -b "$JAR" -c "$JAR" -L --data-urlencode "_csrf=$t" "$@" "$BASE$page"; }
 alert()  { sed -n 's/.*role="alert">\([^<]*\)<.*/\1/p' | head -1; }
@@ -39,7 +42,7 @@ done
 # --- consumer2: every page opens; prosumer import/export; history rule ---------------------------------
 code=$(login consumer2@example.cy); check "consumer2 logs in" '[ "$code" = "303" ]' "got $code"
 home=$(body "$BASE/home.php")
-check "consumer menu lists the 8 pages" '[ "$(echo "$home" | grep -o "href=\"/consumer/[a-z]*\(\.php\)\?\"" | sort -u | wc -l)" -ge 8 ]'
+check "consumer menu lists the 8 pages" '[ "$(echo "$home" | grep -o "href=\"$P/consumer/[a-z]*\(\.php\)\?\"" | sort -u | wc -l)" -ge 8 ]'
 for p in $PAGES; do
   [ "$p" = "/consumer/request.php?id=1" ] && continue
   check "consumer2 opens $p (200)" '[ "$(status "$BASE$p")" = "200" ]'
@@ -88,7 +91,7 @@ check "right to be forgotten without the confirmation box: refused, nothing subm
 # --- large data set (C1, sp_GenerateSyntheticData): the current month is free, with real rows ------------------
 # Runs only when the synthetic prosumer of batch SYN2 exists (password of the generator: Synthetic!23).
 SYN="${SYN_EMAIL:-syn2_000004@synthetic.cy}"
-: > "$JAR"; t="$(token)"
+: > "$JAR"; dbconnect; t="$(token)"
 code=$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -c "$JAR" --data-urlencode "_csrf=$t" --data-urlencode "email=$SYN" \
        --data-urlencode "password=${SYN_PASSWORD:-Synthetic!23}" "$BASE/login.php")
 if [ "$code" = "303" ]; then

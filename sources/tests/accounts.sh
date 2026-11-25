@@ -4,8 +4,11 @@
 # Every run creates one consumer and one technician that stay in the database (users are never deleted): run it on your
 # own database, not on the shared one.
 BASE="${BASE_URL:-http://localhost:8080}"
+# the application may be served from a sub-folder (BASE_PATH): P is the path part of BASE_URL, EP the same URL-encoded
+P=$(printf '%s' "$BASE" | sed -E 's#^https?://[^/]+##; s#/+$##'); EP=$(printf '%s' "$P" | sed 's#/#%2F#g')
 DIR="$(mktemp -d)"; command -v cygpath > /dev/null && DIR="$(cygpath -m "$DIR")"; trap 'rm -rf "$DIR"' EXIT
 JAR="$DIR/jar"; OUT="$DIR/out"; RUN="$(date +%s)$RANDOM"
+. "$(dirname "$0")/connect_lib.sh"   # dbconnect: the Connect page, when DB_FORM_PASS is set
 PW='Κωδικός 12!'; PW2='Another-pass-34'
 fail=0
 check() { if eval "$2"; then echo "PASS $1"; else echo "FAIL $1  (code $CODE) $(grep -o 'role="alert">[^<]*' "$OUT" | tr '\n' ' ')"; fail=$((fail+1)); fi; }
@@ -17,8 +20,8 @@ post()  {  # $1 page, then --form-string name=value / -F name=@file. Values go t
     if [ "$1" = --form-string ]; then n=$((n+1)); printf '%s' "${2#*=}" > "$DIR/v$n"; args+=(-F "${2%%=*}=<$DIR/v$n"); else args+=("$1" "$2"); fi; shift 2
   done
   CODE=$(curl -s -o "$OUT" -D "$DIR/hdr" -w '%{http_code}' -b "$JAR" -c "$JAR" -F "_csrf=$t" "${args[@]}" "$BASE$page"); }
-to()    { [ "$CODE" = 303 ] && tr -d '' < "$DIR/hdr" | grep -qix -- "location: $1"; }   # redirected exactly there
-fresh() { rm -f "$JAR"; : > "$JAR"; }
+to()    { [ "$CODE" = 303 ] && tr -d '' < "$DIR/hdr" | grep -qix -- "location: $P$1"; }   # redirected exactly there ($1 is an application path)
+fresh() { rm -f "$JAR"; : > "$JAR"; dbconnect; }
 login() { post /login.php --form-string "email=$1" --form-string "password=$2"; }
 has()   { grep -qF -- "$1" "$OUT"; }
 
@@ -79,7 +82,7 @@ fresh
 regt 1990-05-05 "$DIR/evil.png";  check "a PHP file named .png is refused as a photo" '[ $CODE = 422 ] && has "must be JPG or PNG"'
 regt 1990-02-30 "$DIR/photo.png"; check "a date that does not exist is refused" '[ $CODE = 422 ] && has "valid birth date"'
 regt 2020-01-01 "$DIR/photo.png"; check "under 18: the message of the database is shown" '[ $CODE = 422 ] && has "18 years"'
-regt 1990-05-05 "$DIR/photo.png"; check "a valid technician is registered (303)" 'to "/login.php?next=%2Faccount%2Fdocuments.php"'
+regt 1990-05-05 "$DIR/photo.png"; check "a valid technician is registered (303)" 'to "/login.php?next=${EP}%2Faccount%2Fdocuments.php"'
 login "$T" "$PW";                 check "the pending technician can log in" 'to /home.php'
 get /home.php;                    check "home says the registration is PENDING" 'has PENDING'
 get /account/photo.php;           check "the own photo is served as an image" '[ $CODE = 200 ] && cmp -s "$OUT" "$DIR/photo.png"'

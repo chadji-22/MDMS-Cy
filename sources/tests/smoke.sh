@@ -3,8 +3,11 @@
 # Uses the demo accounts of import.sql (password Passw0rd!23). Each successful login appends one audit row (LOGIN_OK),
 # so keep the number of runs small on the shared database.
 BASE="${BASE_URL:-http://localhost:8080}"
+# the application may be served from a sub-folder (BASE_PATH): P is the path part of BASE_URL, EP the same URL-encoded
+P=$(printf '%s' "$BASE" | sed -E 's#^https?://[^/]+##; s#/+$##'); EP=$(printf '%s' "$P" | sed 's#/#%2F#g')
 PW="${DEMO_PASSWORD:-Passw0rd!23}"
 JAR="$(mktemp)"; trap 'rm -f "$JAR" "$JAR".*' EXIT
+. "$(dirname "$0")/connect_lib.sh"   # dbconnect: the Connect page, when DB_FORM_PASS is set
 fail=0
 ok()  { echo "PASS $1"; }
 bad() { echo "FAIL $1  ${2:-}"; fail=$((fail+1)); }
@@ -15,10 +18,10 @@ body()   { curl -s -b "$JAR" -c "$JAR" "$@"; }
 login()  { # $1 email $2 password -> prints http code
   local t; t="$(csrf)"
   curl -s -o /dev/null -w '%{http_code}' -b "$JAR" -c "$JAR" --data-urlencode "_csrf=$t" --data-urlencode "email=$1" --data-urlencode "password=$2" "$BASE/login.php"; }
-fresh() { rm -f "$JAR"; : > "$JAR"; }
+fresh() { rm -f "$JAR"; : > "$JAR"; dbconnect; }
 
 fresh
-check "no session: protected page redirects to the login page" '[ "$(curl -s -o /dev/null -w "%{http_code} %{redirect_url}" "$BASE/consumer/")" = "303 $BASE/login.php?next=%2Fconsumer%2F" ]'
+check "no session: protected page redirects to the login page" '[ "$(curl -s -o /dev/null -w "%{http_code} %{redirect_url}" "$BASE/consumer/")" = "303 $BASE/login.php?next=${EP}%2Fconsumer%2F" ]'
 check "login without a CSRF token is refused (403)" '[ "$(curl -s -o /dev/null -w "%{http_code}" -b "$JAR" -c "$JAR" -d "email=a@b.cy&password=x" "$BASE/login.php")" = "403" ]'
 
 # wrong password and unknown email must be indistinguishable
@@ -31,8 +34,8 @@ check "unknown email -> the same 401 and message" '[ "$c2" = "$c1" ] && [ "$m2" 
 fresh; code=$(login consumer1@example.cy "$PW")
 check "consumer1 logs in (303 to home)" '[ "$code" = "303" ]' "got $code"
 home=$(body "$BASE/home.php")
-check "consumer sees the consumer menu" 'echo "$home" | grep -q "href=\"/consumer/\""'
-check "consumer does not see the other menus" '! echo "$home" | grep -q -E "href=\"/(tso|dso|staff|technician|market)/\""'
+check "consumer sees the consumer menu" 'echo "$home" | grep -q "href=\"$P/consumer/\""'
+check "consumer does not see the other menus" '! echo "$home" | grep -q -E "href=\"$P/(tso|dso|staff|technician|market)/\""'
 check "consumer page is allowed (200)" '[ "$(status "$BASE/consumer/")" = "200" ]'
 check "TSO page as consumer is refused (403)" '[ "$(status "$BASE/tso/")" = "403" ]'
 check "staff page as consumer is refused (403)" '[ "$(status "$BASE/staff/")" = "403" ]'
@@ -49,17 +52,21 @@ check "logout POST with the token ends the session" '[ "$(curl -s -o /dev/null -
 # officer: staff + dso, Greek name intact
 fresh; code=$(login officer1@mdms.cy "$PW"); home=$(body "$BASE/home.php")
 check "officer1 logs in" '[ "$code" = "303" ]' "got $code"
-check "officer sees staff and DSO menus only" 'echo "$home" | grep -q "href=\"/staff/\"" && echo "$home" | grep -q "href=\"/dso/\"" && ! echo "$home" | grep -q -E "href=\"/(consumer|tso|technician|market)/\""'
+check "officer sees staff and DSO menus only" 'echo "$home" | grep -q "href=\"$P/staff/\"" && echo "$home" | grep -q "href=\"$P/dso/\"" && ! echo "$home" | grep -q -E "href=\"$P/(consumer|tso|technician|market)/\""'
 check "Greek full name comes back intact (UTF-8)" 'echo "$home" | grep -q "Ελένη Γεωργίου"'
 check "officer reaches /dso/ and /staff/ (200), not /tso/ (403)" '[ "$(status "$BASE/dso/")" = "200" ] && [ "$(status "$BASE/staff/")" = "200" ] && [ "$(status "$BASE/tso/")" = "403" ]'
 
 # tso
 fresh; code=$(login tso@mdms.cy "$PW"); home=$(body "$BASE/home.php")
-check "tso sees only the TSO menu and reaches it" '[ "$code" = "303" ] && echo "$home" | grep -q "href=\"/tso/\"" && ! echo "$home" | grep -q -E "href=\"/(consumer|dso|staff|technician|market)/\"" && [ "$(status "$BASE/tso/")" = "200" ]'
+check "tso sees only the TSO menu and reaches it" '[ "$code" = "303" ] && echo "$home" | grep -q "href=\"$P/tso/\"" && ! echo "$home" | grep -q -E "href=\"$P/(consumer|dso|staff|technician|market)/\"" && [ "$(status "$BASE/tso/")" = "200" ]'
 
 # redirect target must stay on this site
 fresh; t="$(csrf)"; loc=$(curl -s -D - -o /dev/null -b "$JAR" -c "$JAR" --data-urlencode "_csrf=$t" --data-urlencode "next=//evil.example/x" --data-urlencode "email=consumer1@example.cy" --data-urlencode "password=$PW" "$BASE/login.php" | sed -n 's/^[Ll]ocation: //p' | tr -d '\r')
-check "an off-site 'next' is ignored (lands on /home.php)" '[ "$loc" = "/home.php" ]' "got $loc"
+check "an off-site 'next' is ignored (lands on /home.php)" '[ "$loc" = "$P/home.php" ]' "got $loc"
+if [ -n "$P" ]; then   # served from a sub-folder: a "next" into another site of the same host is ignored too
+  fresh; t="$(csrf)"; loc2=$(curl -s -D - -o /dev/null -b "$JAR" -c "$JAR" --data-urlencode "_csrf=$t" --data-urlencode "next=/~someone-else/x.php" --data-urlencode "email=consumer1@example.cy" --data-urlencode "password=$PW" "$BASE/login.php" | sed -n 's/^[Ll]ocation: //p' | tr -d '\r')
+  check "a next outside the application folder is ignored" '[ "$loc2" = "$P/home.php" ]' "got $loc2"
+fi
 check "health endpoint shows the connection runs as mdms_php" 'curl -s "$BASE/health.php" | grep -q "\"sql_user\":\"mdms_php\"" || [ "$(curl -s -o /dev/null -w "%{http_code}" "$BASE/health.php")" = "404" ]'
 
 echo; [ "$fail" -eq 0 ] && echo "smoke.sh: all passed" || echo "smoke.sh: $fail FAILED"

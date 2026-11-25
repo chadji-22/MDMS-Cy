@@ -10,9 +10,10 @@ declare(strict_types=1);
  *   escape     a printed expression that is not obviously escaped (to be read by a person)
  *   inline     an inline script, style or event handler (blocked by the Content-Security-Policy)
  *   actor      an actor_user_id taken from the request
+ *   url        a bare root-absolute link / form target / redirect (breaks when the app is served from a sub-folder)
  */
 $root = dirname(__DIR__);
-$public = ['login.php', 'logout.php', 'index.php', 'health.php', 'register.php', 'register-technician.php'];
+$public = ['login.php', 'logout.php', 'index.php', 'health.php', 'register.php', 'register-technician.php', 'connect.php'];
 
 // --- signatures: procedure => [number of parameters without OUTPUT, required, has actor]
 $sql = '';
@@ -166,11 +167,27 @@ foreach ($files as $file) {
     if (preg_match('/<script(?![^>]*\bsrc=)|<style\b|\sstyle="|\son(click|change|submit|load|input)="/i', $code, $x, PREG_OFFSET_CAPTURE) === 1) {
         $report('inline', trim($x[0][0]), $lineOf($x[0][1]));
     }
+    // url: the application may be served from a sub-folder (BASE_PATH), so a link, form target, script/style source or
+    // redirect must not be a bare "/..." literal: use View::base() in HTML, View::url() / View::href() in PHP.
+    // (Ui::redirect, Ui::pager and the areas/*/menu.php entries take application paths and add the base themselves.)
+    foreach ($tokens as $t) {
+        if (!is_array($t)) {
+            continue;
+        }
+        $bare = match ($t[0]) {
+            T_INLINE_HTML => preg_match('#\b(?:href|action|src)="/(?!/)#', $t[1]) === 1,
+            T_CONSTANT_ENCAPSED_STRING => preg_match('#\b(?:href|action|src)="/(?!/)|^[\'"]Location:\s*/#', $t[1]) === 1,
+            default => false,
+        };
+        if ($bare) {
+            $report('url', 'root-absolute URL without the base: ' . trim(substr($t[1], 0, 80)), $t[2]);
+        }
+    }
     // printed expressions: accepted when every value in them goes through one of these
     preg_match_all('/<\?=\s*(.*?)\s*\?>/s', $code, $echo, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
     foreach ($echo as $e) {
         $x = $e[1][0];
-        $safe = preg_replace('/(?:View::h|Ui::(?:options|badge|pager)|Csrf::field|C\\\\(?:options|premiseOptions)|count|\(int\)\s*)\s*(\((?:[^()]++|(?1))*\))/', 'S', $x) ?? $x;
+        $safe = preg_replace('/(?:View::h|View::href|Ui::(?:options|badge|pager)|Csrf::field|C\\\\(?:options|premiseOptions)|count|\(int\)\s*)\s*(\((?:[^()]++|(?1))*\))/', 'S', $x) ?? $x;
         $safe = preg_replace('/\(int\)\s*\$\w+(?:->\w+|\[[^\]]*\])*(?:\s*\?\?\s*[^)\s]+)?/', 'S', $safe) ?? $safe;
         // what is left of "condition ? 'text' : 'text'" prints constants only: drop the condition
         $printed = preg_match('/^(.*?)\?(?!\?|->)(.*)$/s', $safe, $q) === 1 ? $q[2] : $safe;

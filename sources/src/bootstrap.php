@@ -4,11 +4,11 @@ declare(strict_types=1);
 /**
  * First line of every page:   require __DIR__ . '/../src/bootstrap.php';     (adjust the ../ to the page's depth)
  * Loads the classes, starts the session and installs the last-resort error handler.
- * Plain PHP >= 8.1: no Composer, no framework; every path is built from __DIR__ so the application runs
+ * Plain PHP >= 8.0 (the UCY web server runs 8.0.30): no Composer, no framework; every path is built from __DIR__ so the application runs
  * the same under Apache, XAMPP or `php -S`.
  */
 
-foreach (['Config', 'DbError', 'Errors', 'Db', 'Auth', 'Csrf', 'Menu', 'View', 'Validate', 'Upload', 'Ui', 'Throttle'] as $class) {
+foreach (['Config', 'DbError', 'Errors', 'Connect', 'Db', 'Auth', 'Csrf', 'Menu', 'View', 'Validate', 'Upload', 'Ui', 'Throttle'] as $class) {
     require_once __DIR__ . '/' . $class . '.php';
 }
 

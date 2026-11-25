@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             Db::callAsActor('sp_ResubmitTechnician');
             View::flash('ok', 'Your registration was sent again and is waiting for an officer.');
-            header('Location: ' . SELF, true, 303);
+            header('Location: ' . View::url(SELF), true, 303);
             exit;
         } catch (DbError $e) {
             $dbError = $e;
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($dbError === null) {
                     Upload::remove($oldPath, FOLDER);            // replaced by the new file
                     View::flash('ok', 'The document was uploaded and is waiting for an officer.');
-                    header('Location: ' . SELF, true, 303);
+                    header('Location: ' . View::url(SELF), true, 303);
                     exit;
                 }
             }
@@ -112,7 +112,7 @@ if ($dbError !== null) {
 <?php endif; ?></p>
 
 <?php if ($status === 'REJECTED'): ?>
-  <form method="post" action="<?= SELF ?>">
+  <form method="post" action="<?= View::href(SELF) ?>">
     <?= Csrf::field() ?>
     <input type="hidden" name="action" value="reapply">
     <button type="submit">Apply again</button>
@@ -142,7 +142,7 @@ if ($dbError !== null) {
 <?php foreach ($documents as $d): ?>
   <?php if ($d['approval_status'] === 'REJECTED'): ?>
     <h2>Send again: <?= View::h($types[$d['doc_type']] ?? $d['doc_type']) ?> <?= View::h($d['doc_code']) ?></h2>
-    <form method="post" action="<?= SELF ?>" enctype="multipart/form-data" class="card">
+    <form method="post" action="<?= View::href(SELF) ?>" enctype="multipart/form-data" class="card">
       <?= Csrf::field() ?>
       <input type="hidden" name="action" value="resubmit">
       <input type="hidden" name="document_id" value="<?= View::h($d['document_id']) ?>">
@@ -155,7 +155,7 @@ if ($dbError !== null) {
 <?php endforeach; ?>
 
 <h2>Add a document</h2>
-<form method="post" action="<?= SELF ?>" enctype="multipart/form-data" class="card">
+<form method="post" action="<?= View::href(SELF) ?>" enctype="multipart/form-data" class="card">
   <?= Csrf::field() ?>
   <input type="hidden" name="action" value="add">
   <label>Type

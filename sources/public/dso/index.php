@@ -16,12 +16,12 @@ $critical = Db::rows('sp_GetEvents', [null, 'CRITICAL', null, null, 1, 5]);
 View::header('Telemetry and VEE');
 ?>
 <ul class="cards">
-  <li><a href="/dso/ingest.php">1. Ingest packets</a></li>
-  <li><a href="/dso/vee.php">2. Run VEE</a></li>
-  <li><a href="/dso/suspects.php">3. Decide suspect readings (<?= $suspects >= 500 ? '500 or more' : $suspects ?>)</a></li>
-  <li><a href="/dso/finalize.php">4. Finalize a day</a></li>
-  <?php if (Auth::role() === 'DSO'): ?><li><a href="/dso/reports.php">Network reports</a></li><?php endif; ?>
-  <li><a href="/dso/events.php">Events</a></li>
+  <li><a href="<?= View::base() ?>/dso/ingest.php">1. Ingest packets</a></li>
+  <li><a href="<?= View::base() ?>/dso/vee.php">2. Run VEE</a></li>
+  <li><a href="<?= View::base() ?>/dso/suspects.php">3. Decide suspect readings (<?= $suspects >= 500 ? '500 or more' : $suspects ?>)</a></li>
+  <li><a href="<?= View::base() ?>/dso/finalize.php">4. Finalize a day</a></li>
+  <?php if (Auth::role() === 'DSO'): ?><li><a href="<?= View::base() ?>/dso/reports.php">Network reports</a></li><?php endif; ?>
+  <li><a href="<?= View::base() ?>/dso/events.php">Events</a></li>
 </ul>
 <h2>Latest critical events</h2>
 <?php if ($critical === []): ?>

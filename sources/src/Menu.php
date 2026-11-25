@@ -12,7 +12,7 @@ namespace Mdms;
  */
 final class Menu
 {
-    /** @return array<int,array{label:string,href:string}> */
+    /** @return array<int,array{label:string,href:string}>  href is a full URL path (base included) */
     public static function forRole(string $role): array
     {
         $items = [];
@@ -21,7 +21,8 @@ final class Menu
         foreach ($files as $file) {
             foreach ((array) require $file as $item) {
                 if (isset($item['label'], $item['href'], $item['roles']) && in_array($role, (array) $item['roles'], true)) {
-                    $items[] = ['label' => (string) $item['label'], 'href' => (string) $item['href']];
+                    // menu files hold application paths; the base (sub-folder) is added here
+                    $items[] = ['label' => (string) $item['label'], 'href' => View::url((string) $item['href'])];
                 }
             }
         }

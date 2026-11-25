@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Db::callAsActor('sp_DeleteAvailability', [$slotDate, $slotStart]);
                 View::flash('ok', 'Availability removed.');
             }
-            header('Location: /technician/availability.php', true, 303);
+            header('Location: ' . View::url('/technician/availability.php'), true, 303);
             exit;
         } catch (DbError $error) {
             $requestError = $error;
@@ -77,7 +77,7 @@ if ($requestError !== null) {
 }
 ?>
 <h2>Add or update a slot</h2>
-<form method="post" action="/technician/availability.php" class="card">
+<form method="post" action="<?= View::base() ?>/technician/availability.php" class="card">
     <?= Csrf::field() ?>
     <input type="hidden" name="action" value="save">
     <?php if ($formError !== null): ?>
@@ -114,7 +114,7 @@ if ($requestError !== null) {
                 <td><?= View::h(substr($slot['end_time'], 0, 8)) ?></td>
                 <td><?= View::h($slot['district']) ?></td>
                 <td>
-                    <form method="post" action="/technician/availability.php">
+                    <form method="post" action="<?= View::base() ?>/technician/availability.php">
                         <?= Csrf::field() ?>
                         <input type="hidden" name="action" value="remove">
                         <input type="hidden" name="avail_date" value="<?= View::h($slot['avail_date']) ?>">

@@ -1,0 +1,6 @@
+# install.sh runs on Linux: keep LF even when checked out on Windows
+*.sh  text eol=lf
+*.md  text
+*.py  text eol=lf
+*.php text eol=lf
+*.zip binary

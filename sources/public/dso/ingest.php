@@ -66,7 +66,7 @@ if ($done !== null):
     <?= (int) ($r['readings_inserted'] ?? 0) ?> readings.</p>
   <?php endif; ?>
 <?php endif; ?>
-<form method="post" action="/dso/ingest.php" class="card wide">
+<form method="post" action="<?= View::base() ?>/dso/ingest.php" class="card wide">
   <?= Csrf::field() ?>
   <div class="row">
     <label class="check"><input type="radio" name="mode" value="packet" <?= $mode === 'packet' ? 'checked' : '' ?>> One packet</label>

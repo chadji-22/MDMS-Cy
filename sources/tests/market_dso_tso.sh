@@ -4,8 +4,11 @@
 #   BASE_URL=http://localhost:8080 WRITE=1 bash tests/market_dso_tso.sh    also writes that change data: own database only
 # Needs the demo accounts of import.sql (password Passw0rd!23). Every login appends one audit row.
 BASE="${BASE_URL:-http://localhost:8080}"; PW="${DEMO_PASSWORD:-Passw0rd!23}"
+# the application may be served from a sub-folder (BASE_PATH): P is the path part of BASE_URL, EP the same URL-encoded
+P=$(printf '%s' "$BASE" | sed -E 's#^https?://[^/]+##; s#/+$##'); EP=$(printf '%s' "$P" | sed 's#/#%2F#g')
 DIR="$(mktemp -d)"; command -v cygpath > /dev/null && DIR="$(cygpath -m "$DIR")"; trap 'rm -rf "$DIR"' EXIT
 JAR="$DIR/jar"; OUT="$DIR/out"; fail=0; pass=0; CODE=
+. "$(dirname "$0")/connect_lib.sh"   # dbconnect: the Connect page, when DB_FORM_PASS is set
 check() { if eval "$2"; then echo "PASS $1"; pass=$((pass+1)); else echo "FAIL $1  (code $CODE) $(grep -o 'role="alert">[^<]*' "$OUT" | tr '\n' ' ')"; fail=$((fail+1)); fi; }
 get()   { CODE=$(curl -s -o "$OUT" -D "$DIR/hdr" -w '%{http_code}' -b "$JAR" -c "$JAR" "$BASE$1"); }
 token() { curl -s -b "$JAR" -c "$JAR" "$BASE$1" | sed -n 's/.*name="_csrf" value="\([^"]*\)".*/\1/p' | head -1; }
@@ -13,9 +16,9 @@ post()  { # $1 page, then name=value ... ; values go through files because curl.
   local page="$1" t args=() n=0; shift; t="$(token "$page")"
   for kv in "$@"; do n=$((n+1)); printf '%s' "${kv#*=}" > "$DIR/v$n"; args+=(-F "${kv%%=*}=<$DIR/v$n"); done
   CODE=$(curl -s -o "$OUT" -D "$DIR/hdr" -w '%{http_code}' -b "$JAR" -c "$JAR" -F "_csrf=$t" "${args[@]}" "$BASE$page"); }
-to()    { [ "$CODE" = 303 ] && tr -d '\r' < "$DIR/hdr" | grep -qix -- "location: $1"; }
+to()    { [ "$CODE" = 303 ] && tr -d '\r' < "$DIR/hdr" | grep -qix -- "location: $P$1"; }   # $1 is an application path
 has()   { grep -qF -- "$1" "$OUT"; }
-login() { rm -f "$JAR"; : > "$JAR"; post /login.php "email=$1" "password=$PW"; to /home.php || echo "     (login of $1 failed: $CODE)"; }
+login() { rm -f "$JAR"; : > "$JAR"; dbconnect; post /login.php "email=$1" "password=$PW"; to /home.php || echo "     (login of $1 failed: $CODE)"; }
 
 MARKET="/market/ /market/day-ahead.php /market/intraday.php /market/data.php"
 CHAIN="/dso/ /dso/ingest.php /dso/vee.php /dso/suspects.php /dso/finalize.php"
@@ -25,7 +28,7 @@ ALL="$MARKET /market/bills.php $CHAIN /dso/reports.php /dso/events.php $TSO $BOT
 
 # --- nobody gets in without a session or with the wrong role
 : > "$JAR"
-for p in $ALL; do get "$p"; check "no session: $p goes to the login" '[ $CODE = 303 ] && grep -qi "^location: /login.php" "$DIR/hdr"'; done
+for p in $ALL; do get "$p"; check "no session: $p goes to the login" '[ $CODE = 303 ] && grep -qi "^location: $P/login.php" "$DIR/hdr"'; done
 for p in /market/api/portfolio.php /market/api/day-ahead.php /market/api/intraday.php /tso/map-data.php; do
   get "$p"; check "no session: $p answers 401 as JSON" '[ $CODE = 401 ] && has "\"error\"" && grep -qi "application/json" "$DIR/hdr"'; done
 login consumer1@example.cy
@@ -108,7 +111,7 @@ if [ "${WRITE:-0}" = 1 ]; then
 fi
 
 # --- B10: throttling (one email that does not exist, so no real account is locked)
-rm -f "$JAR"; : > "$JAR"; E="nobody$RANDOM$RANDOM@example.cy"
+rm -f "$JAR"; : > "$JAR"; dbconnect; E="nobody$RANDOM$RANDOM@example.cy"
 for i in 1 2 3 4 5; do post /login.php "email=$E" password=wrong-password; done; check "five wrong passwords: still 401" '[ $CODE = 401 ]'
 post /login.php "email=$E" password=wrong-password; check "the sixth is refused for a while (429)" '[ $CODE = 429 ] && grep -qi "^retry-after:" "$DIR/hdr"'
 login consumer1@example.cy; get /home.php; check "other users are not affected" '[ $CODE = 200 ]'

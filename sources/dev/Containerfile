@@ -1,6 +1,6 @@
 # Development image: PHP 8.3 + Apache + Microsoft ODBC Driver 18 + the SQLSRV / PDO_SQLSRV extensions.
 # Only a local test harness: the application itself is plain PHP and runs the same under XAMPP or the UCY web server
-# (anything that has PHP >= 8.1 with the sqlsrv extension).
+# (anything that has PHP >= 8.0 with the sqlsrv extension; dev/Containerfile.php80 mirrors the UCY server).
 FROM docker.io/library/php:8.3-apache
 
 RUN apt-get update \

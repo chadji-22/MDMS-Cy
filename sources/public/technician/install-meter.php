@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $fields['communication_type'], $latitude, $longitude, $meterType, null, $transformer,
             ]);
             View::flash('ok', 'Meter #' . $meter['meter_id'] . ' registered and pending approval.');
-            header('Location: /technician/', true, 303);
+            header('Location: ' . View::url('/technician/'), true, 303);
             exit;
         } catch (DbError $error) {
             $dbError = $error;
@@ -70,14 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 View::header('Register meter for job #' . $jobId);
 ?>
-<p><a href="/technician/">Back to My Jobs</a></p>
+<p><a href="<?= View::base() ?>/technician/">Back to My Jobs</a></p>
 <?php if ($formError !== null): ?>
     <p class="flash error" role="alert"><?= View::h($formError) ?></p>
 <?php endif; ?>
 <?php if ($dbError !== null): ?>
     <?php View::error($dbError); ?>
 <?php endif; ?>
-<form method="post" action="/technician/install-meter.php?id=<?= View::h($jobId) ?>" class="card">
+<form method="post" action="<?= View::base() ?>/technician/install-meter.php?id=<?= View::h($jobId) ?>" class="card">
     <?= Csrf::field() ?>
     <label>Serial number <input name="serial_number" maxlength="50" value="<?= View::h($fields['serial_number']) ?>" required></label>
     <label>Network ID <input name="network_id" maxlength="60" value="<?= View::h($fields['network_id']) ?>" required></label>

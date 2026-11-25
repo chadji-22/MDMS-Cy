@@ -17,7 +17,7 @@ $rows = Db::rows('sp_GetTransformerState', [$root, $level]);
 
 View::header('Current state');
 ?>
-<form method="get" action="/tso/state.php" class="filters">
+<form method="get" action="<?= View::base() ?>/tso/state.php" class="filters">
   <label>Under <select name="root"><?= Ui::options(['' => 'All transformers'] + Ui::transformerOptions($tree), $root) ?></select></label>
   <label>Level <input type="number" class="short" name="level" min="1" max="255" value="<?= View::h($level) ?>"></label>
   <button type="submit">Show</button>

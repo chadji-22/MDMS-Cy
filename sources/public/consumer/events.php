@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             throw new DbError(DbError::INPUT, 50004, 422, 'Unknown action.');
         }
-        header('Location: /consumer/events.php?premise_id=' . (int) $premiseId, true, 303);
+        header('Location: ' . View::url('/consumer/events.php?premise_id=') . (int) $premiseId, true, 303);
         exit;
     } catch (DbError $e) {
         $error = $e;
@@ -76,13 +76,13 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="get" action="/consumer/events.php" class="filters">
+<form method="get" action="<?= View::base() ?>/consumer/events.php" class="filters">
   <label>Premise <select name="premise_id"><?= C\premiseOptions($premiseId) ?></select></label>
   <button type="submit">Show</button>
 </form>
 
 <div class="grid2">
-  <form method="post" action="/consumer/events.php" class="card">
+  <form method="post" action="<?= View::base() ?>/consumer/events.php" class="card">
     <?= Csrf::field() ?>
     <input type="hidden" name="action" value="threshold">
     <input type="hidden" name="premise_id" value="<?= (int) $premiseId ?>">
@@ -96,7 +96,7 @@ if ($error) {
       <?php if (($premise['monthly_threshold_kwh'] ?? null) !== null): ?><button type="submit" name="clear" value="1" class="secondary">Remove</button><?php endif; ?></div>
   </form>
 
-  <form method="post" action="/consumer/events.php" class="card">
+  <form method="post" action="<?= View::base() ?>/consumer/events.php" class="card">
     <?= Csrf::field() ?>
     <input type="hidden" name="action" value="notify">
     <input type="hidden" name="premise_id" value="<?= (int) $premiseId ?>">

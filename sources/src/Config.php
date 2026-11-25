@@ -22,6 +22,9 @@ final class Config
         'DB_TRUST_CERT'  => '1',   // the course server uses a certificate the PHP driver does not trust by default
         'APP_DEBUG'      => '0',   // 1 only on a developer machine: exposes /health.php, shows technical detail
         'SESSION_IDLE_MIN' => '30',
+        // URL prefix when public/ is not the site root, e.g. '/~ichara09/mdms' on students.cs.ucy.ac.cy.
+        // Empty = the app is served at '/'. Every link goes through View::url() / View::href(), which add it.
+        'BASE_PATH'      => '',
     ];
 
     /** @var array<string,string>|null */

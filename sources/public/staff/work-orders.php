@@ -24,7 +24,7 @@ $pageLink = static fn (int $number): string => '?' . http_build_query(['status' 
 
 View::header('Work orders');
 ?>
-<form method="get" action="/staff/work-orders.php" class="card">
+<form method="get" action="<?= View::base() ?>/staff/work-orders.php" class="card">
     <label>Status
         <select name="status">
             <option value="">All statuses</option>
@@ -45,7 +45,7 @@ View::header('Work orders');
         <tbody>
         <?php foreach ($orders as $order): ?>
             <tr>
-                <td><a href="/staff/work-order.php?id=<?= View::h($order['work_order_id']) ?>">#<?= View::h($order['work_order_id']) ?></a></td>
+                <td><a href="<?= View::base() ?>/staff/work-order.php?id=<?= View::h($order['work_order_id']) ?>">#<?= View::h($order['work_order_id']) ?></a></td>
                 <td><?= View::h($order['work_type']) ?></td>
                 <td><?= View::h($order['status']) ?></td>
                 <td><?= View::h($order['premise_address'] ?? '—') ?></td>

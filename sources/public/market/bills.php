@@ -61,7 +61,7 @@ if ($run !== null):
   <?php endif; ?>
 <?php endif; ?>
 
-<form method="get" action="/market/bills.php" class="filters">
+<form method="get" action="<?= View::base() ?>/market/bills.php" class="filters">
   <label>Status <select name="status"><?= Ui::options(['' => 'All'] + array_combine(STATUSES, STATUSES), $status) ?></select></label>
   <label>Year <input type="number" class="short" name="year" min="2000" max="2100" value="<?= View::h($year) ?>"></label>
   <label>Month <input type="number" class="short" name="month" min="1" max="12" value="<?= View::h($month) ?>"></label>
@@ -85,7 +85,7 @@ if ($run !== null):
 <?= Ui::pager('/market/bills.php', ['status' => $status, 'year' => $year, 'month' => $month], $page, count($bills), SIZE) ?>
 
 <h2>Issue the bills of a month</h2>
-<form method="post" action="/market/bills.php" class="card">
+<form method="post" action="<?= View::base() ?>/market/bills.php" class="card">
   <?= Csrf::field() ?>
   <p class="muted">One bill for every premise of your organization with a final monthly total. A premise that already has a
     bill for the month is left out, so it is safe to run again.</p>

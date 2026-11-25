@@ -62,7 +62,7 @@ if ($isPost) {
             ]);
             $_SESSION['name'] = $fullName;                 // shown in the page header
             View::flash('ok', 'Your profile was saved.');
-            header('Location: /account/profile.php', true, 303);
+            header('Location: ' . View::url('/account/profile.php'), true, 303);
             exit;
         } catch (DbError $e) {
             $dbError = $e;
@@ -92,16 +92,16 @@ if ($dbError !== null) {
       <tr><th scope="row">Member since</th><td><?= View::h(substr((string) $profile['created_at'], 0, 10)) ?></td></tr>
     <?php endif; ?>
     <?php if ($isTechnician): ?>
-      <tr><th scope="row">Approval</th><td><?= View::h($profile['approval_status']) ?> · <a href="/account/documents.php">My documents</a></td></tr>
+      <tr><th scope="row">Approval</th><td><?= View::h($profile['approval_status']) ?> · <a href="<?= View::base() ?>/account/documents.php">My documents</a></td></tr>
       <tr><th scope="row">Specialty</th><td><?= View::h($profile['specialty']) ?></td></tr>
       <tr><th scope="row">Birth date</th><td><?= View::h($profile['birth_date']) ?></td></tr>
-      <tr><th scope="row">Photo</th><td><a href="/account/photo.php">Show my photo</a></td></tr>
+      <tr><th scope="row">Photo</th><td><a href="<?= View::base() ?>/account/photo.php">Show my photo</a></td></tr>
     <?php endif; ?>
   </tbody>
 </table>
 
 <h2>Change my details</h2>
-<form method="post" action="/account/profile.php" class="card">
+<form method="post" action="<?= View::base() ?>/account/profile.php" class="card">
   <?= Csrf::field() ?>
   <label>Full name <input name="full_name" value="<?= View::h($in['full_name']) ?>" maxlength="150" autocomplete="name" required></label>
   <label>Phone <input type="tel" name="phone" value="<?= View::h($in['phone']) ?>" maxlength="20" autocomplete="tel"></label>
@@ -112,6 +112,6 @@ if ($dbError !== null) {
   <?php endif; ?>
   <button type="submit">Save</button>
 </form>
-<p><a href="/account/password.php">Change my password</a></p>
+<p><a href="<?= View::base() ?>/account/password.php">Change my password</a></p>
 <?php
 View::footer();

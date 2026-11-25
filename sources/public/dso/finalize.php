@@ -71,7 +71,7 @@ if ($done !== null): ?>
     <?= (int) ($built['month_rows'] ?? 0) ?> month and <?= (int) ($built['year_rows'] ?? 0) ?> year rows written.</p>
 <?php endif; ?>
 <div class="grid2">
-  <form method="post" action="/dso/finalize.php" class="card">
+  <form method="post" action="<?= View::base() ?>/dso/finalize.php" class="card">
     <?= Csrf::field() ?>
     <h2>1. Readings of the meters</h2>
     <p class="muted">A meter is finalized when it has 96 slots of 1.8.0 and no PENDING or SUSPECT reading.
@@ -80,7 +80,7 @@ if ($done !== null): ?>
     <label>Only meter no. (optional) <input type="number" name="meter_id" min="1" value="<?= View::h($in['meter_id']) ?>"></label>
     <button type="submit" name="action" value="finalize">Finalize</button>
   </form>
-  <form method="post" action="/dso/finalize.php" class="card">
+  <form method="post" action="<?= View::base() ?>/dso/finalize.php" class="card">
     <?= Csrf::field() ?>
     <h2>2. Aggregates of the transformers</h2>
     <p class="muted">Sums the final readings up the tree, for each 15 minutes and for the day. Also immutable.</p>

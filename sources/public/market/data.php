@@ -22,7 +22,7 @@ View::header('Data for other systems');
   <thead><tr><th>Address (GET)</th><th>Parameters</th><th>Content</th></tr></thead>
   <tbody>
   <?php foreach ($endpoints as [$path, $parameters, $content]): ?>
-    <tr><td><a href="<?= View::h($path) ?>"><?= View::h($path) ?></a></td><td><?= View::h($parameters) ?></td><td><?= View::h($content) ?></td></tr>
+    <tr><td><a href="<?= View::href($path) ?>"><?= View::href($path) ?></a></td><td><?= View::h($parameters) ?></td><td><?= View::h($content) ?></td></tr>
   <?php endforeach; ?>
   </tbody>
 </table></div>

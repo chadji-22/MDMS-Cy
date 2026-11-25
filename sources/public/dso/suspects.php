@@ -54,7 +54,7 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="get" action="/dso/suspects.php" class="filters">
+<form method="get" action="<?= View::base() ?>/dso/suspects.php" class="filters">
   <label>From (UTC) <input type="datetime-local" name="from" value="<?= View::h($filters['from'] ?? '') ?>"></label>
   <label>To (UTC) <input type="datetime-local" name="to" value="<?= View::h($filters['to'] ?? '') ?>"></label>
   <button type="submit">Show</button>
@@ -73,7 +73,7 @@ if ($error) {
         <td class="num"><?= View::h(Ui::num($r['next_value'], 4)) ?></td><td class="num"><?= View::h(Ui::num($r['delta_value'], 4)) ?></td>
         <td><?= Ui::badge((string) $r['vee_rule']) ?> <span class="small"><?= View::h($r['vee_note']) ?></span></td>
         <td>
-          <form method="post" action="<?= View::h($self) ?>" class="inline">
+          <form method="post" action="<?= View::href($self) ?>" class="inline">
             <?= Csrf::field() ?>
             <input type="hidden" name="reading_id" value="<?= (int) $r['reading_id'] ?>">
             <input name="new_value" class="short" inputmode="decimal" placeholder="new value" aria-label="New value of reading <?= (int) $r['reading_id'] ?>">
@@ -90,7 +90,7 @@ if ($error) {
 <?= Ui::pager('/dso/suspects.php', $filters, $page, count($rows), SIZE) ?>
 
 <h2>Edit an estimated or already edited reading</h2>
-<form method="post" action="<?= View::h($self) ?>" class="card">
+<form method="post" action="<?= View::href($self) ?>" class="card">
   <?= Csrf::field() ?>
   <input type="hidden" name="action" value="edit">
   <label>Reading no. <input type="number" name="reading_id" min="1" required></label>

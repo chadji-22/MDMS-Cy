@@ -11,7 +11,7 @@ if ($isPost) {
     Csrf::verify();
 }
 
-$route = '/staff/remote-commands.php';
+$route = View::url('/staff/remote-commands.php');   // full URL path (base included)
 $intOptions = ['options' => ['min_range' => 1, 'max_range' => 2147483647]];
 $commandId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, $intOptions);
 if ($commandId === false || ($isPost && $commandId === null)) {

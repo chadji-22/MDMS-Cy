@@ -18,7 +18,7 @@ try {
 
 View::header('Meter approvals');
 ?>
-<form method="get" action="/staff/meter-review.php" class="card">
+<form method="get" action="<?= View::base() ?>/staff/meter-review.php" class="card">
     <label>Meter ID <input type="number" name="id" min="1" max="2147483647" required></label>
     <button type="submit">Open meter</button>
 </form>
@@ -36,7 +36,7 @@ if ($error !== null) {
         <tbody>
         <?php foreach ($meters as $meter): ?>
             <tr>
-                <td><a href="/staff/meter-review.php?id=<?= View::h($meter['meter_id']) ?>"><?= View::h($meter['serial_number']) ?></a></td>
+                <td><a href="<?= View::base() ?>/staff/meter-review.php?id=<?= View::h($meter['meter_id']) ?>"><?= View::h($meter['serial_number']) ?></a></td>
                 <td><?= View::h($meter['premise_address']) ?></td>
                 <td><?= View::h($meter['district']) ?></td>
                 <td><?= View::h($meter['transformer_name']) ?></td>

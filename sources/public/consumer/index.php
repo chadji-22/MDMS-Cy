@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $form['prosumer_scheme'], $supplier,
         ]);
         View::flash('ok', 'Premise #' . (int) ($res[0]['premise_id'] ?? 0) . ' added. A technician installs its meter after an officer creates the installation job.');
-        header('Location: /consumer/', true, 303);
+        header('Location: ' . View::url('/consumer/'), true, 303);
         exit;
     } catch (DbError $e) {
         $error = $e;
@@ -76,9 +76,9 @@ if ($error) {
                 : '<span class="mono">' . View::h($p['serial_number']) . '</span><div><span class="badge">' . View::h($p['meter_status']) . '</span></div>' ?></td>
         <td><?= $p['monthly_threshold_kwh'] === null ? '—' : View::h(C\num($p['monthly_threshold_kwh'], 1)) . ' kWh' ?></td>
         <td class="links">
-          <a href="/consumer/readings.php?premise_id=<?= $id ?>">Readings</a>
-          <a href="/consumer/aggregates.php?premise_id=<?= $id ?>">Totals</a>
-          <a href="/consumer/events.php?premise_id=<?= $id ?>">Events</a>
+          <a href="<?= View::base() ?>/consumer/readings.php?premise_id=<?= $id ?>">Readings</a>
+          <a href="<?= View::base() ?>/consumer/aggregates.php?premise_id=<?= $id ?>">Totals</a>
+          <a href="<?= View::base() ?>/consumer/events.php?premise_id=<?= $id ?>">Events</a>
         </td>
       </tr>
     <?php endforeach; ?>
@@ -87,7 +87,7 @@ if ($error) {
 <?php endif; ?>
 
 <h2>Add a premise</h2>
-<form method="post" action="/consumer/" class="card wide">
+<form method="post" action="<?= View::base() ?>/consumer/" class="card wide">
   <?= Csrf::field() ?>
   <label>Address <input name="address" required maxlength="250" value="<?= View::h($form['address']) ?>"></label>
   <div class="row">

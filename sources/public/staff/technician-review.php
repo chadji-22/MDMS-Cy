@@ -27,7 +27,7 @@ if ($rows === []) {
 }
 
 $technician = $rows[0];
-$path = '/staff/technician-review.php?id=' . $technicianId;
+$path = View::url('/staff/technician-review.php?id=' . $technicianId);   // full URL path (base included)
 $types = ['ID_CARD' => 'Identity card', 'INSTALLER_LICENSE' => 'Installer licence', 'TRAINING_CERT' => 'Training certificate'];
 $documents = [];
 $approved = [];
@@ -103,7 +103,7 @@ if ($isPost) {
 
 View::header('Review technician #' . $technicianId);
 ?>
-<p><a href="/staff/technicians.php">Back to Technician approvals</a></p>
+<p><a href="<?= View::base() ?>/staff/technicians.php">Back to Technician approvals</a></p>
 <dl>
     <dt>Name</dt><dd><?= View::h($technician['full_name']) ?></dd>
     <dt>Email</dt><dd><?= View::h($technician['email']) ?></dd>

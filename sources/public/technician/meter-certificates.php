@@ -36,7 +36,7 @@ $types = [
 $type = $code = $issued = $expires = '';
 $formError = null;
 $dbError = null;
-$path = '/technician/meter-certificates.php?id=' . $meterId;
+$path = View::url('/technician/meter-certificates.php?id=' . $meterId);   // full URL path (base included)
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $type = (string) filter_input(INPUT_POST, 'doc_type');
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 View::header('Certificates for meter #' . $meterId);
 ?>
-<p><a href="/technician/">Back to My Jobs</a></p>
+<p><a href="<?= View::base() ?>/technician/">Back to My Jobs</a></p>
 <p>Meter serial number: <?= View::h($meterRows[0]['serial_number']) ?></p>
 <?php if ($formError !== null): ?>
     <p class="flash error" role="alert"><?= View::h($formError) ?></p>
