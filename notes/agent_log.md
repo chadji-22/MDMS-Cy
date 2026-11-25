@@ -262,3 +262,10 @@ Done:      1. pushed ioannis/C6-log-cap (a343c52, new branch).
               531/531 page requests, 11/11 detail pages (test fix: technician id 27 -> 9), 0 app errors.
 Not done:  step 4 (fast-forward io to integration-2, push) waits for the advisor and Ioannis.
 ```
+
+## 2026-11-25 14:30 — C4 re-checked
+```
+Done:      Eliana's 18/11 .dat files + bulk_import.sql load into today's schema with no error; row counts equal the demo
+           data (evidence/C4-recheck). Correction: earlier notes called C4 incomplete; only the NOTIFICATION line (0 rows)
+           is missing from the list, which is optional.
+```
