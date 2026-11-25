@@ -1,0 +1,64 @@
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-27 08:00:00
+
+premise_id
+----------
+14
+
+work_order_id status
+------------- ------
+16 SUBMITTED
+
+work_order_id status
+------------- ------
+16 ASSIGNED
+
+work_order_id status
+------------- ------
+16 ACCEPTED
+
+work_order_id status
+------------- ------
+16 IN_PROGRESS
+
+meter_id status transformer_id
+-------- ------ --------------
+14 PENDING 18
+
+document_id
+-----------
+46
+
+document_id
+-----------
+47
+
+document_id
+-----------
+48
+
+document_id approval_status
+----------- ---------------
+46 APPROVED
+
+document_id approval_status
+----------- ---------------
+47 APPROVED
+
+document_id approval_status
+----------- ---------------
+48 APPROVED
+
+meter_id status
+-------- ------
+14 ACTIVE
+
+work_order_id status
+------------- ------
+16 COMPLETED
+
+meter_id serial_number network_id status activated_at transformer_id premise_id retention_months
+-------- ------------- ---------- ------ ------------ -------------- ---------- ----------------
+14 DEMO-SERIAL-001 DEMO-NET-001 ACTIVE 2026-11-25 11:21:43 18 14 36
+

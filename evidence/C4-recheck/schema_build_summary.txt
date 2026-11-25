@@ -1,0 +1,12 @@
+--- import.sql ---
+(import.sql skipped for the bulk import test)
+object_kind objects
+----------- -------
+1 tables 25
+2 views 8
+3 scalar functions 8
+4 table functions 2
+5 triggers 24
+6 procedures 118
+7 indexes (non-key, of indexes.sql) 15
+build_all.sql finished.

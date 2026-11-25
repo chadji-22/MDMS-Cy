@@ -1,0 +1,9 @@
+meters_processed meters_failed readings_valid readings_suspect readings_estimated
+---------------- ------------- -------------- ---------------- ------------------
+1 0 0 1 0
+
+reading_id status value
+---------- ------ -----
+8097 EDITED 230.0000
+
+PASS: manual edit, original reading and audit entry verified.

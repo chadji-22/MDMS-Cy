@@ -1,0 +1,26 @@
+seq result test detail
+--- ------ ---- ------
+1 PASS T1 valid packet -> MATCHED, 2 readings stored as PENDING MATCHED / readings 2
+2 PASS T1b same packet again -> MATCHED, 0 readings, DUPLICATE_READING event, still 2 readings in the slot MATCHED / readings 0
+3 PASS T2 unknown meter -> UNMATCHED, 0 readings, PACKET_UNMATCHED WARNING event UNMATCHED / readings 0
+4 PASS T3 wrong unit -> MATCHED, 1 reading stored as SUSPECT (UNIT_MISMATCH) MATCHED / readings 1
+
+result tests
+------ -----
+PASS 4
+
+packet_id meter_network_id transmission_timestamp match_status meter_id event_type severity
+--------- ---------------- ---------------------- ------------ -------- ---------- --------
+2316 DEMO-NET-001 2025-06-10 10:15:00 MATCHED 14 NULL NULL
+2317 DEMO-NET-001 2025-06-10 10:15:00 MATCHED 14 DUPLICATE_READING INFO
+2318 DEMO-UNKNOWN-001 2025-06-10 10:30:00 UNMATCHED NULL PACKET_UNMATCHED WARNING
+2319 DEMO-NET-001 2025-06-10 10:30:00 MATCHED 14 NULL NULL
+
+reading_id packet_id reading_timestamp obis_code value status vee_rule is_final
+---------- --------- ----------------- --------- ----- ------ -------- --------
+8072 2316 2025-06-10 10:15:00 1.8.0 1000.5000 PENDING NULL 0
+8073 2316 2025-06-10 10:15:00 32.7.0 231.0000 PENDING NULL 0
+8074 2319 2025-06-10 10:30:00 32.7.0 230.0000 SUSPECT UNIT_MISMATCH 0
+
+clean-up: 2 events, 3 readings, 4 packets deleted.
+test_telemetry_ingest.sql: 4 tests, 0 not passed.

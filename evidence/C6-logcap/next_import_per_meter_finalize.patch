@@ -1,0 +1,26 @@
+diff --git a/import.sql b/import.sql
+index 316168d..358db8a 100644
+--- a/import.sql
++++ b/import.sql
+@@ -368,8 +368,19 @@ BEGIN
+     EXEC [dbo].[sp_AcceptSuspectReading] @off1, @reading, N'Σωστή τιμή μετά τη διόρθωση της προηγούμενης';
+ END
+ 
+-EXEC [dbo].[sp_FinalizeReadings] @off1, @d1, NULL;
+-EXEC [dbo].[sp_FinalizeReadings] @off1, @d2, NULL;          -- last day of the month: the MONTH aggregates follow
++-- one meter per call: a single call for all meters writes more log than the 12 MB log cap of the course database allows
++-- (error 9002); the result is the same. @d2 is the last day of the month: the MONTH aggregates follow
++DECLARE @fin_meter INT;
++DECLARE fin_cur CURSOR LOCAL FAST_FORWARD FOR SELECT meter_id FROM [dbo].[METER] WHERE status = 'ACTIVE' ORDER BY meter_id;
++OPEN fin_cur; FETCH NEXT FROM fin_cur INTO @fin_meter;
++WHILE @@FETCH_STATUS = 0
++BEGIN
++    EXEC [dbo].[sp_FinalizeReadings] @off1, @d1, @fin_meter;
++    EXEC [dbo].[sp_FinalizeReadings] @off1, @d2, @fin_meter;
++    CHECKPOINT;
++    FETCH NEXT FROM fin_cur INTO @fin_meter;
++END
++CLOSE fin_cur; DEALLOCATE fin_cur;
+ EXEC [dbo].[sp_BuildTransformerAggregates] @dso, @d1, 0;
+ EXEC [dbo].[sp_BuildTransformerAggregates] @dso, @d2, 0;
+ EXEC [dbo].[sp_RefreshTransformerState] @tso, NULL;

@@ -1,0 +1,18 @@
+code under test: 92f4fe0 on ioannis/integration-2
+13:42:20 build 1 exit=0 tables 25 triggers 24 procedures 118 indexes (non-key, of indexes.sql) 15 
+13:42:50 build 2 exit=0 tables 25 triggers 24 procedures 118 indexes (non-key, of indexes.sql) 15 
+13:42:52 tests.sql: 82 tests, 0 not passed.
+13:42:55 telemetry/VEE: 26 passed (expect 26), files failed: 0
+13:42:57 select.sql exit=0 use cases 20
+13:43:13 smoke: PASS=23 FAIL=0
+13:43:29 consumer_pages WRITE=1: PASS=63 FAIL=0
+13:43:41 accounts: PASS=47 FAIL=0
+13:44:06 market read-only: PASS=152 FAIL=0
+13:44:34 market WRITE=1: PASS=160 FAIL=0
+13:44:35 errors_test exit=0
+13:44:35 db_integration exit=0
+13:44:37 audit_pages exit=0 116 procedure calls checked, 0 errors, 15 to review.
+13:44:52 page crawl: 59 pages x 8 roles + anonymous = 531 requests, 0 failed.
+13:44:53 detail pages: 11 requests, 1 failed (test bug: hard-coded technician id 27 does not exist in a fresh DB; fixed to id 9, re-run: 11 requests, 0 failed)
+13:44:54 app error log [MDMS ref] lines: 0
+13:44:54 DONE

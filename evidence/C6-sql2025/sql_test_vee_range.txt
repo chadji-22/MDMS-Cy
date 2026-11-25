@@ -1,0 +1,22 @@
+seq result test detail
+--- ------ ---- ------
+1 PASS R0 ingest: 5 voltage readings are PENDING before VEE 5 readings
+2 PASS R1 sp_RunVEE summary: 1 meter, 2 suspect, 3 valid, 0 estimated processed 1, failed 0, valid 3, suspect 2, estimated 0
+3 PASS R2 450 V and -5 V -> SUSPECT / RANGE with a note, value untouched NULL
+4 PASS R3 230 V, 400 V (upper limit) and 0 V (lower limit) -> VALID / AUTO, not left PENDING 3 readings
+5 PASS R4 second run -> nothing to do, the SUSPECT readings stay SUSPECT NULL
+
+result tests
+------ -----
+PASS 5
+
+reading_timestamp obis_code value status vee_rule vee_note
+----------------- --------- ----- ------ -------- --------
+2025-06-12 10:00:00 32.7.0 230.0000 VALID AUTO NULL
+2025-06-12 10:15:00 32.7.0 450.0000 SUSPECT RANGE Value outside the allowed range of the code
+2025-06-12 10:30:00 32.7.0 -5.0000 SUSPECT RANGE Value outside the allowed range of the code
+2025-06-12 10:45:00 32.7.0 400.0000 VALID AUTO NULL
+2025-06-12 11:00:00 32.7.0 0.0000 VALID AUTO NULL
+
+clean-up: 4 events, 5 readings, 5 packets deleted.
+test_vee_range.sql: 5 tests, 0 not passed.

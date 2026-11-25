@@ -1,0 +1,46 @@
+TABLE|DEPARTMENT|0|cols=4
+TABLE|DEPENDENT|0|cols=5
+TABLE|EMPLOYEE|0|cols=10
+TABLE|L8_Customers|29|cols=18
+TABLE|L8_Employee Privileges|1|cols=2
+TABLE|L8_Employees|9|cols=18
+TABLE|L8_Inventory Transaction Types|4|cols=2
+TABLE|L8_Inventory Transactions|102|cols=9
+TABLE|L8_Invoices|35|cols=7
+TABLE|L8_Order Details|58|cols=10
+TABLE|L8_Order Details Status|6|cols=2
+TABLE|L8_Orders|48|cols=20
+TABLE|L8_Orders Status|4|cols=2
+TABLE|L8_Orders Tax Status|2|cols=2
+TABLE|L8_Privileges|1|cols=2
+TABLE|L8_Products|45|cols=14
+TABLE|L8_Purchase Order Details|55|cols=8
+TABLE|L8_Purchase Order Status|4|cols=2
+TABLE|L8_Purchase Orders|28|cols=16
+TABLE|L8_Sales Reports|5|cols=5
+TABLE|L8_Shippers|3|cols=18
+TABLE|L8_Strings|62|cols=2
+TABLE|L8_Suppliers|10|cols=18
+TABLE|PROJECT|0|cols=4
+TABLE|sysdiagrams|1|cols=5
+FK|Employee Privileges_FK00|L8_Employee Privileges(Employee ID) -> L8_Employees(ID)
+FK|Employee Privileges_FK01|L8_Employee Privileges(Privilege ID) -> L8_Privileges(Privilege ID)
+FK|Inventory Transactions_FK00|L8_Inventory Transactions(Customer Order ID) -> L8_Orders(Order ID)
+FK|Inventory Transactions_FK01|L8_Inventory Transactions(Product ID) -> L8_Products(ID)
+FK|Inventory Transactions_FK02|L8_Inventory Transactions(Purchase Order ID) -> L8_Purchase Orders(Purchase Order ID)
+FK|Inventory Transactions_FK03|L8_Inventory Transactions(Transaction Type) -> L8_Inventory Transaction Types(ID)
+FK|Invoices_FK00|L8_Invoices(Order ID) -> L8_Orders(Order ID)
+FK|Order Details_FK00|L8_Order Details(Order ID) -> L8_Orders(Order ID)
+FK|Order Details_FK01|L8_Order Details(Status ID) -> L8_Order Details Status(Status ID)
+FK|Order Details_FK02|L8_Order Details(Product ID) -> L8_Products(ID)
+FK|Orders_FK00|L8_Orders(Customer ID) -> L8_Customers(ID)
+FK|Orders_FK01|L8_Orders(Employee ID) -> L8_Employees(ID)
+FK|Orders_FK02|L8_Orders(Status ID) -> L8_Orders Status(Status ID)
+FK|Orders_FK03|L8_Orders(Shipper ID) -> L8_Shippers(ID)
+FK|Orders_FK04|L8_Orders(Tax Status) -> L8_Orders Tax Status(ID)
+FK|Purchase Order Details_FK00|L8_Purchase Order Details(Inventory ID) -> L8_Inventory Transactions(Transaction ID)
+FK|Purchase Order Details_FK01|L8_Purchase Order Details(Product ID) -> L8_Products(ID)
+FK|Purchase Order Details_FK02|L8_Purchase Order Details(Purchase Order ID) -> L8_Purchase Orders(Purchase Order ID)
+FK|Purchase Orders_FK00|L8_Purchase Orders(Created By) -> L8_Employees(ID)
+FK|Purchase Orders_FK01|L8_Purchase Orders(Status ID) -> L8_Purchase Order Status(Status ID)
+FK|Purchase Orders_FK02|L8_Purchase Orders(Supplier ID) -> L8_Suppliers(ID)

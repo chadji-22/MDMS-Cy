@@ -1,0 +1,14 @@
+code under test: 30ebc4f on ioannis/C6-log-cap
+target ok: ntheva\SQL2025 / ichara09
+
+(1 row affected)
+13:19:16 lab inventory unchanged; data used 20.00 MB
+13:20:24 build 1 OK: tables 25 triggers 24 procedures 118 data 20.38 MB
+13:21:33 build 2 OK: tables 25 triggers 24 procedures 118 data 20.38 MB
+13:21:41 tests.sql: 82 tests, 0 not passed.
+13:21:49 telemetry/VEE: 26 tests passed (expect 26)
+13:21:55 select.sql OK, use cases: 20; data 20.38 MB
+13:23:00 final build OK; data 20.00 MB
+13:23:01 lab inventory identical after the run (25 tables, 21 FKs)
+13:23:02 query store: OFF
+13:23:02 ALL DONE

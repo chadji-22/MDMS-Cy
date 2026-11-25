@@ -1,43 +1,105 @@
 /* ============================================================================
    EPL342 - Databases  |  MDMS-Cy  |  Group 10
    drop.sql  -  removes every MDMS-Cy object (schema v6, plus older v3/v4 names)
-   Safe to re-run: drops all FKs first, then views, then tables.
+   Safe to re-run: drops the FKs that touch MDMS-Cy tables, then views, then the MDMS-Cy tables (other tables stay).
    ============================================================================ */
 SET NOCOUNT ON;
 GO
 
-DECLARE @drop_fk NVARCHAR(MAX) = N'';
-SELECT @drop_fk += N'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(fk.parent_object_id)) + N'.'
-                 + QUOTENAME(OBJECT_NAME(fk.parent_object_id))
-                 + N' DROP CONSTRAINT ' + QUOTENAME(fk.name) + N';' + NCHAR(10)
+-- The MDMS-Cy tables (v6 plus the names used by v3/v4, so an old database is cleaned too). Only these tables and
+-- the foreign keys that touch them are dropped: other tables of the database (e.g. lab exercises) keep theirs.
+DECLARE @mdms TABLE (name SYSNAME PRIMARY KEY);
+INSERT INTO @mdms (name) VALUES
+    (N'NOTIFICATION'),
+    (N'AUDIT_LOG'),
+    (N'GDPR_REQUEST'),
+    (N'PAYMENT'),
+    (N'BILL'),
+    (N'TARIFF'),
+    (N'REMOTE_COMMAND'),
+    (N'WORK_ORDER'),
+    (N'SERVICE_TYPE'),
+    (N'EVENT'),
+    (N'TRANSFORMER_CURRENT_STATE'),
+    (N'AGGREGATE'),
+    (N'TRANSFORMER_READING'),
+    (N'METER_READING'),
+    (N'TELEMETRY_PACKET'),
+    (N'OBIS_CODE'),
+    (N'DOCUMENT'),
+    (N'METER'),
+    (N'METER_TYPE'),
+    (N'PREMISE'),
+    (N'TRANSFORMER'),
+    (N'TECHNICIAN_AVAILABILITY'),
+    (N'USER_ACCOUNT'),
+    (N'ORGANIZATION'),
+    (N'ROLE'),
+    (N'HISTORICAL_ACCESS'),
+    (N'COMMAND_ATTEMPT'),
+    (N'COMMAND_BATCH'),
+    (N'GEOFENCE_AGGREGATE'),
+    (N'METER_AGGREGATE'),
+    (N'VEE_LOG'),
+    (N'VEE_RULE'),
+    (N'GEOFENCE_CURRENT_STATE'),
+    (N'CONSUMPTION_ALERT'),
+    (N'METER_INSTALLATION'),
+    (N'APPROVAL_DECISION'),
+    (N'METER_DOCUMENT'),
+    (N'WORK_ORDER_EVIDENCE'),
+    (N'WORK_ORDER_NOTIFICATION'),
+    (N'SERVICE_REQUEST'),
+    (N'AGGREGATOR_MEMBERSHIP'),
+    (N'AGGREGATOR_USER'),
+    (N'AGGREGATOR'),
+    (N'SUPPLIER_ASSIGNMENT'),
+    (N'SUPPLIER_USER'),
+    (N'SUPPLIER'),
+    (N'CONSUMER_PREMISE'),
+    (N'GDPR_REVIEW'),
+    (N'GEOFENCE'),
+    (N'RETENTION_POLICY'),
+    (N'COMMUNICATION_TYPE'),
+    (N'PROSUMER_SCHEME'),
+    (N'BANK_ACCOUNT'),
+    (N'TECHNICIAN_DOCUMENT'),
+    (N'TECHNICIAN_SPECIALTY'),
+    (N'SPECIALTY'),
+    (N'TECHNICIAN'),
+    (N'CONSUMER'),
+    (N'PARISH'),
+    (N'MUNICIPALITY'),
+    (N'DISTRICT'),
+    (N'USER_ROLE');
+
+DECLARE @sql NVARCHAR(MAX) = N'';
+SELECT @sql += N'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(fk.parent_object_id)) + N'.'
+             + QUOTENAME(OBJECT_NAME(fk.parent_object_id))
+             + N' DROP CONSTRAINT ' + QUOTENAME(fk.name) + N';' + NCHAR(10)
 FROM sys.foreign_keys AS fk
-WHERE OBJECT_SCHEMA_NAME(fk.parent_object_id) = N'dbo';
-EXEC sys.sp_executesql @drop_fk;
-GO
+WHERE OBJECT_SCHEMA_NAME(fk.parent_object_id) = N'dbo'
+  AND (OBJECT_NAME(fk.parent_object_id) IN (SELECT name FROM @mdms)
+       OR OBJECT_NAME(fk.referenced_object_id) IN (SELECT name FROM @mdms));
+EXEC sys.sp_executesql @sql;
 
 DROP VIEW IF EXISTS dbo.vw_CONSUMER, dbo.vw_TECHNICIAN, dbo.vw_ORGANIZATION_USER, dbo.vw_STAFF,
     dbo.view_CONSUMER, dbo.view_TECHNICIAN, dbo.view_ORGANIZATION_USER, dbo.view_STAFF,
     dbo.view_PREMISE_METER, dbo.view_METER_LOCATION, dbo.view_OPEN_WORK_ORDER, dbo.view_BILL_BALANCE;
-GO
 
--- v5 tables + every table name used by v3/v4, so an old database is cleaned too
-DROP TABLE IF EXISTS
-    dbo.NOTIFICATION, dbo.AUDIT_LOG, dbo.GDPR_REQUEST, dbo.PAYMENT, dbo.BILL, dbo.TARIFF,
-    dbo.REMOTE_COMMAND, dbo.WORK_ORDER, dbo.SERVICE_TYPE, dbo.EVENT,
-    dbo.TRANSFORMER_CURRENT_STATE, dbo.AGGREGATE, dbo.TRANSFORMER_READING,
-    dbo.METER_READING, dbo.TELEMETRY_PACKET, dbo.OBIS_CODE, dbo.DOCUMENT,
-    dbo.METER, dbo.METER_TYPE, dbo.PREMISE, dbo.TRANSFORMER,
-    dbo.TECHNICIAN_AVAILABILITY, dbo.USER_ACCOUNT, dbo.ORGANIZATION, dbo.ROLE,
-    -- v3 / v4 leftovers
-    dbo.HISTORICAL_ACCESS, dbo.COMMAND_ATTEMPT, dbo.COMMAND_BATCH, dbo.GEOFENCE_AGGREGATE,
-    dbo.METER_AGGREGATE, dbo.VEE_LOG, dbo.VEE_RULE, dbo.GEOFENCE_CURRENT_STATE,
-    dbo.CONSUMPTION_ALERT, dbo.METER_INSTALLATION, dbo.APPROVAL_DECISION, dbo.METER_DOCUMENT,
-    dbo.WORK_ORDER_EVIDENCE, dbo.WORK_ORDER_NOTIFICATION, dbo.SERVICE_REQUEST,
-    dbo.AGGREGATOR_MEMBERSHIP, dbo.AGGREGATOR_USER, dbo.AGGREGATOR, dbo.SUPPLIER_ASSIGNMENT,
-    dbo.SUPPLIER_USER, dbo.SUPPLIER, dbo.CONSUMER_PREMISE, dbo.GDPR_REVIEW, dbo.GEOFENCE,
-    dbo.RETENTION_POLICY, dbo.COMMUNICATION_TYPE, dbo.PROSUMER_SCHEME, dbo.BANK_ACCOUNT,
-    dbo.TECHNICIAN_DOCUMENT, dbo.TECHNICIAN_SPECIALTY, dbo.SPECIALTY, dbo.TECHNICIAN,
-    dbo.CONSUMER, dbo.PARISH, dbo.MUNICIPALITY, dbo.DISTRICT, dbo.USER_ROLE;
+-- one table per statement: small transactions for the capped log of the course databases
+DECLARE @name SYSNAME;
+DECLARE drop_cur CURSOR LOCAL FAST_FORWARD FOR SELECT name FROM @mdms;
+OPEN drop_cur;
+FETCH NEXT FROM drop_cur INTO @name;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @sql = N'DROP TABLE IF EXISTS [dbo].' + QUOTENAME(@name) + N';';
+    EXEC sys.sp_executesql @sql;
+    FETCH NEXT FROM drop_cur INTO @name;
+END
+CLOSE drop_cur;
+DEALLOCATE drop_cur;
 GO
 
 PRINT 'MDMS-Cy objects dropped.';
