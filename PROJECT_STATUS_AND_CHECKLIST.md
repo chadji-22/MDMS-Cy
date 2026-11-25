@@ -109,12 +109,16 @@ Status: **Done** = implemented and exercised by `tests.sql`, `select.sql` or `im
 
 ## 3. What is left — by size of the grade at stake
 
-1. **The web application** (the largest missing piece; the grade says the interface performs *all* the functions). No code exists. Every page only calls a stored procedure.
-2. **Large data set + performance evidence** (graded explicitly): thousands of rows, p95 < 2 s over 10,000 requests, index before/after with execution plans.
-3. **Documentation** (two documents, one printed): manual, final ER diagram, data dictionary, indexes, contention, security, future extension.
-4. **Data files and packaging**: `data/*.dat`, `sql/` layout, `10.zip`.
-5. **Quality and rehearsal**: concurrency demo, security checks in the PHP layer, a full dry run of the oral exam.
-6. **Optional bonus (+10 %)**: Leaflet map and interactive pages.
+*Checked on 25/11/2026 at `68a26f9` plus the documents of D4, D8 and D9. (Section 1 and the status columns of section 2 are still those of 18/11.)*
+
+| # | Area | State | Done | Still open |
+|---|---|---|---|---|
+| 1 | **Web application** | Pages done | B1–B11 have code; 531 page × role requests, 0 failed (`evidence/C6-integration`). B2, B4, B7–B10 and the consumer pages also pass on SQL Server 2025 / Windows (`evidence/D9`) | POST flows of the technician and staff pages (B5, B6) have no test; final choice of server for the demo |
+| 2 | **Large data set + performance** | Done | C1 (16,127 readings), C2 (10,000 calls, p95 22.71 ms, 0 failed), C3 (plans with / without index) | — |
+| 3 | **Documentation** | Partly done | D2 consumer, D2 supplier (draft), **D4** DSO + TSO + map, **D8** contention, **D9** security, D11 indexes | D1 skeleton, D3, D5, D6 (final ER + data dictionary: 25 tables, 24 triggers, 118 procedures), D7, D10 (E); supplier section: screenshots and endpoint URLs, the pages are merged now (I); join the parts into two documents; D12 print |
+| 4 | **Data files and packaging** | Open | 24 `.dat` files and `bulk_import.sql` (C4) | `NOTIFICATION.dat` and its line in `bulk_import.sql`; run `bulk_import.sql` on a clean database (E); move `.sql` into `sql/` (E1, I); `10.zip` on a clean machine (E2, E); upload (E3, I) |
+| 5 | **Quality and rehearsal** | Partly done | fresh-database run (C6), page audit (B10), four two-session concurrency checks with output (`evidence/D8`) | C5 screenshots in SSMS, and its VEE case (E); decide on `EXECUTE AS … WITH NO REVERT` (security document, limit 1); oral-exam rehearsal (E4, all) |
+| 6 | **Bonus: Leaflet map** | Done | B9; the page was rendered in a real browser with tiles, rectangles and meters (`docx/src/img/tso_07_map.png`) | click through the popups once before the demo |
 
 ---
 
