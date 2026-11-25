@@ -24,6 +24,42 @@ final class View
         return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
+    private static ?string $base = null;
+
+    /**
+     * The URL prefix of the application: '' when public/ is the site root, '/~ichara09/mdms' when it is served from a
+     * sub-folder (setting BASE_PATH). Only letters, digits and _ . ~ - are allowed, so it never needs escaping;
+     * an invalid value is ignored (and logged) instead of producing broken links.
+     */
+    public static function base(): string
+    {
+        if (self::$base === null) {
+            $base = rtrim(trim(Config::get('BASE_PATH')), '/');
+            if ($base !== '' && preg_match('#^(?:/[A-Za-z0-9_.~-]+)+$#', $base) !== 1) {
+                error_log('[MDMS] BASE_PATH ignored: it must look like /~user/mdms');
+                $base = '';
+            }
+            self::$base = $base;
+        }
+        return self::$base;
+    }
+
+    /**
+     * Full URL path of an application path ('/consumer/bills.php' -> '/~ichara09/mdms/consumer/bills.php').
+     * Raw, for header('Location: ...') and JSON; in HTML use href(). Pass application paths only, never one that
+     * already went through url().
+     */
+    public static function url(string $path): string
+    {
+        return str_starts_with($path, '/') && !str_starts_with($path, '//') ? self::base() . $path : $path;
+    }
+
+    /** url() escaped for an HTML attribute: href="<?= View::href('/consumer/') ?>". */
+    public static function href(string $path): string
+    {
+        return self::h(self::url($path));
+    }
+
     private static function securityHeaders(): void
     {
         if (headers_sent()) {
@@ -62,14 +98,14 @@ final class View
         echo '<!doctype html><html lang="en"><head><meta charset="utf-8">'
            . '<meta name="viewport" content="width=device-width, initial-scale=1">'
            . '<title>' . self::h($title) . ' · MDMS-Cy</title>'
-           . '<link rel="stylesheet" href="/assets/style.css"></head><body>';
-        echo '<header class="top"><a class="brand" href="/home.php">MDMS-Cy</a>';
+           . '<link rel="stylesheet" href="' . self::href('/assets/style.css') . '"></head><body>';
+        echo '<header class="top"><a class="brand" href="' . self::href('/home.php') . '">MDMS-Cy</a>';
         if (Auth::check()) {
-            echo '<nav><a href="/home.php">Home</a>';
+            echo '<nav><a href="' . self::href('/home.php') . '">Home</a>';
             foreach ($items as $it) {
-                echo '<a href="' . self::h($it['href']) . '">' . self::h($it['label']) . '</a>';
+                echo '<a href="' . self::h($it['href']) . '">' . self::h($it['label']) . '</a>';   // Menu already added the base
             }
-            echo '</nav><form class="logout" method="post" action="/logout.php">' . Csrf::field()
+            echo '</nav><form class="logout" method="post" action="' . self::href('/logout.php') . '">' . Csrf::field()
                . '<span class="who">' . self::h(Auth::name()) . ' · ' . self::h(Auth::role())
                . '</span><button type="submit">Log out</button></form>';
         }
@@ -92,14 +128,14 @@ final class View
     }
 
     /** Ends the request with an error page and an HTTP status. */
-    public static function fail(int $status, string $title, string $message): never
+    public static function fail(int $status, string $title, string $message): void   // never returns (exit); PHP 8.0 has no "never"
     {
         if (!headers_sent()) {
             http_response_code($status);
         }
         self::header($title);
         echo '<p class="flash error" role="alert">' . self::h($message) . '</p>'
-           . '<p><a href="/home.php">Back to the home page</a></p>';
+           . '<p><a href="' . self::href('/home.php') . '">Back to the home page</a></p>';
         self::footer();
         exit;
     }

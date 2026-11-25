@@ -3,15 +3,17 @@ declare(strict_types=1);
 require __DIR__ . '/../src/bootstrap.php';
 
 use Mdms\Auth;
+use Mdms\Connect;
 use Mdms\Csrf;
 use Mdms\DbError;
 use Mdms\Throttle;
 use Mdms\View;
 
 if (Auth::check()) {
-    header('Location: /home.php', true, 303);
+    header('Location: ' . View::url('/home.php'), true, 303);
     exit;
 }
+Connect::require();                         // no database login yet (department server): the Connect page first
 
 $error = null;
 $email = '';
@@ -52,13 +54,20 @@ if ($error !== null) {
     View::error($error);
 }
 ?>
-<form method="post" action="/login.php" class="card" autocomplete="on">
+<form method="post" action="<?= View::base() ?>/login.php" class="card" autocomplete="on">
   <?= Csrf::field() ?>
   <input type="hidden" name="next" value="<?= View::h($next) ?>">
   <label>Email <input type="email" name="email" value="<?= View::h($email) ?>" maxlength="255" required autofocus></label>
   <label>Password <input type="password" name="password" maxlength="128" required></label>
   <button type="submit">Log in</button>
 </form>
-<p>New here? <a href="/register.php">Create a consumer account</a> or <a href="/register-technician.php">register as a technician</a>.</p>
+<p>New here? <a href="<?= View::base() ?>/register.php">Create a consumer account</a> or <a href="<?= View::base() ?>/register-technician.php">register as a technician</a>.</p>
+<?php if (!Connect::configured()): ?>
+<form method="post" action="<?= View::base() ?>/connect.php" class="inline">
+  <?= Csrf::field() ?>
+  <span class="muted">Database: <?= View::h(Connect::label()) ?></span>
+  <button type="submit" name="action" value="disconnect">Disconnect</button>
+</form>
+<?php endif; ?>
 <?php
 View::footer();

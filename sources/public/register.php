@@ -3,12 +3,13 @@ declare(strict_types=1);
 // UC-01: a consumer creates an account, no approval needed (sp_RegisterConsumer).
 require __DIR__ . '/../src/bootstrap.php';
 
-use Mdms\{Auth, Csrf, Db, DbError, Throttle, Validate, View};
+use Mdms\{Auth, Connect, Csrf, Db, DbError, Throttle, Validate, View};
 
 if (Auth::check()) {
-    header('Location: /home.php', true, 303);
+    header('Location: ' . View::url('/home.php'), true, 303);
     exit;
 }
+Connect::require();                         // no database login yet (department server): the Connect page first
 
 $in = ['email' => '', 'full_name' => '', 'phone' => '', 'iban' => ''];
 $notifyEmail = true;
@@ -48,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $notifyEmail ? 1 : 0, $notifySms ? 1 : 0,
             ]);
             View::flash('ok', 'Your account was created. You can log in now.');
-            header('Location: /login.php', true, 303);
+            header('Location: ' . View::url('/login.php'), true, 303);
             exit;
         } catch (DbError $e) {
             $dbError = $e;
@@ -67,7 +68,7 @@ if ($dbError !== null) {
     View::error($dbError);
 }
 ?>
-<form method="post" action="/register.php" class="card">
+<form method="post" action="<?= View::base() ?>/register.php" class="card">
   <?= Csrf::field() ?>
   <label>Full name <input name="full_name" value="<?= View::h($in['full_name']) ?>" maxlength="150" autocomplete="name" required></label>
   <label>Email <input type="email" name="email" value="<?= View::h($in['email']) ?>" maxlength="255" autocomplete="email" required></label>
@@ -79,6 +80,6 @@ if ($dbError !== null) {
   <label class="check"><input type="checkbox" name="notify_sms" value="1" <?= $notifySms ? 'checked' : '' ?>> Notify me by SMS</label>
   <button type="submit">Create account</button>
 </form>
-<p><a href="/login.php">Back to the login page</a></p>
+<p><a href="<?= View::base() ?>/login.php">Back to the login page</a></p>
 <?php
 View::footer();

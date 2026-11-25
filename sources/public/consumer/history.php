@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $res = Db::rows('sp_BuyHistoricalAccess', [(int) $meterId, $accessFrom, $accessTo, $method, null]);
         View::flash('ok', sprintf('Access to %s – %s bought for %s €. The readings and totals of that period are now visible.',
             $accessFrom, $accessTo, C\num($res[0]['amount'] ?? null, 2)));
-        header('Location: /consumer/readings.php?premise_id=' . (int) $premiseId . '&from=' . $accessFrom . '&to='
+        header('Location: ' . View::url('/consumer/readings.php?premise_id=') . (int) $premiseId . '&from=' . $accessFrom . '&to='
             . min($accessTo, (new DateTimeImmutable($accessFrom))->modify('+30 days')->format('Y-m-d')), true, 303);
         exit;
     } catch (DbError $e) {
@@ -70,7 +70,7 @@ if ($error) {
   month, and only for data the system still keeps: raw 15-minute readings are kept 3 years, or 1 month after an approved
   request to reduce retention.</p>
 
-<form method="get" action="/consumer/history.php" class="filters">
+<form method="get" action="<?= View::base() ?>/consumer/history.php" class="filters">
   <label>Premise <select name="premise_id"><?= C\premiseOptions($premiseId) ?></select></label>
   <label>From month <input type="month" name="from" value="<?= View::h($fromMonth) ?>"></label>
   <label>To month <input type="month" name="to" value="<?= View::h($toMonth) ?>"></label>
@@ -86,7 +86,7 @@ if ($error) {
       <?= View::h(C\num($quote['fee_per_month'], 2)) ?> € = <strong><?= View::h(C\num($quote['amount'], 2)) ?> €</strong></p>
     <p class="muted">Oldest date still kept for this meter: <?= View::h($quote['earliest_date_kept']) ?>.</p>
     <?php if ((int) $quote['can_buy'] === 1): ?>
-      <form method="post" action="/consumer/history.php" class="row">
+      <form method="post" action="<?= View::base() ?>/consumer/history.php" class="row">
         <?= Csrf::field() ?>
         <input type="hidden" name="premise_id" value="<?= (int) $premiseId ?>">
         <input type="hidden" name="from" value="<?= View::h($fromMonth) ?>">

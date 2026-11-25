@@ -46,7 +46,7 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="get" action="/dso/events.php" class="filters">
+<form method="get" action="<?= View::base() ?>/dso/events.php" class="filters">
   <label>Type <select name="type"><?= Ui::options(['' => 'All'] + array_combine(TYPES, TYPES), $type) ?></select></label>
   <label>Severity <select name="severity"><?= Ui::options(['' => 'All'] + array_combine(SEVERITIES, SEVERITIES), $severity) ?></select></label>
   <label>From <input type="date" name="from" value="<?= View::h($from) ?>"></label>
@@ -69,7 +69,7 @@ if ($error) {
 
 <?php if (Auth::role() === 'DSO'): ?>
 <h2>Report a tamper alert</h2>
-<form method="post" action="/dso/events.php" class="card">
+<form method="post" action="<?= View::base() ?>/dso/events.php" class="card">
   <?= Csrf::field() ?>
   <label>Network id of the meter <input name="network_id" maxlength="60" required></label>
   <label>Description (optional) <textarea name="description" rows="3" maxlength="500"></textarea></label>

@@ -72,7 +72,7 @@ if ($error) {
 
 <?php if (Auth::role() === 'DSO'): ?>
 <h2>Record a measurement of a transformer</h2>
-<form method="post" action="/tso/frequency.php" class="card">
+<form method="post" action="<?= View::base() ?>/tso/frequency.php" class="card">
   <?= Csrf::field() ?>
   <label>Transformer <select name="transformer_id" required><?= Ui::options(['' => 'Choose'] + Ui::transformerOptions($tree), $in['transformer_id']) ?></select></label>
   <label>Code <select name="obis_code"><?= Ui::options(CODES, $in['obis_code']) ?></select></label>

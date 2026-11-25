@@ -28,7 +28,7 @@ if ($rows === []) {
 }
 
 $meter = $rows[0];
-$path = '/staff/meter-review.php?id=' . $meterId;
+$path = View::url('/staff/meter-review.php?id=' . $meterId);   // full URL path (base included)
 $types = [
     'CALIBRATION_CERT' => 'Calibration certificate',
     'CE_DECLARATION' => 'CE declaration',
@@ -100,7 +100,7 @@ if ($isPost) {
 
 View::header('Review meter #' . $meterId);
 ?>
-<p><a href="/staff/meters.php">Back to Meter approvals</a></p>
+<p><a href="<?= View::base() ?>/staff/meters.php">Back to Meter approvals</a></p>
 <dl>
     <dt>Serial number</dt><dd><?= View::h($meter['serial_number']) ?></dd>
     <dt>Premise</dt><dd><?= View::h($meter['premise_address']) ?></dd>

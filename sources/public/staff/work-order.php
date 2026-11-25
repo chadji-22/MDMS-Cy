@@ -28,7 +28,7 @@ if ($order === null) {
     View::fail(404, 'Work order unavailable', 'The work order could not be found.');
 }
 
-$path = '/staff/work-order.php?id=' . $workOrderId;
+$path = View::url('/staff/work-order.php?id=' . $workOrderId);   // full URL path (base included)
 $canAssign = $isOfficer && $order['status'] === 'SUBMITTED' && $order['district'] !== null;
 $source = $isPost ? INPUT_POST : INPUT_GET;
 $date = (string) filter_input($source, 'date');
@@ -70,7 +70,7 @@ if ($hasSearch && $canAssign) {
 
 View::header('Work order #' . $workOrderId);
 ?>
-<p><a href="/staff/work-orders.php">Back to Work orders</a></p>
+<p><a href="<?= View::base() ?>/staff/work-orders.php">Back to Work orders</a></p>
 <dl>
     <dt>Type</dt><dd><?= View::h($order['work_type']) ?></dd>
     <dt>Status</dt><dd><?= View::h($order['status']) ?></dd>
@@ -89,7 +89,7 @@ View::header('Work order #' . $workOrderId);
 <?php endif; ?>
 <?php if ($canAssign): ?>
     <h2>Find available technicians</h2>
-    <form method="get" action="/staff/work-order.php" class="card">
+    <form method="get" action="<?= View::base() ?>/staff/work-order.php" class="card">
         <input type="hidden" name="id" value="<?= View::h($workOrderId) ?>">
         <label>Visit date <input type="date" name="date" value="<?= View::h($date) ?>" required></label>
         <label>Start (UTC) <input type="time" name="start" value="<?= View::h($start) ?>" required></label>

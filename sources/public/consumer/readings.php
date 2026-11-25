@@ -50,21 +50,21 @@ if (C\premises() === []) {
     exit;
 }
 ?>
-<form method="get" action="/consumer/readings.php" class="filters">
+<form method="get" action="<?= View::base() ?>/consumer/readings.php" class="filters">
   <label>Premise <select name="premise_id"><?= C\premiseOptions($premiseId) ?></select></label>
   <label>From <input type="date" name="from" value="<?= View::h($from) ?>"></label>
   <label>To (inclusive) <input type="date" name="to" value="<?= View::h($to) ?>"></label>
   <button type="submit">Show</button>
 </form>
 <p class="muted">Times are UTC. The current month (from <?= View::h(C\monthStartUtc()) ?>) is free; earlier days need
-  <a href="/consumer/history.php?premise_id=<?= (int) $premiseId ?>">access to past data</a>. At most 31 days at a time.</p>
+  <a href="<?= View::base() ?>/consumer/history.php?premise_id=<?= (int) $premiseId ?>">access to past data</a>. At most 31 days at a time.</p>
 
 <?php if ($error): ?>
   <?php View::error($error); ?>
   <?php if ($error->category() === DbError::HISTORY): ?>
     <p class="flash">The data is hidden because the period is before the current month and access has not been bought for
       every day of it, or because it is older than the retention time of the meter.
-      <a href="/consumer/history.php?premise_id=<?= (int) $premiseId ?>&amp;from=<?= View::h(substr($from, 0, 7)) ?>&amp;to=<?= View::h(substr($to, 0, 7)) ?>">See the price and buy access</a>.</p>
+      <a href="<?= View::base() ?>/consumer/history.php?premise_id=<?= (int) $premiseId ?>&amp;from=<?= View::h(substr($from, 0, 7)) ?>&amp;to=<?= View::h(substr($to, 0, 7)) ?>">See the price and buy access</a>.</p>
   <?php endif; ?>
 <?php else: ?>
   <?php if ($slots === []): ?>

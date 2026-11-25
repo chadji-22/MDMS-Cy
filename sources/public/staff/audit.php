@@ -42,7 +42,7 @@ $filters = ['object_type' => $objectType, 'object_id' => $objectId, 'user_id' =>
 $pageUrl = static fn (int $number): string => '?' . http_build_query($filters + ['page' => $number]);
 View::header('Audit log');
 ?>
-<form method="get" action="/staff/audit.php" class="card">
+<form method="get" action="<?= View::base() ?>/staff/audit.php" class="card">
     <label>Object type <input name="object_type" maxlength="30" value="<?= View::h($objectType) ?>" placeholder="e.g. WORK_ORDER"></label>
     <label>Object ID <input name="object_id" maxlength="30" value="<?= View::h($objectId) ?>"></label>
     <label>Actor user ID <input type="number" name="user_id" min="1" max="2147483647" value="<?= View::h($userId) ?>"></label>

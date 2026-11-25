@@ -4,12 +4,13 @@ declare(strict_types=1);
 // /account/documents.php; an officer decides.
 require __DIR__ . '/../src/bootstrap.php';
 
-use Mdms\{Auth, Csrf, Db, DbError, Throttle, Upload, Validate, View};
+use Mdms\{Auth, Connect, Csrf, Db, DbError, Throttle, Upload, Validate, View};
 
 if (Auth::check()) {
-    header('Location: /home.php', true, 303);
+    header('Location: ' . View::url('/home.php'), true, 303);
     exit;
 }
+Connect::require();                         // no database login yet (department server): the Connect page first
 
 $in = ['email' => '', 'full_name' => '', 'phone' => '', 'birth_date' => '', 'specialty' => ''];
 $errors = [];
@@ -54,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $email, Db::nv($password, 128), Db::nv($fullName, 150), $phone, $birth, $photo, Db::nv($specialty, 100),
                 ]);
                 View::flash('ok', 'Your registration was received. Log in and upload your three documents, so that an officer can approve you.');
-                header('Location: /login.php?next=' . rawurlencode('/account/documents.php'), true, 303);
+                header('Location: ' . View::url('/login.php') . '?next=' . rawurlencode(View::url('/account/documents.php')), true, 303);
                 exit;
             } catch (DbError $e) {
                 Upload::remove($photo, 'technician-photos');     // no account, so no file either
@@ -76,7 +77,7 @@ if ($dbError !== null) {
 }
 ?>
 <p>An officer checks every registration. You cannot take jobs before it is approved.</p>
-<form method="post" action="/register-technician.php" enctype="multipart/form-data" class="card">
+<form method="post" action="<?= View::base() ?>/register-technician.php" enctype="multipart/form-data" class="card">
   <?= Csrf::field() ?>
   <label>Full name <input name="full_name" value="<?= View::h($in['full_name']) ?>" maxlength="150" autocomplete="name" required></label>
   <label>Email <input type="email" name="email" value="<?= View::h($in['email']) ?>" maxlength="255" autocomplete="email" required></label>
@@ -89,6 +90,6 @@ if ($dbError !== null) {
   <label>Repeat the password <input type="password" name="password2" maxlength="128" autocomplete="new-password" required></label>
   <button type="submit">Register</button>
 </form>
-<p><a href="/login.php">Back to the login page</a></p>
+<p><a href="<?= View::base() ?>/login.php">Back to the login page</a></p>
 <?php
 View::footer();

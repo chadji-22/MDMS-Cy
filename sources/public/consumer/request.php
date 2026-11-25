@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $reason = trim((string) ($_POST['reason'] ?? ''));
         Db::callAsActor('sp_CancelWorkOrder', [$id, Db::nv($reason === '' ? 'Cancelled by the consumer' : $reason, 500)]);
         View::flash('ok', 'Request #' . $id . ' cancelled.');
-        header('Location: /consumer/request.php?id=' . $id, true, 303);
+        header('Location: ' . View::url('/consumer/request.php?id=') . $id, true, 303);
         exit;
     } catch (DbError $e) {
         $error = $e;
@@ -52,7 +52,7 @@ if ($wo !== null):
   <?php if ($wo['scheduled_start'] !== null): ?><p>Visit: <?= View::h(C\ts($wo['scheduled_start'])) ?> – <?= View::h(C\ts($wo['scheduled_end'])) ?> (UTC)</p><?php endif; ?>
   <?php if ($wo['findings'] !== null): ?><p>Findings: <?= View::h($wo['findings']) ?></p><?php endif; ?>
   <?php if ($wo['current_status'] === 'SUBMITTED'): ?>
-    <form method="post" action="/consumer/request.php" class="row">
+    <form method="post" action="<?= View::base() ?>/consumer/request.php" class="row">
       <?= Csrf::field() ?>
       <input type="hidden" name="id" value="<?= $id ?>">
       <label>Reason <input name="reason" maxlength="500" placeholder="optional"></label>
@@ -73,6 +73,6 @@ if ($wo !== null):
   </tbody>
 </table></div>
 <?php endif; ?>
-<p><a href="/consumer/requests.php">Back to my requests</a></p>
+<p><a href="<?= View::base() ?>/consumer/requests.php">Back to my requests</a></p>
 <?php
 View::footer();

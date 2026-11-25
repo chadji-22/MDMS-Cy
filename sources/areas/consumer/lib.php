@@ -148,5 +148,5 @@ function ts(mixed $v): string
 /** The message shown when there is no premise yet. */
 function noPremiseNotice(): void
 {
-    echo '<p class="flash">You have no premise yet. <a href="/consumer/">Add one first</a>.</p>';
+    echo '<p class="flash">You have no premise yet. <a href="' . View::base() . '/consumer/">Add one first</a>.</p>';
 }

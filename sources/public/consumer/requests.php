@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $res = Db::rows('sp_SubmitServiceRequest', [(int) $premiseId, null, $form['work_type'], Db::nv($form['description'], 1000)]);
         $id = (int) ($res[0]['work_order_id'] ?? 0);
         View::flash('ok', 'Request #' . $id . ' submitted. An officer assigns it to a technician; you can follow it here.');
-        header('Location: /consumer/request.php?id=' . $id, true, 303);
+        header('Location: ' . View::url('/consumer/request.php?id=') . $id, true, 303);
         exit;
     } catch (DbError $e) {
         $error = $e;
@@ -48,7 +48,7 @@ if (C\premises() === []) {
     C\noPremiseNotice();
 } else {
 ?>
-<form method="post" action="/consumer/requests.php" class="card wide">
+<form method="post" action="<?= View::base() ?>/consumer/requests.php" class="card wide">
   <?= Csrf::field() ?>
   <h2>New request</h2>
   <div class="row">
@@ -56,7 +56,7 @@ if (C\premises() === []) {
     <label>Type <select name="work_type"><?= C\options(WORK_TYPES, $form['work_type']) ?></select></label>
   </div>
   <label>Description <textarea name="description" required maxlength="1000" rows="3"><?= View::h($form['description']) ?></textarea></label>
-  <p class="muted">A meter check has the MDMS-Cy fee shown on <a href="/consumer/bills.php">Bills and payments</a>.</p>
+  <p class="muted">A meter check has the MDMS-Cy fee shown on <a href="<?= View::base() ?>/consumer/bills.php">Bills and payments</a>.</p>
   <button type="submit">Submit request</button>
 </form>
 <?php } ?>
@@ -75,7 +75,7 @@ if (C\premises() === []) {
         <td>#<?= (int) $r['premise_id'] ?> <?= View::h($r['premise_address']) ?></td>
         <td class="mono"><?= View::h(C\ts($r['scheduled_start'])) ?></td>
         <td><?= View::h($r['technician_name'] ?? '—') ?></td>
-        <td><a href="/consumer/request.php?id=<?= $id ?>">History</a></td></tr>
+        <td><a href="<?= View::base() ?>/consumer/request.php?id=<?= $id ?>">History</a></td></tr>
     <?php endforeach; ?>
     </tbody>
   </table></div>

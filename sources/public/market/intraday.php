@@ -30,7 +30,7 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="get" action="/market/intraday.php" class="filters">
+<form method="get" action="<?= View::base() ?>/market/intraday.php" class="filters">
   <label>From (UTC) <input type="datetime-local" name="from" step="900" value="<?= View::h($input((string) $f['from'])) ?>"></label>
   <label>To (UTC, not included) <input type="datetime-local" name="to" step="900" value="<?= View::h($input((string) $f['to'])) ?>"></label>
   <label>Grouping level <input type="number" class="short" name="level" min="1" max="255" value="<?= View::h($f['level']) ?>"></label>
@@ -38,7 +38,7 @@ if ($error) {
 </form>
 <p class="flash"><strong>Provisional.</strong> These figures come before validation and can still change. Suspect readings are
   left out. At most 24 hours; a group with fewer than 3 meters is not shown.
-  <a href="/market/api/intraday.php?<?= View::h($query) ?>">Same data as JSON</a></p>
+  <a href="<?= View::base() ?>/market/api/intraday.php?<?= View::h($query) ?>">Same data as JSON</a></p>
 <?php if (!$error && $rows === []): ?>
   <p class="flash">No data in this window.</p>
 <?php elseif ($rows !== []): ?>

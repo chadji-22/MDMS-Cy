@@ -68,7 +68,7 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="get" action="/tso/shedding.php" class="card">
+<form method="get" action="<?= View::base() ?>/tso/shedding.php" class="card">
   <h2>1. Choose</h2>
   <label>Transformer <select name="transformer_id" required><?= Ui::options(['' => 'Choose'] + Ui::transformerOptions($tree), $in['transformer_id']) ?></select></label>
   <label>Command <select name="command_type"><?= Ui::options(TYPES, $in['command_type']) ?></select></label>
@@ -76,7 +76,7 @@ if ($error) {
   <button type="submit" class="secondary">Check what is affected</button>
 </form>
 <?php if ($ready): ?>
-<form method="post" action="/tso/shedding.php" class="card">
+<form method="post" action="<?= View::base() ?>/tso/shedding.php" class="card">
   <?= Csrf::field() ?>
   <h2>2. Confirm</h2>
   <p><strong><?= View::h(TYPES[$in['command_type']]) ?></strong> for the active meters under <strong><?= View::h($byId[$chosen]['name']) ?></strong>
@@ -89,11 +89,11 @@ if ($error) {
 <?php endif; ?>
 
 <h2>Commands</h2>
-<form method="get" action="/tso/shedding.php" class="filters">
+<form method="get" action="<?= View::base() ?>/tso/shedding.php" class="filters">
   <label>Status <select name="status"><?= Ui::options(['' => 'All'] + array_combine(STATUSES, STATUSES), $status) ?></select></label>
   <button type="submit" class="secondary">Show</button>
 </form>
-<form method="post" action="/tso/shedding.php">
+<form method="post" action="<?= View::base() ?>/tso/shedding.php">
   <?= Csrf::field() ?>
   <p><button type="submit" name="action" value="dispatch_all">Dispatch every waiting command</button>
     <span class="muted small">Includes the approved commands of officers and the DSO. After 3 attempts without an answer a command fails.</span></p>
@@ -108,7 +108,7 @@ if ($error) {
       <td><?= View::h($c['parameters']) ?></td><td><?= Ui::badge((string) $c['status']) ?></td><td class="mono"><?= View::h(Ui::ts($c['requested_at'])) ?></td>
       <td class="num"><?= (int) $c['attempt_count'] ?></td><td class="mono"><?= View::h(Ui::ts($c['ack_at'])) ?></td><td><?= View::h($c['result']) ?></td>
       <td><?php if (in_array($c['status'], ['APPROVED', 'SENT'], true)): ?>
-        <form method="post" action="/tso/shedding.php" class="inline"><?= Csrf::field() ?>
+        <form method="post" action="<?= View::base() ?>/tso/shedding.php" class="inline"><?= Csrf::field() ?>
           <input type="hidden" name="command_id" value="<?= (int) $c['command_id'] ?>">
           <button type="submit" name="action" value="dispatch" class="secondary">Dispatch</button></form><?php endif; ?></td></tr>
   <?php endforeach; ?></tbody>

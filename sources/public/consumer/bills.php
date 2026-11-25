@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             throw new DbError(DbError::INPUT, 50004, 422, 'Unknown action.');
         }
-        header('Location: /consumer/bills.php', true, 303);
+        header('Location: ' . View::url('/consumer/bills.php'), true, 303);
         exit;
     } catch (DbError $e) {
         $error = $e;
@@ -81,7 +81,7 @@ if ($error) {
         <td class="num"><?= View::h(C\num($b['remaining'], 2)) ?></td>
         <td><span class="badge"><?= View::h($b['status']) ?></span></td><td class="mono"><?= View::h($b['due_date']) ?></td>
         <td><?php if ($open): ?>
-          <form method="post" action="/consumer/bills.php" class="inline">
+          <form method="post" action="<?= View::base() ?>/consumer/bills.php" class="inline">
             <?= Csrf::field() ?>
             <input type="hidden" name="action" value="pay_bill">
             <input type="hidden" name="bill_id" value="<?= (int) $b['bill_id'] ?>">
@@ -99,7 +99,7 @@ if ($error) {
 <?php if ($services === []): ?>
   <p class="muted">No service with a fee is offered at the moment.</p>
 <?php else: ?>
-  <form method="post" action="/consumer/bills.php" class="card wide">
+  <form method="post" action="<?= View::base() ?>/consumer/bills.php" class="card wide">
     <?= Csrf::field() ?>
     <input type="hidden" name="action" value="pay_service">
     <div class="row">
@@ -109,7 +109,7 @@ if ($error) {
         <?php endforeach; ?></select></label>
       <label>Pay by <select name="method"><?= C\options(C\PAY_METHODS, 'CARD') ?></select></label>
     </div>
-    <p class="muted">The amount is the fee of the service. Access to past data is bought on <a href="/consumer/history.php">its own page</a>.</p>
+    <p class="muted">The amount is the fee of the service. Access to past data is bought on <a href="<?= View::base() ?>/consumer/history.php">its own page</a>.</p>
     <button type="submit">Pay fee</button>
   </form>
 <?php endif; ?>

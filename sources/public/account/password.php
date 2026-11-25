@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_regenerate_id(true);
             unset($_SESSION['csrf']);                       // forms opened before the change are no longer valid
             View::flash('ok', 'Your password was changed.');
-            header('Location: /account/profile.php', true, 303);
+            header('Location: ' . View::url('/account/profile.php'), true, 303);
             exit;
         } catch (DbError $e) {
             $error = $e->category() === DbError::LOGIN ? 'The current password is not correct.' : $e->getUserMessage();
@@ -42,13 +42,13 @@ if ($error !== null) {
     echo '<p class="flash error" role="alert">' . View::h($error) . '</p>';
 }
 ?>
-<form method="post" action="/account/password.php" class="card">
+<form method="post" action="<?= View::base() ?>/account/password.php" class="card">
   <?= Csrf::field() ?>
   <label>Current password <input type="password" name="old_password" maxlength="128" autocomplete="current-password" required></label>
   <label>New password (at least 8 characters) <input type="password" name="password" maxlength="128" minlength="8" autocomplete="new-password" required></label>
   <label>Repeat the new password <input type="password" name="password2" maxlength="128" autocomplete="new-password" required></label>
   <button type="submit">Change password</button>
 </form>
-<p><a href="/account/profile.php">Back to my profile</a></p>
+<p><a href="<?= View::base() ?>/account/profile.php">Back to my profile</a></p>
 <?php
 View::footer();

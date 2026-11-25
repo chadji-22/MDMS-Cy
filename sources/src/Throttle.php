@@ -5,19 +5,38 @@ namespace Mdms;
 
 /**
  * Slows down password guessing and mass registration: a counter per key (for example email + address) in a small file
- * under sources/var/throttle/. The file name is a hash, so no email or address is stored. If the folder cannot be
- * written the application still works and the problem is logged (availability over this extra protection).
+ * under sources/var/throttle/. The file name is a hash, so no email or address is stored. Where PHP may not write in
+ * var/ (the department web server runs PHP as another user than the owner of the files) the web server's own temporary
+ * folder is used instead. If neither can be written the application still works and the problem is logged
+ * (availability over this extra protection).
  */
 final class Throttle
 {
+    private static ?string $dir = null;
+
     private static function file(string $key): ?string
     {
-        $dir = dirname(__DIR__) . '/var/throttle';
-        if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
-            error_log('[MDMS] throttle folder cannot be created: ' . $dir);
-            return null;
+        if (self::$dir === null) {
+            $dir = dirname(__DIR__) . '/var/throttle';
+            if (!self::writableDir($dir)) {
+                // one folder per installation, so two copies of the application never share counters
+                $dir = rtrim(sys_get_temp_dir(), '/\\') . '/mdms-throttle-' . substr(hash('sha256', dirname(__DIR__)), 0, 16);
+                if (!self::writableDir($dir)) {
+                    error_log('[MDMS] no writable throttle folder (var/throttle or the temporary folder)');
+                    return null;
+                }
+            }
+            self::$dir = $dir;
         }
-        return $dir . '/' . hash('sha256', $key);
+        return self::$dir . '/' . hash('sha256', $key);
+    }
+
+    private static function writableDir(string $dir): bool
+    {
+        if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
+            return false;
+        }
+        return is_writable($dir);
     }
 
     /** True when the key was counted at least $max times in the last $seconds. */

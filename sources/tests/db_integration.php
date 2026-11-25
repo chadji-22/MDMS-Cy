@@ -6,7 +6,7 @@ declare(strict_types=1);
  * Every call below changes nothing: it is either a read, or a call that the database refuses (and rolls back).
  * The only writes are the audit rows of two sp_Login calls.
  */
-foreach (['Config', 'DbError', 'Errors', 'Db', 'Auth', 'Csrf', 'Menu', 'View', 'Validate'] as $c) {
+foreach (['Config', 'DbError', 'Errors', 'Connect', 'Db', 'Auth', 'Csrf', 'Menu', 'View', 'Validate'] as $c) {
     require __DIR__ . '/../src/' . $c . '.php';
 }
 use Mdms\Db;

@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $res = Db::rows('sp_SubmitGdprRequest', [$type, $meterId]);
         View::flash('ok', 'Request #' . (int) ($res[0]['gdpr_request_id'] ?? 0) . ' submitted. Officers review it; every stage is listed below.');
-        header('Location: /consumer/gdpr.php', true, 303);
+        header('Location: ' . View::url('/consumer/gdpr.php'), true, 303);
         exit;
     } catch (DbError $e) {
         $error = $e;
@@ -55,7 +55,7 @@ if ($error) {
   approval. Only then is it executed. Bills and payments are kept for accounting, and daily / monthly / yearly totals
   remain.</p>
 
-<form method="post" action="/consumer/gdpr.php" class="card wide">
+<form method="post" action="<?= View::base() ?>/consumer/gdpr.php" class="card wide">
   <?= Csrf::field() ?>
   <h2>New request</h2>
   <label>Request <select name="request_type"><?= C\options(REQUEST_TYPES, $type) ?></select></label>

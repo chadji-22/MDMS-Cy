@@ -19,7 +19,7 @@ try {
 
 View::header('Technician approvals');
 ?>
-<form method="get" action="/staff/technician-review.php" class="card">
+<form method="get" action="<?= View::base() ?>/staff/technician-review.php" class="card">
     <label>Technician ID <input type="number" name="id" min="1" max="2147483647" required></label>
     <button type="submit">Open technician</button>
 </form>
@@ -35,7 +35,7 @@ View::header('Technician approvals');
         <tbody>
         <?php foreach ($technicians as $technician): ?>
             <tr>
-                <td><a href="/staff/technician-review.php?id=<?= View::h($technician['user_id']) ?>"><?= View::h($technician['full_name']) ?></a></td>
+                <td><a href="<?= View::base() ?>/staff/technician-review.php?id=<?= View::h($technician['user_id']) ?>"><?= View::h($technician['full_name']) ?></a></td>
                 <td><?= View::h($technician['specialty']) ?></td>
                 <td><?= View::h($technician['documents_pending']) ?></td>
                 <td><?= View::h($technician['documents_approved']) ?></td>

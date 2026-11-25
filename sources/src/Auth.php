@@ -23,7 +23,7 @@ final class Auth
         session_name('MDMSSESSID');
         session_set_cookie_params([
             'lifetime' => 0,
-            'path'     => '/',
+            'path'     => View::base() . '/',          // only this application's folder, not the whole host
             'secure'   => $https,
             'httponly' => true,                      // not readable from JavaScript
             'samesite' => 'Lax',
@@ -59,6 +59,7 @@ final class Auth
             throw new DbError(DbError::LOGIN, 50006, 401, 'Login failed.');
         }
         session_regenerate_id(true);                 // a new id after login: no session fixation
+        $db = Connect::snapshot();                   // the database login typed on the Connect page (if any) stays
         $_SESSION = [
             'uid'      => (int) $row['user_id'],
             'role'     => (string) $row['role_code'],
@@ -67,12 +68,28 @@ final class Auth
             'org'      => isset($row['organization_id']) ? (int) $row['organization_id'] : null,
             'last_seen' => time(),
         ];
-        return $_SESSION;
+        Connect::restore($db);
+        return self::publicUser();
     }
 
-    public static function logout(): void
+    /** The logged-in user as the pages may see it (without the database login kept by Connect). */
+    private static function publicUser(): array
     {
+        return array_diff_key($_SESSION, ['_db' => true]);
+    }
+
+    /**
+     * Ends the application login. By default the database login typed on the Connect page is kept in a new session,
+     * so another demo account can log in without typing it again; $keepDatabase = false ("Disconnect") forgets it too.
+     */
+    public static function logout(bool $keepDatabase = true): void
+    {
+        $db = $keepDatabase ? Connect::snapshot() : null;
         self::destroy();
+        if ($db !== null) {
+            self::startSession();                    // a new, empty session (new id) that only holds the database login
+            Connect::restore($db);
+        }
     }
 
     private static function destroy(): void
@@ -111,8 +128,8 @@ final class Auth
     public static function requireLogin(): void
     {
         if (!self::check()) {
-            $next = $_SERVER['REQUEST_URI'] ?? '/';
-            header('Location: /login.php?next=' . rawurlencode($next), true, 303);
+            $next = $_SERVER['REQUEST_URI'] ?? View::url('/');   // already a full URL path (base included)
+            header('Location: ' . View::url('/login.php') . '?next=' . rawurlencode($next), true, 303);
             exit;
         }
     }
@@ -126,12 +143,17 @@ final class Auth
         }
     }
 
-    /** A redirect target from the request is accepted only if it is a path of this site. */
+    /**
+     * A redirect target from the request is accepted only if it is a path of this application (under the base,
+     * so not another site on the same host). $next is a full URL path, as requireLogin() puts it in ?next=.
+     */
     public static function safeNext(?string $next): string
     {
-        if ($next !== null && preg_match('#^/(?!/)[^\\\\\r\n]*$#', $next) === 1) {
+        if ($next !== null && preg_match('#^/(?!/)[^\\\\\r\n]*$#', $next) === 1
+            && str_starts_with($next, View::base() . '/')
+            && !str_contains($next, '..') && stripos($next, '%2e') === false) {   // no way back out of the base
             return $next;
         }
-        return '/home.php';
+        return View::url('/home.php');
     }
 }

@@ -12,7 +12,7 @@ if ($isPost) {
     Csrf::verify();
 }
 
-$route = '/staff/gdpr.php';
+$route = View::url('/staff/gdpr.php');   // full URL path (base included)
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]);
 if ($id === false || ($isPost && $id === null)) {
     View::fail(400, 'Invalid request', 'Select a GDPR request from the list.');

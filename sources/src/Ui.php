@@ -35,11 +35,14 @@ final class Ui
         return is_string($v) ? trim($v) : '';
     }
 
-    /** Previous / next links. The procedures return no total, so a full page means there may be another one. */
+    /**
+     * Previous / next links. The procedures return no total, so a full page means there may be another one.
+     * $path is an application path ('/dso/events.php'); the base is added here.
+     */
     public static function pager(string $path, array $query, int $page, int $rows, int $size): string
     {
         $link = static fn(int $p, string $text): string =>
-            '<a href="' . View::h($path . '?' . http_build_query(['page' => $p] + $query)) . '">' . View::h($text) . '</a>';
+            '<a href="' . View::href($path . '?' . http_build_query(['page' => $p] + $query)) . '">' . View::h($text) . '</a>';
         $html = [];
         if ($page > 1) {
             $html[] = $link($page - 1, '‹ Previous');
@@ -76,9 +79,10 @@ final class Ui
         return is_array($data) ? $data : null;
     }
 
-    public static function redirect(string $path): never
+    /** 303 to an application path ('/tso/tree.php'); the base is added here. */
+    public static function redirect(string $path): void   // never returns (exit); "never" needs PHP 8.1, the UCY server has 8.0
     {
-        header('Location: ' . $path, true, 303);
+        header('Location: ' . View::url($path), true, 303);
         exit;
     }
 
@@ -102,7 +106,7 @@ final class Ui
     }
 
     /** JSON answer of a data endpoint. Escaped so that it stays harmless even if a browser shows it as HTML. */
-    public static function json(array $data, int $status = 200): never
+    public static function json(array $data, int $status = 200): void   // never returns (exit); PHP 8.0 has no "never"
     {
         http_response_code($status);
         header('Content-Type: application/json; charset=UTF-8');

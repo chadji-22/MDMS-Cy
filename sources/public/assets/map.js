@@ -65,6 +65,8 @@
         }).addTo(meters);
     });
   }
+  // the application may live in a sub-folder (BASE_PATH): tso/map.php puts it in data-base
+  var base = document.getElementById('map').getAttribute('data-base') || '';
   function getJson(url) {
     return fetch(url, { credentials: 'same-origin' }).then(function (r) {
       return r.json().then(function (j) {
@@ -80,14 +82,14 @@
 
   map.on('click', function (e) {
     var p = e.latlng.wrap();
-    getJson('/tso/map-data.php?lat=' + p.lat.toFixed(6) + '&lon=' + p.lng.toFixed(6)).then(function (j) {
+    getJson(base + '/tso/map-data.php?lat=' + p.lat.toFixed(6) + '&lon=' + p.lng.toFixed(6)).then(function (j) {
       var rows = j.path.map(function (n) { return ['Level ' + n.level, n.name]; });
       L.popup().setLatLng(e.latlng)
         .setContent(popup(rows.length ? 'Geofence of this point' : 'This point is in no geofence', rows)).openOn(map);
     }).catch(function (err) { say(err.message, true); });
   });
 
-  getJson('/tso/map-data.php').then(function (j) {
+  getJson(base + '/tso/map-data.php').then(function (j) {
     data = j;
     var levels = {}, select = document.getElementById('map-level');
     j.transformers.forEach(function (t) { levels[t.level] = true; });

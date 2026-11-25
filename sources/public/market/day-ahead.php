@@ -29,7 +29,7 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="get" action="/market/day-ahead.php" class="filters">
+<form method="get" action="<?= View::base() ?>/market/day-ahead.php" class="filters">
   <label>From <input type="date" name="from" value="<?= View::h($f['from']) ?>"></label>
   <label>To (inclusive) <input type="date" name="to" value="<?= View::h($f['to']) ?>"></label>
   <label>Grouping level <input type="number" class="short" name="level" min="1" max="255" value="<?= View::h($f['level']) ?>"></label>
@@ -38,7 +38,7 @@ if ($error) {
 </form>
 <p class="muted">Validated (after VEE) and final, so the numbers do not change. Level 1 = low-voltage transformers, higher
   levels = larger areas. A group with fewer than 3 meters is not shown; try a higher level.
-  <a href="/market/api/day-ahead.php?<?= View::h($query) ?>">Same data as JSON</a></p>
+  <a href="<?= View::base() ?>/market/api/day-ahead.php?<?= View::h($query) ?>">Same data as JSON</a></p>
 <?php if (!$error && $rows === []): ?>
   <p class="flash">No final data for this period and level.</p>
 <?php elseif ($rows !== []): ?>

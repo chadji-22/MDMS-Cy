@@ -63,7 +63,7 @@ if ($error) {
     View::error($error);
 }
 ?>
-<form method="post" action="/tso/transformer.php" class="card wide">
+<form method="post" action="<?= View::base() ?>/tso/transformer.php" class="card wide">
   <?= Csrf::field() ?>
   <input type="hidden" name="id" value="<?= View::h($id) ?>">
   <div class="row">
@@ -77,6 +77,6 @@ if ($error) {
   <div class="row"><?= $coordinate('min_lat', 'South') ?><?= $coordinate('min_lon', 'West') ?><?= $coordinate('max_lat', 'North') ?><?= $coordinate('max_lon', 'East') ?></div>
   <button type="submit">Save</button>
 </form>
-<p><a href="/tso/tree.php">Back to the tree</a></p>
+<p><a href="<?= View::base() ?>/tso/tree.php">Back to the tree</a></p>
 <?php
 View::footer();

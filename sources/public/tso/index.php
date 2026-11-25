@@ -47,11 +47,11 @@ if ($error) {
   <p class="card"><span class="muted">Overloaded transformers</span><strong><?= $overloaded ?></strong></p>
   <p class="card"><span class="muted">Critical events in 24 h</span><strong><?= (int) $critical ?></strong></p>
 </div>
-<form method="get" action="/tso/" class="filters">
+<form method="get" action="<?= View::base() ?>/tso/" class="filters">
   <label>Show slot (UTC, empty = latest) <input type="datetime-local" step="900" name="slot" value="<?= View::h($slot === null ? '' : str_replace(' ', 'T', substr($slot, 0, 16))) ?>"></label>
   <button type="submit" class="secondary">Show</button>
 </form>
-<form method="post" action="/tso/" class="filters">
+<form method="post" action="<?= View::base() ?>/tso/" class="filters">
   <?= Csrf::field() ?>
   <label>Compute slot (UTC, empty = latest verified) <input type="datetime-local" step="900" name="slot"></label>
   <button type="submit">Refresh the state</button>
