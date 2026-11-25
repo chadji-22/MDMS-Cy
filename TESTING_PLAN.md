@@ -155,7 +155,67 @@ of their pages and adds a row for every new page.
 | 25/11 | I | B12 merge into `io` | L, R | `run_all.sh` (WRITE=1), audit, errors, db_integration | all passed; crawl 162 pages no problems |
 | 25/11 | I | - | S | deployed, Connect + login confirmed in the browser | works |
 | | K | | | | |
-| | E | | | | |
+| 25–26/11 | E | c54b11c | L, S | E-01–E-13 | All 13 manual test scenarios exercised. E-08 fixed and verified locally. See detailed results below. |
+
+
+### Eliana — Detailed manual testing results (25–26/11/2026)
+
+| Test | Result | Notes |
+|---|---|---|
+| E-01 | PASS | Availability displayed on S; new slot saved on L. |
+| E-02 | PASS (L) | Assigned jobs and meter coordinates displayed correctly locally. |
+| E-03 | PASS with limitation | Fault repair completed successfully. Declined request returned to SUBMITTED; direct decline evidence is limited. |
+| E-04 | PASS | Meter #13 registered with automatic transformer lookup and three certificates uploaded. Installation work order #15 completed. |
+| E-05 | PASS | PDF uploaded successfully and document status set to PENDING. |
+| E-06 | PASS with setup workarounds | Document approval, rejection, resubmission and final technician approval successful. |
+| E-07 | PASS with limitation | All three certificates approved and meter activated. Premature activation did not proceed in the UI; TR04 was not independently verified. Certificate download was not explicitly verified. |
+| E-08 | PASS AFTER FIX (L) | Officer work order history was missing. Added history and findings using the existing stored procedure. University deployment retest pending. |
+| E-09 | PASS | Remote command progressed from PENDING_APPROVAL to APPROVED, SENT and ACKNOWLEDGED. Attempt count and timestamps recorded. |
+| E-10 | PASS | Same-officer final approval denied. Second officer successfully approved the request. Review history confirmed both actors. |
+| E-11 | PASS | New service type and OBIS code added without schema changes. |
+| E-12 | PARTIAL | Admin pages, audit log and statistics verified. Full account and organization lists were not verified. |
+| E-13 | PASS (UI) | Officer access to the consumer page denied. HTTP 403 status was not independently checked. |
+
+### Fix implemented
+
+- Commit: `c54b11c`
+- Branch: `eliana/setup-testing`
+- File: `sources/public/staff/work-order.php`
+- Added officer work order history and findings using `sp_GetWorkOrderHistory`.
+- PHP syntax validation passed.
+- Manual verification on the local environment passed.
+- No database schema changes were required.
+
+### Testing environment and observations
+
+- University SQL Server build and deployment completed successfully.
+- Separate local SQL Server and PHP containers configured for write tests.
+- Local upload directory permissions required configuration.
+- The E-06 test account required a manual password reset after a password mismatch. No application login defect was confirmed.
+- Installation and remote command test data were prepared using existing stored procedures.
+- Local automatic pre-merge tests completed successfully.
+- Post-deployment verification remains pending.
+
+### Automatic testing results (26/11/2026)
+
+| Test | Result |
+|---|---|
+| audit_pages.php | PASS: 117 procedure calls, 0 errors, 15 review notes |
+| errors_test.php | PASS: all passed with APP_DEBUG=0 |
+| smoke.sh | PASS |
+| consumer_pages.sh | PASS: 63 passed, 0 failed |
+| market_dso_tso.sh | PASS: 160 passed, 0 failed |
+| accounts.sh | PASS |
+| crawl_links.py | PASS: 163 pages, 2627 URLs, no problems |
+
+All five run_all.sh suites passed on the local environment with WRITE=1.
+
+The initial errors_test.php failure was caused by APP_DEBUG=1.
+The test passed after disabling debug mode for the test execution.
+No source code changes were required.
+
+The Connect-page suite was not applicable to this local setup.
+Server replica and post-deployment verification remain pending.
 
 ## 7. Known, not bugs
 
