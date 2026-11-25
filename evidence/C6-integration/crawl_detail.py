@@ -15,7 +15,7 @@ CASES = [  # (page, role, id, what the id is)
     ("staff/work-order.php", "SYSTEM_ADMIN", 1, "work order 1"),
     ("staff/meter-review.php", "SYSTEM_OFFICER", 13, "pending meter 13"),
     ("staff/technician-review.php", "SYSTEM_OFFICER", 23, "pending technician 23"),
-    ("staff/technician-review.php", "SYSTEM_OFFICER", 27, "technician 27"),
+    ("staff/technician-review.php", "SYSTEM_OFFICER", 9, "approved technician 9 of import.sql"),
     ("staff/gdpr.php", "SYSTEM_OFFICER", 1, "GDPR request 1"),
     ("staff/remote-commands.php", "SYSTEM_OFFICER", 1, "remote command 1"),
 ]

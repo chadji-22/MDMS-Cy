@@ -253,3 +253,12 @@ Not done:  web pages against SQL2025; nothing pushed; io unchanged. io still has
            branch into io is a separate decision (advisor + Ioannis).
 Backup plan for 2022: unchanged (see the 2026-11-25 preparation entry).
 ```
+
+## 2026-11-25 13:50 — merge plan steps 1-3 (go-ahead from Ioannis)
+```
+Done:      1. pushed ioannis/C6-log-cap (a343c52, new branch).
+           2. ioannis/integration-2 = Kostis 68a26f9 (ODBC pooling off) + merge of ioannis/C6-log-cap (92f4fe0), clean.
+           3. local proof (evidence/C6-integration-2): build x2, 82/82, 26/26, select OK, web suites all green,
+              531/531 page requests, 11/11 detail pages (test fix: technician id 27 -> 9), 0 app errors.
+Not done:  step 4 (fast-forward io to integration-2, push) waits for the advisor and Ioannis.
+```

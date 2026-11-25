@@ -1,0 +1,163 @@
+PASS no session: /market/ goes to the login
+PASS no session: /market/day-ahead.php goes to the login
+PASS no session: /market/intraday.php goes to the login
+PASS no session: /market/data.php goes to the login
+PASS no session: /market/bills.php goes to the login
+PASS no session: /dso/ goes to the login
+PASS no session: /dso/ingest.php goes to the login
+PASS no session: /dso/vee.php goes to the login
+PASS no session: /dso/suspects.php goes to the login
+PASS no session: /dso/finalize.php goes to the login
+PASS no session: /dso/reports.php goes to the login
+PASS no session: /dso/events.php goes to the login
+PASS no session: /tso/ goes to the login
+PASS no session: /tso/shedding.php goes to the login
+PASS no session: /tso/transformer.php goes to the login
+PASS no session: /tso/state.php goes to the login
+PASS no session: /tso/frequency.php goes to the login
+PASS no session: /tso/tree.php goes to the login
+PASS no session: /tso/map.php goes to the login
+PASS no session: /market/api/portfolio.php answers 401 as JSON
+PASS no session: /market/api/day-ahead.php answers 401 as JSON
+PASS no session: /market/api/intraday.php answers 401 as JSON
+PASS no session: /tso/map-data.php answers 401 as JSON
+PASS consumer on /market/: 403
+PASS consumer on /market/day-ahead.php: 403
+PASS consumer on /market/intraday.php: 403
+PASS consumer on /market/data.php: 403
+PASS consumer on /market/bills.php: 403
+PASS consumer on /dso/: 403
+PASS consumer on /dso/ingest.php: 403
+PASS consumer on /dso/vee.php: 403
+PASS consumer on /dso/suspects.php: 403
+PASS consumer on /dso/finalize.php: 403
+PASS consumer on /dso/reports.php: 403
+PASS consumer on /dso/events.php: 403
+PASS consumer on /tso/: 403
+PASS consumer on /tso/shedding.php: 403
+PASS consumer on /tso/transformer.php: 403
+PASS consumer on /tso/state.php: 403
+PASS consumer on /tso/frequency.php: 403
+PASS consumer on /tso/tree.php: 403
+PASS consumer on /tso/map.php: 403
+PASS consumer on /market/api/day-ahead.php: 403 as JSON
+PASS consumer on /tso/map-data.php: 403 as JSON
+PASS DSO on /market/: 403
+PASS DSO on /market/day-ahead.php: 403
+PASS DSO on /market/intraday.php: 403
+PASS DSO on /market/data.php: 403
+PASS DSO on /tso/: 403
+PASS DSO on /tso/shedding.php: 403
+PASS DSO on /tso/transformer.php: 403
+PASS TSO on /market/: 403
+PASS TSO on /market/day-ahead.php: 403
+PASS TSO on /market/intraday.php: 403
+PASS TSO on /market/data.php: 403
+PASS TSO on /dso/: 403
+PASS TSO on /dso/ingest.php: 403
+PASS TSO on /dso/vee.php: 403
+PASS TSO on /dso/suspects.php: 403
+PASS TSO on /dso/finalize.php: 403
+PASS TSO on /dso/reports.php: 403
+PASS officer on /market/: 403
+PASS officer on /market/day-ahead.php: 403
+PASS officer on /market/intraday.php: 403
+PASS officer on /market/data.php: 403
+PASS officer on /tso/: 403
+PASS officer on /tso/shedding.php: 403
+PASS officer on /tso/transformer.php: 403
+PASS officer on /tso/state.php: 403
+PASS officer on /tso/frequency.php: 403
+PASS officer on /dso/reports.php: 403
+PASS officer opens /dso/
+PASS officer opens /dso/ingest.php
+PASS officer opens /dso/vee.php
+PASS officer opens /dso/suspects.php
+PASS officer opens /dso/finalize.php
+PASS officer opens /dso/events.php
+PASS officer opens /tso/tree.php
+PASS officer opens /tso/map.php
+PASS supplier opens /market/
+PASS supplier opens /market/day-ahead.php
+PASS supplier opens /market/intraday.php
+PASS supplier opens /market/data.php
+PASS supplier opens /market/bills.php
+PASS Day-Ahead, from after to: message of the database (422)
+PASS Day-Ahead, not a date: 422, the value is escaped
+PASS Day-Ahead, level 0: 422
+PASS Intraday, more than 24 hours: 422
+PASS array parameter: no server error
+PASS JSON portfolio
+PASS JSON Day-Ahead with the filters used
+PASS JSON error: 422 and a message
+PASS bills show no consumer id
+PASS bill run for a month that has not ended is refused
+PASS aggregator opens /market/
+PASS aggregator opens /market/day-ahead.php
+PASS aggregator opens /market/intraday.php
+PASS aggregator opens /market/data.php
+PASS aggregator on the bills: 403
+PASS DSO opens /dso/
+PASS DSO opens /dso/ingest.php
+PASS DSO opens /dso/vee.php
+PASS DSO opens /dso/suspects.php
+PASS DSO opens /dso/finalize.php
+PASS DSO opens /dso/reports.php
+PASS DSO opens /dso/events.php
+PASS DSO opens /tso/state.php
+PASS DSO opens /tso/frequency.php
+PASS DSO opens /tso/tree.php
+PASS DSO opens /tso/map.php
+PASS ingest: empty packet is refused
+PASS ingest: a batch must be an array
+PASS ingest: a packet over 4000 characters is refused, not cut
+PASS VEE: wrong window
+PASS suspects: wrong reading number
+PASS suspects: 1e9 is not a decimal
+PASS suspects: unknown reading (the database answers 404)
+PASS finalize: a day in the future is refused
+PASS reports: unknown transformer
+PASS reports: voltage
+PASS reports: unbalance
+PASS reports: a GET never records events (no flash)
+PASS tamper alert for an unknown meter: 404
+PASS frequency: not a number
+PASS a POST without the CSRF token is refused (403)
+PASS an officer cannot raise a tamper alert (403)
+PASS TSO opens /tso/
+PASS TSO opens /tso/shedding.php
+PASS TSO opens /tso/transformer.php
+PASS TSO opens /tso/state.php
+PASS TSO opens /tso/frequency.php
+PASS TSO opens /tso/tree.php
+PASS TSO opens /tso/map.php
+PASS TSO opens /dso/events.php
+PASS tree: unknown root
+PASS transformer: unknown
+PASS transformer: negative capacity
+PASS shedding without the confirmation does nothing
+PASS shedding: another command type is refused
+PASS shedding: the check page asks for a confirmation
+PASS a TSO cannot record a measurement (403)
+PASS map data: transformers and meters
+PASS map data: geofence of a point
+PASS map data: wrong coordinates
+PASS map: own scripts only, tiles allowed for images
+PASS asset leaflet/leaflet.js is served
+PASS asset leaflet/leaflet.css is served
+PASS asset map.js is served
+PASS asset map.css is served
+PASS W ingest: a broken packet is stored (303)
+PASS W ...as COMM_ERROR
+PASS W ingest: batch (303)
+PASS W ...one unmatched
+PASS W VEE runs
+PASS W ...and shows its result
+PASS W refresh of the grid state
+PASS W ...and its message
+PASS five wrong passwords: still 401
+PASS the sixth is refused for a while (429)
+PASS other users are not affected
+
+160 passed, 0 failed
+market_dso_tso.sh: all passed
