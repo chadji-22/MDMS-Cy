@@ -14,7 +14,7 @@ Protection is built in layers, so that a mistake in one is caught by the next: *
 
 **The actor cannot be forged.** The user id passed to a procedure always comes from the session (`Db::callAsActor`), never from a form, address or cookie.
 
-**Checked.** 59 pages (all except logout and the developer check) were requested as each of the 8 roles and without login: 531 requests, 0 failures (`evidence/C6-integration/pages.md`).
+**Checked.** 59 pages (all except logout and the developer check) were requested as each of the 8 roles and without login: 531 requests, 0 failures (`evidence/C6-integration-2`).
 
 ## 2. Least privilege in the database
 
@@ -75,9 +75,9 @@ The site connects with the one login the course server gives us, and at once swi
 | `smoke.sh` (login, roles, CSRF, cookies) | 23 of 23 |
 | `accounts.sh` (registration, passwords, uploads) | 47 of 47 |
 | `market_dso_tso.sh` (roles, bad values, throttling) | 160 of 160 |
-| `consumer_pages.sh` | 53 of 53 (read-only); 63 of 63 with writes (`evidence/C6-integration`) |
+| `consumer_pages.sh` | 53 of 53 (read-only); 63 of 63 with writes on SQL Server 2022 (`evidence/C6-integration-2`) |
 
-On SQL Server 2025 and Windows, random errors appeared because Windows reuses connections that had switched user. Connection pooling is therefore off (`Db.php`). The results above are from SQL Server 2025 with that change (`evidence/D9`); the runs on SQL Server 2022 are in `evidence/C6-integration`.
+On SQL Server 2025 and Windows, random errors appeared because Windows reuses connections that had switched user. Connection pooling is therefore off (`Db.php`). The results above are from SQL Server 2025 with that change (`evidence/D9`); the same suites passed on SQL Server 2022 (`evidence/C6-integration-2`), and the SQL tests also on the course server SQL2025 (`evidence/C6-sql2025`).
 
 ## 9. Known limits
 
