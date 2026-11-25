@@ -1,0 +1,23 @@
+> EXECUTE AS USER = 'mdms_php'; SELECT TOP 1 email FROM dbo.USER_ACCOUNT;
+Msg 229, Level 14, State 5, Server <server>, Line 2
+The SELECT permission was denied on the object 'USER_ACCOUNT', database '<db>', schema 'dbo'.
+> EXECUTE AS USER = 'mdms_php'; SELECT TOP 1 email FROM dbo.view_CONSUMER;
+Msg 229, Level 14, State 5, Server <server>, Line 1
+The SELECT permission was denied on the object 'view_CONSUMER', database '<db>', schema 'dbo'.
+> EXECUTE AS USER = 'mdms_php'; DELETE FROM dbo.AUDIT_LOG WHERE 1 = 0;
+Msg 229, Level 14, State 5, Server <server>, Line 1
+The DELETE permission was denied on the object 'AUDIT_LOG', database '<db>', schema 'dbo'.
+> EXECUTE AS USER = 'mdms_php'; EXEC dbo.sp__SetActor 1, 'x';
+Msg 229, Level 14, State 5, Server <server>, Procedure dbo.sp__SetActor, Line 1
+The EXECUTE permission was denied on the object 'sp__SetActor', database '<db>', schema 'dbo'.
+> EXECUTE AS USER = 'mdms_php'; CREATE TABLE dbo.zz_should_fail (a INT);
+Msg 262, Level 14, State 1, Server <server>, Line 1
+CREATE TABLE permission denied in database '<db>'.
+> EXECUTE AS USER = 'mdms_php'; REVERT; SELECT IIF(USER_NAME() = 'mdms_php', 'still restricted', 'back to the owner') AS after_revert;
+after_revert
+------------
+back to the owner
+(1 row affected)
+> EXECUTE AS USER = 'mdms_php' WITH NO REVERT; REVERT;
+Msg 15196, Level 16, State 1, Server <server>, Line 2
+The current security context is non-revertible. The "Revert" statement failed.

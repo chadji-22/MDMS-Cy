@@ -1,0 +1,35 @@
+run at 2026-11-25 11:38 UTC
+  [server] Microsoft SQL Server 2025
+
+== 1. The same bill is paid twice at once: session 1 pays 0.01, session 2 pays everything it saw as left
+  [session 1] payment_id|bill_id|remaining|bill_status
+  [session 1] 7|11|19.32|PARTIALLY_PAID
+  [session 1] elapsed 6109 ms
+  [session 2] error 50004: Invalid input: the amount is more than what is left to pay.
+  [session 2] elapsed 4076 ms
+
+== 2. Two refreshes of the transformer tree (session 1 holds the lock 15 s; the second waits at most 10 s; session 1 is rolled back)
+  [session 1] Warning: Null value is eliminated by an aggregate or other SET operation.
+  [session 1] transformer_id|reference_15_min|nodes_updated
+  [session 1] 8|2026-10-31 12:00:00|4
+  [session 1] elapsed 15204 ms
+  [session 2] error 50007: Busy: the tree refresh is already running.
+  [session 2] elapsed 10012 ms
+
+== 3. Two officers move the same GDPR request from SUBMITTED to UNDER_REVIEW
+  [session 1] gdpr_request_id|status
+  [session 1] 8|UNDER_REVIEW
+  [session 1] elapsed 6025 ms
+  [session 2] error 50003: This step is not allowed from the current stage of the request.
+  [session 2] elapsed 4013 ms
+
+== 4. A reader during an ingestion that is still open (session 1 is rolled back)
+  [session 1] packet_id|match_status|readings_inserted
+  [session 1] 2399|MATCHED|1
+  [session 1] elapsed 6017 ms
+  [session 2] readings_of_meter_5
+  [session 2] 392
+  [session 2] transformer_id|name|level|parent_transformer_id|capacity_kva|reference_15_min|import_kwh|export_kwh|meter_count|computed_at|load_pct|frequency_hz|frequency_at
+  [session 2] 2|TX-L3 Nicosia|3|1|8000.00|2026-10-31 23:45:00|1.3200|0.0000|6|2026-11-25 11:21:46|0.07|NULL|NULL
+  [session 2] 3|TX-L3 South|3|1|8000.00|2026-10-31 23:45:00|1.3200|0.0000|6|2026-11-25 11:21:46|0.07|NULL|NULL
+  [session 2] elapsed 15 ms
