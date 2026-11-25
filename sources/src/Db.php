@@ -68,6 +68,8 @@ final class Db
             'CharacterSet'           => 'UTF-8',
             'ReturnDatesAsStrings'   => true,
             'LoginTimeout'           => 10,
+            // EXECUTE AS below: SQL Server drops such a connection when the ODBC pool (on by default on Windows) reuses it
+            'ConnectionPooling'      => false,
             'ApplicationIntent'      => 'ReadWrite',
             'APP'                    => 'MDMS-Cy web',
         ]);
