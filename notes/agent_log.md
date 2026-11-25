@@ -240,3 +240,16 @@ Backup plan for the 2022 server (12 MB log): apply evidence/C6-logcap/next_impor
 Next:      advisor + go-ahead, then on SQL2025: CHECKPOINT, build_all x2, tests.sql, telemetry, select.sql, final build,
            lab inventory again (must equal the "before" file), evidence in evidence/C6-sql2025/.
 ```
+
+## 2026-11-25 13:25 — MDMS-Cy on SQL2025 (go-ahead from Ioannis)
+```
+Done:      evidence/C6-sql2025/run_on_sql2025.sh on mssql.cs.ucy.ac.cy\SQL2025 / ichara09 (code 30ebc4f):
+           build_all x2 OK (25 tables, 24 triggers, 118 procedures), tests.sql 82/82, telemetry 26/26, select.sql
+           UC-01..20, final clean build; data 20.00 / 27 MB; lab tables identical before and after (25 tables, 21 FKs);
+           Query Store OFF. The old 11/11 MDMS deploy there was replaced.
+Advisor:   before the run: guard that the committed scoped-drop code runs, check schema-bound modules / DB triggers /
+           stale objects (none, only SSMS diagram helpers), CR-tolerant inventory compare, ask Ioannis with the facts.
+Not done:  web pages against SQL2025; nothing pushed; io unchanged. io still has the drop-every-FK code: merging this
+           branch into io is a separate decision (advisor + Ioannis).
+Backup plan for 2022: unchanged (see the 2026-11-25 preparation entry).
+```

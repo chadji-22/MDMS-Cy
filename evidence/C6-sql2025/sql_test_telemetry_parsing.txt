@@ -1,0 +1,26 @@
+is_json meter_network_id transmission_timestamp_text transmission_utc reading_slot network_type signal_dbm
+------- ---------------- --------------------------- ---------------- ------------ ------------ ----------
+1 DEMO-NET-001 2025-06-10T10:07:30Z 2025-06-10 10:07:30 2025-06-10 10:00:00 NB_IOT -92
+
+meter_network_id meter_id network_id meter_status match_status
+---------------- -------- ---------- ------------ ------------
+DEMO-NET-001 14 DEMO-NET-001 ACTIVE MATCHED
+
+obis value_text reading_value unit
+---- ---------- ------------- ----
+1.8.0 1000.0000 1000.0000 kWh
+32.7.0 230.0000 230.0000 V
+32.7.0 230.0000 230.0000 kWh
+99.9.9 5 5.0000 X
+31.7.0 4.2 4.2000 NULL
+52.7.0 abc NULL V
+
+obis reading_value received_unit expected_unit io_result
+---- ------------- ------------- ------------- ---------
+1.8.0 1000.0000 kWh kWh OK (stored as PENDING)
+31.7.0 4.2000 NULL A OK (stored as PENDING)
+32.7.0 230.0000 V V OK (stored as PENDING)
+32.7.0 230.0000 kWh V IGNORED_DUPLICATE_IN_PACKET
+52.7.0 NULL V V DROPPED_BAD_VALUE
+99.9.9 5.0000 X NULL UNSUPPORTED_OBIS (event, not stored)
+
