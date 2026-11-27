@@ -26,7 +26,8 @@ R ran the zip rebuilt from the working tree (`python deploy/build_zip.py`, sha25
 | I-08…I-14 (curl + SQL checks) | L | PASS 19/19 (run 2; run 1 had one FAIL caused by a wrong assumption in the script, see below) | `manual-I08-I14-L.txt`, `manual-I08-I14-L-run1.txt` |
 | I-10 run 3, end to end on premise 2 | L | PASS 7/7: threshold set on the page (no event yet) → officers' check for 31/10 → new event 20067 → EMAIL and SMS SIMULATED → shown on the page → threshold removed | `manual-I10-L-run3.txt` |
 | I-03, I-07, I-08, I-09 (read-only) | R | PASS 15/15 | `manual-I03-I07-I08-I09-R.txt` |
-| I-05 idle 1900 s | R | see the file (result line `RESULT I-05`) | `I-05-idle-R.txt` |
+| I-05 idle 1900 s | R | PASS: 200 before; after 31.7 min idle a menu page → 303 to `login.php?next=…`, and `login.php` → 303 to `connect.php` (database login forgotten too) | `I-05-idle-R.txt` |
+| PHP log after the committed zip ran (I-15, connect, accounts, manual, I-05) | R | 0 PHP warnings / notices in 912 log lines | `R-php-log-check.txt` |
 | deployed code vs. zip | S | matches the committed zip on every file that can be compared over HTTP: 6/6 static files byte-identical; Connect page HTML identical apart from the server name. PHP source cannot be read over HTTP | `S-deployed-vs-zip.txt` |
 | `connect.sh` | S | PASS 23/23 | `S-connect.txt` |
 | `smoke.sh` (once) | S | PASS all passed | `S-smoke.txt` |

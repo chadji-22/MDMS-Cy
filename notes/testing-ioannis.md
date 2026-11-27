@@ -33,7 +33,7 @@ before it.
 | I-02 wrong database name | AUTO-R, AUTO-S (`connect.sh`: "right password, wrong database: 401 'cannot open the database'") | PASS | same |
 | I-03 Connect, consumer1, Log out, tso | AUTO-R, AUTO-S (`manual_ro.sh`: after log out the login form opens with no Connect; tso sees only the `tso` menu; also `connect.sh`) | PASS | `ev/manual-I03-I07-I08-I09-{R,S}.txt` |
 | I-04 Log out, then Disconnect | AUTO-R, AUTO-S (`connect.sh`: "Disconnect: 303 to the Connect page", then the login page asks for the database again) | PASS | `ev/S-connect.txt` |
-| I-05 idle more than 30 min | AUTO-R (`i05_idle.sh`, 1900 s idle, then a menu page) | see `ev/I-05-idle-R.txt` (filled in below) | `ev/I-05-idle-R.txt` |
+| I-05 idle more than 30 min | AUTO-R (`i05_idle.sh`): 200 before, then 1900 s idle; the menu page answers 303 to `login.php?next=…`, and `login.php` then answers 303 to `connect.php` (the database login is forgotten too) | PASS | `ev/I-05-idle-R.txt` |
 | I-05 on S | USER | open | checklist below |
 | I-06 every menu entry stays under the folder | AUTO-R, AUTO-S (`crawl_links.py`: 8 roles, every link, form, script and redirect, no 404/500, no "Service problem") | PASS (S: 151 pages, 2,436 URLs) | `ev/S-crawl_links.txt` |
 | I-07 consumer1 opens `/tso/` | AUTO-R, AUTO-S (`manual_ro.sh`: 403 and "Access denied"; also `smoke.sh`) | PASS | `ev/manual-I03-I07-I08-I09-S.txt` |
