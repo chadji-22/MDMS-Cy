@@ -1,0 +1,25 @@
+# What S serves vs. deploy/mdms-app.zip (static files: the only files the web server returns as they are), 2026-11-27T00:37:50Z
+# curl -s https://students.cs.ucy.ac.cy/~ichara09/mdms/assets/<file> | sha256sum   vs   unzip -p <zip> mdms/public/assets/<file> | sha256sum
+file                   S              committed-zip  rebuilt-zip    HEAD-blob      S==committed / S==HEAD ignoring CR
+map.css                9687b62c57cd   9687b62c57cd   9687b62c57cd   cb6f8fcc7f55   yes / yes
+map.js                 fb94c5dfb40b   fb94c5dfb40b   61de76ebf7e5   fb94c5dfb40b   yes / yes
+style.css              43069d3bfed9   43069d3bfed9   43069d3bfed9   863795ab5291   yes / yes
+leaflet/LICENSE        53e8dc258620   53e8dc258620   53e8dc258620   53e8dc258620   yes / yes
+leaflet/leaflet.css    a78371028241   a78371028241   a78371028241   a78371028241   yes / yes
+leaflet/leaflet.js     db49d009c841   db49d009c841   db49d009c841   db49d009c841   yes / yes
+
+## connect.php HTML (not connected, GET only), S vs R (R = committed zip after the I-15 update); normalized: base path, pre-filled dbName/userName, CSRF token
+lines S: 11, R: 11
+3c3
+<   <p class="muted">Server: <span class="mono">mssql.cs.ucy.ac.cy\SQL2025</span></p>
+---
+>   <p class="muted">Server: <span class="mono">mdms-sql</span></p>
+
+## response headers of S (connect.php)
+HTTP/1.1 200 OK
+Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips PHP/8.0.30
+X-Powered-By: PHP/8.0.30
+Set-Cookie: MDMSSESSID=<id>; path=/~ichara09/mdms/; secure; HttpOnly; SameSite=Lax
+Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY

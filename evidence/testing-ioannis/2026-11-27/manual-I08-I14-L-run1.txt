@@ -1,0 +1,68 @@
+# Manual tests I-08..I-14 scripted with curl on L (mdms-web-local, http://127.0.0.1:8081, database mdms2), commit 5415192
+# SQLCMDPASSWORD=<sa password, not printed> BASE_URL=http://127.0.0.1:8081 SQLCMD=sqlcmd.exe bash manual_L.sh   (script: evidence/testing-ioannis/2026-11-27/scripts/manual_L.sh)
+# target http://127.0.0.1:8081; last month 2026-10; imported days 2026-10-30 and 2026-10-31; 2026-11-27T00:35:37Z
+PASS consumer1 logs in
+
+## I-11 Past data: buy access to an older month (premise 1, 2026-10)
+before: readings of premise 1 for 2026-10-30..2026-10-31 -> 'Access to past data is not bought for this period, or the period is outside the retention time.'
+quote: Buy access for 2.00 €
+flash: Access to 2026-10-01 – 2026-10-31 bought for 2.00 €. The readings and totals of that period are now visible.
+PASS I-11 buy 2026-10 for premise 1: confirmed
+PASS I-11 the older readings are now visible (no 'not bought' message, slots listed)
+sql: access payments for meter 1 -> payment 2018 2026-10-01..2026-10-31 2.00 EUR  
+
+## I-08 My premises; Readings for a premise (consumer1)
+PASS I-08 My premises: Greek addresses intact (Λεωφ. Στροβόλου 101, Οδός Γρίβα Διγενή 12)
+readings page: ; headers: Slot (UTC)|Import 1.8.0 (kWh)|Status|
+distinct 15-minute slots shown: 2026-10-30 -> 96, 2026-10-31 -> 96 (96 per day = every 15 minutes)
+PASS I-08 readings of premise 1 (scheme NONE): 15-minute rows with the import 1.8.0 column
+premise 1 is not a prosumer (scheme NONE), so the page shows no export column; import + export: consumer2 premise 3 below
+PASS I-08 prosumer premise 3 (consumer2): import and export side by side
+
+## I-09 Totals: daily and monthly (premise 1)
+daily: 2026-10-30|29.950|2026-10-31|30.470|
+PASS I-09 daily totals of the two imported days
+monthly: 2026-10|60.420|
+PASS I-09 monthly total of premise 1 for 2026-10
+
+## I-10 Events and alerts: threshold of premise 1 = 10 kWh -> THRESHOLD_EXCEEDED, notification SIMULATED (B11)
+PASS I-10 set the threshold to 10 kWh on the page
+THRESHOLD_EXCEEDED events of meter 1 before the check: 1
+the event is raised by TR21 (new final DAY totals) or by the officers' check; run the check as officer1 (SQL, L only):
+Warning: Null value is eliminated by an aggregate or other SET operation.
+2026-11-27 1 0
+
+newest THRESHOLD_EXCEEDED of meter 1: 22 2026-10-31 00:00:00 Month-to-date consumption 60.4200 kWh is above the threshold of 10.0000 kWh.
+NOTIFICATION rows of event 22 (read-only query): EMAIL=SIMULATED SMS=SIMULATED  
+FAIL I-10 a THRESHOLD_EXCEEDED event exists for premise 1 in the current month  before 1 after 1
+PASS I-10 B11: its notifications are recorded with status SIMULATED (EMAIL and SMS, as consumer1 chose)
+PASS I-10 the events page shows the event to consumer1
+PASS I-10 the events page lists the notifications as SIMULATED and says delivery is simulated
+
+## I-12 Requests: submit a check request; open its History
+flash: Request #2033 submitted. An officer assigns it to a technician; you can follow it here.
+PASS I-12 check request submitted, its page shows state SUBMITTED
+PASS I-12 History of request #2033 is listed
+PASS I-12 the request is in My requests
+PASS I-12 cleanup: cancelled again (history SUBMITTED -> CANCELLED)
+
+## I-13 Bills and payments: pay part of an open bill
+before:    #2 2026-10-01 – 2026-10-31  #2 Οδός Γρίβα Διγενή 12 EAC Supply  Standard (0.3200 €/kWh)  19.33 0.00  19.33  ISSUED 2026-12-25      Card Bank transfer Direct debit Cash  Pay   
+ #2 2026-11-25 11:42  9.66 Bank transfer  COMPLETED  Bill #1 
+flash: Payment #2019 recorded. Bill #2 is now PARTIALLY_PAID (left to pay: 18.33 €).
+after:     #2 2026-10-01 – 2026-10-31  #2 Οδός Γρίβα Διγενή 12 EAC Supply  Standard (0.3200 €/kWh)  19.33 1.00  18.33  PARTIALLY_PAID 2026-12-25      Card Bank transfer Direct debit Cash  Pay   
+ #2 2026-11-25 11:42  9.66 Bank transfer  COMPLETED  Bill #1 
+PASS I-13 part payment of 1.00 on open bill #2 recorded (PARTIALLY_PAID, left updated)
+sql: bill 2 amount 19.33 paid 1.00 status PARTIALLY_PAID
+
+## I-14 Privacy (GDPR): consumer9 submits a right-to-be-forgotten request
+PASS consumer9 logs in
+flash: Request #1007 submitted. Officers review it; every stage is listed below. 
+PASS I-14 right-to-be-forgotten request #1007 listed as SUBMITTED
+cleanup on L (so consumer9 stays usable for consumer_pages.sh): officer1 rejects request #1007
+1007 REJECTED
+
+status now: REJECTED
+
+manual_L.sh: 19 passed, 1 failed
+exit 1

@@ -1,0 +1,35 @@
+# Gate on R: replica mdms-ucy-replica (PHP 8.0.30, ~student/public_html, PHP as www-data, Connect page, rebuilt zip sha256 5ddcb5287f22..., database mdms2), commit 5415192, start 2026-11-27T00:30:44Z
+# DB_FORM_PASS=<not printed> BASE_URL=http://127.0.0.1:8090/~student/mdms WRITE=1 bash sources/tests/run_all.sh
+Target: http://127.0.0.1:8090/~student/mdms   WRITE=1   Connect page: yes
+
+===== smoke.sh
+PASS wrong password -> 401 'Login failed.'
+smoke.sh: all passed
+
+===== connect.sh
+23 passed, 0 failed
+connect.sh: all passed
+
+===== consumer_pages.sh
+consumer_pages.sh: 63 passed, 0 failed
+
+===== market_dso_tso.sh
+160 passed, 0 failed
+market_dso_tso.sh: all passed
+
+===== accounts.sh
+accounts.sh: all passed
+
+===== crawl_links.py
+168 pages, 2900 URLs checked, base path '/~student/mdms'
+no problems
+
+===== summary
+smoke.sh             PASS
+connect.sh           PASS
+consumer_pages.sh    PASS
+market_dso_tso.sh    PASS
+accounts.sh          PASS
+crawl_links.py       PASS
+exit 0
+# end 2026-11-27T00:31:49Z

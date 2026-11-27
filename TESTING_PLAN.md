@@ -154,6 +154,10 @@ of their pages and adds a row for every new page.
 |---|---|---|---|---|---|
 | 25/11 | I | B12 merge into `io` | L, R | `run_all.sh` (WRITE=1), audit, errors, db_integration | all passed; crawl 162 pages no problems |
 | 25/11 | I | - | S | deployed, Connect + login confirmed in the browser | works |
+| 27/11 | I | `5415192` | none (PHP 8.0.30 + 8.3.36) | audit, errors_test, `php -l` (91 files) | all passed; audit 0 errors / 15 review lines |
+| 27/11 | I | `5415192` | L | `tests.sql`, `db_integration.php`, `run_all.sh` (WRITE=1), I-08..I-14 | all passed: tests.sql 82/82; consumer 63/63, market/dso/tso 160/160, crawl 168 pages; manual 19/19 |
+| 27/11 | I | `5415192` | R | `run_all.sh` (WRITE=1, Connect), I-15 reinstall + connect + accounts, I-03/07/08/09, I-05 | all passed: connect 23/23, 0 PHP warnings; I-05 see `notes/testing-ioannis.md` |
+| 27/11 | I | `5415192` (zip as committed) | S | connect, smoke (once), crawl, I-03/07/08/09 read-only; deployed code = committed zip | all passed: crawl 151 pages no problems. Report: `notes/testing-ioannis.md` |
 | | K | | | | |
 | | E | | | | |
 

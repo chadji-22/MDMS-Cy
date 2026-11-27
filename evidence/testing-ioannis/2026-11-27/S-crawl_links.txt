@@ -1,0 +1,18 @@
+# Read-only run on S: crawl, 2026-11-27T00:38:46Z
+# DB_FORM_PASS=<not printed> python sources/tests/crawl_links.py https://students.cs.ucy.ac.cy/~ichara09/mdms
+consumer1@example.cy     pages fetched: 20
+tech1@mdms.cy            pages fetched: 8
+officer1@mdms.cy         pages fetched: 36
+admin@mdms.cy            pages fetched: 20
+dso@mdms.cy              pages fetched: 20
+tso@mdms.cy              pages fetched: 20
+billing@eacsupply.cy     pages fetched: 14
+desk@flexpool.cy         pages fetched: 13
+map.php data-base='/~ichara09/mdms'  ->  map-data.php HTTP 200 application/json; charset=UTF-8
+
+151 pages, 2436 URLs checked, base path '/~ichara09/mdms'
+no problems
+notes (3, not failures):
+/~ichara09/mdms/account/photo.php -> 404 with the application message (by design, e.g. a file not on this server)
+/~ichara09/mdms/staff/audit.php: relative href="?object_type=&object_id=&user_id=&from=&to=&page=2" (fine in any folder when it starts with ?)
+exit 0

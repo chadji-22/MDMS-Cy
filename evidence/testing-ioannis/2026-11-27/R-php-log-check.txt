@@ -1,0 +1,4 @@
+# podman logs mdms-ucy-replica, filtered for PHP warnings / notices / errors, 2026-11-27T00:31:56Z
+# total log lines: 753
+# lines matching PHP (Warning|Notice|Deprecated|Fatal|Parse error): 0
+# other lines mentioning 'error' (app error references, apache):

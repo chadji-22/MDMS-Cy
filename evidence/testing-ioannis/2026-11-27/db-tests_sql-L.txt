@@ -1,0 +1,205 @@
+# tests.sql on L (local SQL Server 2022 container mdms-sql, database mdms2), commit 5415192, 2026-11-27T00:26:21Z
+# SQLCMDPASSWORD=<sa password from the container env> sqlcmd -S 127.0.0.1,11433 -U sa -d mdms2 -C -I -b -W -i tests.sql
+user_id avail_date start_time
+------- ---------- ----------
+9 2026-11-29 08:00:00
+
+work_order_id status
+------------- ------
+2029 SUBMITTED
+
+work_order_id status
+------------- ------
+2029 ASSIGNED
+
+work_order_id status
+------------- ------
+2029 ACCEPTED
+
+work_order_id status
+------------- ------
+2029 CANCELLED
+
+meter_id status
+-------- ------
+2 FAULTY
+
+meter_id status
+-------- ------
+2 ACTIVE
+
+user_id approval_status
+------- ---------------
+11 SUSPENDED
+
+user_id approval_status
+------- ---------------
+11 APPROVED
+
+command_id status
+---------- ------
+9 PENDING_APPROVAL
+
+command_id status
+---------- ------
+9 APPROVED
+
+attempts_sent commands_failed errors
+------------- --------------- ------
+3 0 0
+
+attempts_sent commands_failed errors
+------------- --------------- ------
+3 0 0
+
+command_id status
+---------- ------
+9 ACKNOWLEDGED
+
+command_id status
+---------- ------
+10 APPROVED
+
+attempts_sent commands_failed errors
+------------- --------------- ------
+1 2 0
+
+attempts_sent commands_failed errors
+------------- --------------- ------
+1 0 0
+
+attempts_sent commands_failed errors
+------------- --------------- ------
+0 1 0
+
+gdpr_request_id status
+--------------- ------
+1005 SUBMITTED
+
+gdpr_request_id status
+--------------- ------
+1005 UNDER_REVIEW
+
+gdpr_request_id status
+--------------- ------
+1005 PRE_APPROVED
+
+gdpr_request_id status
+--------------- ------
+1005 REJECTED
+
+user_id
+-------
+2046
+
+user_id approval_status
+------- ---------------
+2047 PENDING
+
+avail_date start_time end_time district
+---------- ---------- -------- --------
+
+meters_processed meters_failed readings_valid readings_suspect readings_estimated
+---------------- ------------- -------------- ---------------- ------------------
+0 0 0 0 0
+
+Warning: Null value is eliminated by an aggregate or other SET operation.
+event_id work_order_id
+-------- -------------
+20058 2030
+
+work_order_id status
+------------- ------
+2030 CANCELLED
+
+seq result test detail
+--- ------ ---- ------
+1 PASS A0 fixture: PENDING meter exists NULL
+2 PASS B1a work order SUBMITTED->ASSIGNED->ACCEPTED NULL
+3 PASS B1b work order accept twice -> 50003 Work order is not assigned to you, or is not in ASSIGNED state.
+4 PASS B1c work order complete before start -> 50003 Work order is not assigned to you, or is not in IN_PROGRESS state.
+5 PASS B1d work order cancelled, history has every step (TR14) audit rows: 6
+6 PASS B2a meter ACTIVE->FAULTY NULL
+7 PASS B2b meter FAULTY->INACTIVE -> 50003 This status change is not allowed from the current state of the meter.
+8 PASS B2c meter FAULTY->ACTIVE NULL
+9 PASS B3 document decided twice -> 50003 The document is not PENDING (another officer may have decided it).
+10 PASS B4a technician APPROVED->REJECTED -> 50003 This decision is not allowed in the current approval status of the technician.
+11 PASS B4b technician APPROVED<->SUSPENDED NULL
+12 PASS B5a command PENDING_APPROVAL->APPROVED->SENT x2->ACKNOWLEDGED attempts 2, attempt audit rows 2
+13 PASS B5b command decided after ACK -> 50003 The command is not waiting for approval.
+14 PASS B5c command ACK twice -> 50003 The command is not in SENT state.
+15 PASS B5d command without ACK -> FAILED + COMMAND_FAILED event NULL
+16 PASS B6a pay a PAID bill -> 50003 The bill is already paid or cancelled.
+17 PASS B6b cancel a PAID bill -> 50003 Only an ISSUED bill without payments can be cancelled.
+18 PASS B6c bill paid in two instalments is PAID (TR06) NULL
+19 PASS B6d overpayment -> 50004 Invalid input: the amount is more than what is left to pay.
+20 PASS B7a GDPR EXECUTED->UNDER_REVIEW -> 50003 This step is not allowed from the current stage of the request.
+21 PASS B7b GDPR skipped stage -> 50003 This step is not allowed from the current stage of the request.
+22 PASS B7c GDPR same officer pre-approves and approves -> 50002 Permission denied: the final approval must come from a different officer than the pre-approval.
+23 PASS B7d GDPR execute before approval -> 50003 Only an APPROVED request can be executed.
+24 PASS B7e GDPR every stage is logged (TR17) stage rows: 4
+25 PASS B8 edit a final reading -> 50003 Only a SUSPECT, ESTIMATED or EDITED reading that is not final can be edited.
+26 PASS C01 [51001] update of a final reading [51001] A finalized reading cannot be changed.
+27 PASS C02a [51002] update of a final aggregate [51002] A final aggregate cannot be changed or deleted.
+28 PASS C02b [51002] delete of a final aggregate [51002] A final aggregate cannot be changed or deleted.
+29 PASS C03a [51003] delete from the audit log [51003] The audit log is append-only.
+30 PASS C03b [51003] update of the audit log [51003] The audit log is append-only.
+31 PASS C04a [51004] activate a meter without certificates [51004] A meter can become ACTIVE only with its 3 certificates approved.
+32 PASS C04b atomicity: failed confirm left no partial rows NULL
+33 PASS C05 [51005] job given to a non-technician [51005] A work order can be given only to an active, approved technician.
+34 PASS C06 [51006] overpayment inserted directly [51006] The payments of a bill cannot be more than its amount.
+35 PASS C07a [51007] premise owned by an officer [51007] A premise needs a CONSUMER owner, a SUPPLIER organization and an AGGREGATOR organization of the right type.
+36 PASS C07b [51007] aggregator used as supplier [51007] A premise needs a CONSUMER owner, a SUPPLIER organization and an AGGREGATOR organization of the right type.
+37 PASS C08 [51008] meter on a level-2 transformer [51008] A meter must be connected to a level-1 (low-voltage) transformer.
+38 PASS C09a [51009] root placed under a leaf [51009] The parent of a transformer must be exactly one level above it.
+39 PASS C09b [51009] level-1 child of the level-4 root (procedure) [51009] The parent of a transformer must be exactly one level above it.
+40 PASS C10 [51010] delete of a user [51010] Users are never deleted; they are anonymized.
+41 PASS C11 [51011] command for a meter that is not ACTIVE [51011] A remote command can target only an ACTIVE meter.
+42 PASS C12a [51012] delete of a bill [51012] Bills are never deleted.
+43 PASS C12b [51012] delete of a payment [51012] Payments are never deleted.
+44 PASS D1 consumer reads another consumer's premise -> 50002 Permission denied: not your premise.
+45 PASS D2 supplier sees only its own customers' bills rows: 8
+46 PASS D3 pending technician accepts a job -> 50002 Permission denied: your role or account status does not allow this operation.
+47 PASS D4 pending technician manages own registration (TECHNICIAN_ANY) NULL
+48 PASS D5 consumer calls an officer procedure -> 50002 Permission denied: your role or account status does not allow this operation.
+49 PASS D6 duplicate email -> 50005 Duplicate: this email is already registered.
+50 PASS D7 past month without purchase -> 50008 Access to past data is not bought for this period, or the period is outside the retention time.
+51 PASS D8 past month after purchase: 96 slots x 2 codes (prosumer) rows: 192
+52 PASS E1 login with the right password NULL
+53 PASS E2 login with a wrong password -> 50006 Login failed.
+54 PASS E3 login with an unknown email -> 50006 (same message) Login failed.
+55 PASS E4 login with a NULL password -> 50006 Login failed.
+56 PASS E5 login of an anonymized user -> 50006 Login failed.
+57 PASS F1 VEE: 1.8 / 2.0 / 1.9 / 25.4 -> the last one is SUSPECT (SPIKE) SUSPECT / SPIKE / energy 25.4000
+58 PASS F2 VEE: the three readings before the spike are VALID valid: 3
+59 PASS F3 VEE: 2.0 / missing / 2.2 -> an ESTIMATED 2.1 is inserted ESTIMATED / 2.1000
+60 PASS F4 Editing keeps original value, new value and editor (TR18) NULL
+61 PASS G1 packets: UNMATCHED / COMM_ERROR / QUARANTINED stored with an event (TR19) UNMATCHED, COMM_ERROR, QUARANTINED
+62 PASS G2 voltage 198.5 V -> VOLTAGE_SAG event NULL
+63 PASS G3 unknown OBIS code -> UNSUPPORTED_OBIS event, not stored NULL
+64 PASS H1 tamper alert creates an ANTI_TAMPER work order (TR20) NULL
+65 PASS H2 tree state: every parent = sum of its children parents checked: 16
+66 PASS H3 transformer DAY aggregate of the root = sum of the meter DAY aggregates root-days checked: 2
+67 PASS H4 recursive tree walk: every transformer once, depth = distance from the root rows: 17
+68 PASS I1 forgotten user: anonymized, inactive, bills and aggregates kept, retention 1 month NULL
+69 PASS I2 purge: final days deleted from METER_READING, aggregates remain readings deleted (rolled back): 576
+70 PASS J1 day-ahead data: only groups of 3 meters or more, only own customers rows: 4
+71 PASS J2 day-ahead data at level 1: small groups are suppressed rows: 0
+72 PASS K1 fn_Floor15 edge timestamps map to the start of their 15-min slot wrong results: 0
+73 PASS K2 fn_Floor15 before the year 2000 (negative DATEDIFF) still rounds down wrong results: 0
+74 PASS L1 consumer lists the active service types (ids for sp_PayServiceFee) rows: 3
+75 PASS L2 consumer lists the suppliers only (no aggregators) rows: 2
+76 PASS L3 technician lists service types -> 50002 Permission denied: your role or account status does not allow this operation.
+77 PASS M1 threshold event, email + SMS on: two SIMULATED notifications with the recipients (none SENT) NULL
+78 PASS M2 threshold event, both channels off: no notification rows: 0
+79 PASS M3 SMS chosen but no phone number: recorded as FAILED NULL
+80 PASS M4 sp_ListMyNotifications: the consumer sees them for the premise ok
+81 PASS M5 notifications of another consumer's premise -> 50002 Permission denied: not your premise.
+82 PASS M6 right to be forgotten executed: the notifications stay, their email / phone is erased with recipient before: 1, after: 0, notifications kept: 1
+
+result tests
+------ -----
+PASS 82
+
+tests.sql: 82 tests, 0 not passed.
+exit 0

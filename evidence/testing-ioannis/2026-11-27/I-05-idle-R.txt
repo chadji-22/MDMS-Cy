@@ -1,0 +1,5 @@
+# I-05 idle timeout on R (http://127.0.0.1:8090/~student/mdms), idle 1900 s (SESSION_IDLE_MIN = 30)
+# DB_FORM_PASS=<not printed> bash i05_idle.sh http://127.0.0.1:8090/~student/mdms <out> 1900
+2026-11-27T00:30:33Z connect + login consumer1: 303 (expect 303)
+2026-11-27T00:30:34Z GET /consumer/ before idle: 200  (expect 200)
+2026-11-27T00:30:34Z sleeping 1900 s

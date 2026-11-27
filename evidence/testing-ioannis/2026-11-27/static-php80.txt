@@ -1,0 +1,65 @@
+# Static tests on localhost/mdms-php80, commit 5415192, 2026-11-27T00:26:08Z
+# podman run --rm -v <repo>:/repo -w /repo/sources -e APP_DEBUG=0 --entrypoint sh localhost/mdms-php80 -c '<cmd>'
+## php -v
+PHP 8.0.30 (cli) (built: Nov 21 2023 16:13:28) ( NTS )
+
+## php tests/audit_pages.php
+review call    public/staff/accounts.php:55  sp_CreateStaffUser: parameters are not a literal list, check by hand
+review call    public/staff/accounts.php:64  sp_CreateOrganizationUser: parameters are not a literal list, check by hand
+review escape  public/consumer/index.php:69  $id
+review escape  public/consumer/index.php:79  $id
+review escape  public/consumer/index.php:80  $id
+review escape  public/consumer/index.php:81  $id
+review escape  public/consumer/request.php:57  $id
+review escape  public/consumer/requests.php:72  $id
+review escape  public/consumer/requests.php:78  $id
+review escape  public/market/index.php:33  (int) array_sum(array_column($rows, $name))
+review escape  public/staff/catalogs.php:154  (string) ($values[$field] ?? '') === (string) $option ? ' selected' : ''
+review escape  public/staff/catalogs.php:160  is_int($options) ? 'maxlength="' . $options . '"' : ''
+review escape  public/staff/catalogs.php:161  $required
+review escape  public/staff/technicians.php:50  $page - 1
+review escape  public/staff/technicians.php:51  $page + 1
+
+116 procedure calls checked, 0 errors, 15 to review.
+Procedures no page calls (18): sp_AcknowledgeCommand, sp_BootstrapAdmin, sp_CancelBill, sp_ChangeSupplier, sp_CheckConsumptionThresholds, sp_CreateWorkOrder, sp_ExecuteGdprRequest, sp_GenerateSyntheticData, sp_ListUsers, sp_MarkOverdueBills, sp_PurgeExpiredReadings, sp_ReplaceMeter, sp_RequestRemoteCommand, sp_SetMeterStatus, sp_SetPremiseAggregator, sp_SetUserActive, sp_UpdateMeterTechnicalData, sp_UpdatePremise
+exit 0
+
+## APP_DEBUG=0 php tests/errors_test.php
+PASS driver prefix is removed
+PASS text without prefix is kept
+PASS THROW 50001 -> not_found / 404
+PASS THROW 50002 -> permission / 403
+PASS THROW 50003 -> state / 409
+PASS THROW 50004 -> input / 422
+PASS THROW 50005 -> duplicate / 409
+PASS THROW 50006 -> login / 401
+PASS THROW 50007 -> busy / 503
+PASS THROW 50008 -> history / 402
+PASS guard trigger [51001]
+PASS guard trigger [51002]
+PASS guard trigger [51003]
+PASS guard trigger [51004]
+PASS guard trigger [51005]
+PASS guard trigger [51006]
+PASS guard trigger [51007]
+PASS guard trigger [51008]
+PASS guard trigger [51009]
+PASS guard trigger [51010]
+PASS guard trigger [51011]
+PASS guard trigger [51012]
+PASS [51013] is not a project error
+PASS [51000] is not a project error
+PASS plain error 50000 is unknown
+PASS 3609 (rollback after the trigger) is unknown
+PASS trigger error list -> 51004 from the first entry
+PASS ...and the message has no driver prefix
+PASS unknown error -> server category, HTTP 500
+PASS unknown error hides the SQL text
+PASS no error information -> server category
+errors_test.php: all passed
+[MDMS a074c525] test: code=208 state=42S02 Invalid object name 'dbo.USER_ACCOUNT'.
+[MDMS 04b5d8f4] test: no error information
+exit 0
+
+## php -l on every .php under sources/ and deploy/
+php -l: 91 files, 0 with errors
