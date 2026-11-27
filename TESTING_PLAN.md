@@ -158,6 +158,7 @@ of their pages and adds a row for every new page.
 | 27/11 | K | `5415192` (`testing`) | L (own db `chadji22` on SQL2025, `php -S`, PHP 8.3) | `tests.sql`, `db_integration.php`, `run_all.sh` (WRITE=1), `connect.sh` (instance without `DB_PASS`) | tests.sql 82/82; db_integration all passed; smoke all passed, consumer 63/63, market/dso/tso 160/160, accounts all passed, crawl 168 pages no problems; connect 23/23; 0 PHP warnings. R not run (no Podman on this PC); S not run (needs the team SQL2025 password) |
 | 27/11 | K | `5415192` (`testing`) | L (as above) | `sql/` telemetry suite (HOW_TO_RUN_TESTS.md) | seeds ok (already present); ingest 4/4, storage 8/8, VEE range 5/5, VEE delta 9/9 (26/26); `test_vee_edit` and `test_vee_spike_preview` PASS |
 | 27/11 | K | `5415192` (`testing`) | L (as above; the S rows too) | K-01–K-15 (scripted over HTTP, see below) | all 15 passed. K-13 clicks (popups) still to be checked by eye |
+| 27/11 | K | zip of 25/11 | S: own deployment `https://students.cs.ucy.ac.cy/~chadji22/mdms/` (PHP 8.0.30, Connect page) on own db `chadji22` | K-01–K-15 (same script, every L step too; VEE day 2026-11-21) | all 15 passed. K-14: the department server answers 403 itself (Apache page, before PHP) to any request with `<script>` in it, so that account cannot be registered on S; the K-14 account registered on L logs in on S and its name is escaped. K-13 clicks still by eye |
 | 25–26/11 | E | c54b11c | L, S | E-01–E-13 | All 13 manual test scenarios exercised. E-08 fixed and verified locally. See detailed results below. |
 
 ### Kostis — manual tests K-01–K-15 (27/11/2026)
@@ -183,8 +184,8 @@ because S needs the team password. Results checked on the page and in the databa
 | K-14 | PASS | Consumer named `Test <script>alert(1)</script>`: shown escaped on home and profile, never as a script. |
 | K-15 | PASS | Instance with the Connect page: profile open, Disconnect in the same session, then the old profile form saved: sent back to connect, phone unchanged in the database. |
 
-Data left in `chadji22`: consumers `k01-*` / `k14-*`, technician `k02-*`, 96 final readings of `DEMO-NET-001` on 2026-11-20,
-one APPROVED DISCONNECT command for it (not dispatched), and consumer2 locked for 15 minutes.
+Data left in `chadji22`: consumers `k01-*` / `k14-*`, technician `k02-*`, 96 final readings of `DEMO-NET-001` on 2026-11-20
+and 2026-11-21, two APPROVED DISCONNECT commands for it (not dispatched), and consumer2 locked for 15 minutes.
 
 
 ### Eliana — Detailed manual testing results (25–26/11/2026)
