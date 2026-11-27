@@ -11,6 +11,9 @@ How each test was done:
 * **USER**: needs a person in a browser or an SSH session on the department machine. It is not marked as passed
   here.
 
+Order: the read-only S run (3.2) was done while I-05 was still sleeping on R; every other test of 4.1–4.5 had passed
+before it.
+
 ## Summary
 
 | Area | Result | Evidence |
@@ -20,7 +23,7 @@ How each test was done:
 | DB: `db_integration.php` (L) | PASS | `ev/db-db_integration-L.txt` |
 | Gate on L (`run_all.sh`, WRITE=1) | PASS: smoke, consumer 63/63, market/dso/tso 160/160, accounts, crawl 168 pages | `ev/gate-L-run_all.txt` |
 | Replica R (3.1, `run_all.sh`, WRITE=1, Connect page) | PASS: smoke, connect 23/23, consumer 63/63, market/dso/tso 160/160, accounts, crawl 168 pages; 0 PHP warnings | `ev/gate-R-run_all.txt`, `ev/R-php-log-check.txt` |
-| S (3.2, read-only, once) | PASS: connect 23/23, smoke all passed, crawl 151 pages no problems; the deployed code equals the committed `deploy/mdms-app.zip` | `ev/S-*.txt` |
+| S (3.2, read-only, once) | PASS: connect 23/23, smoke all passed, crawl 151 pages no problems. S matches the committed `deploy/mdms-app.zip` on every file that can be compared over HTTP: 6 assets byte-identical; Connect page HTML identical apart from the server name. PHP source cannot be read over HTTP | `ev/S-*.txt` |
 
 ## I-01 to I-15
 
@@ -36,7 +39,7 @@ How each test was done:
 | I-07 consumer1 opens `/tso/` | AUTO-R, AUTO-S (`manual_ro.sh`: 403 and "Access denied"; also `smoke.sh`) | PASS | `ev/manual-I03-I07-I08-I09-S.txt` |
 | I-08 premises, readings | AUTO-L, AUTO-R, AUTO-S. Greek addresses are intact. Premise 1 shows 96 fifteen-minute rows per day on L/R, after I-11. On S consumer1 has **not bought** October, so the page shows the 50008 reason and how to buy (by design, §1.2). Import + export rows were checked on prosumer premise 3 (consumer2) | PASS (see note N2) | `ev/manual-I08-I14-L.txt`, `ev/manual-I03-I07-I08-I09-{R,S}.txt` |
 | I-09 daily and monthly totals | AUTO-L, AUTO-R, AUTO-S: premise 1 October 30/31 = 29.950 / 30.470 kWh, month 60.420 (L/R); S: premise 1 not bought (message), premise 3 the same daily / monthly totals | PASS (note N2) | same |
-| I-10 threshold 10 kWh, THRESHOLD_EXCEEDED, SIMULATED (B11) | AUTO-L. The threshold was saved on the page. Event 22 (October, 60.42 > 10 kWh) exists, and its NOTIFICATION rows are EMAIL=SIMULATED and SMS=SIMULATED (read-only query). The events page shows the event, the SIMULATED rows and "delivery is simulated". `tests.sql` M1-M6 cover the trigger path (TR21 → TR23) | PASS (note N3) | `ev/manual-I08-I14-L.txt`, `ev/db-tests_sql-L.txt` |
+| I-10 threshold 10 kWh, THRESHOLD_EXCEEDED, SIMULATED (B11) | AUTO-L, run 3, end to end on premise 2 (it had no threshold and no event). The threshold was set to 10 on the page, which alone raises no event. The officers' check for 31/10 then raised a **new** event 20067 (60.42 > 10 kWh), with NOTIFICATION rows EMAIL=SIMULATED and SMS=SIMULATED. The events page shows the event and the SIMULATED rows, and the threshold was removed again. Premise 1 (runs 1-2) already had the event from the import. `tests.sql` M1-M6 cover the triggers (TR21 → TR23) | PASS (note N3) | `ev/manual-I10-L-run3.txt`, `ev/manual-I08-I14-L.txt`, `ev/db-tests_sql-L.txt` |
 | I-11 buy an older month | AUTO-L: premise 1, October: "not bought" → quote 2.00 € → bought → readings visible | PASS | `ev/manual-I08-I14-L.txt` |
 | I-12 check request, History | AUTO-L: TECHNICAL_CHECK #2033 SUBMITTED, History listed, in My requests; cancelled afterwards | PASS | same |
 | I-13 pay part of an open bill | AUTO-L: bill #2, 1.00 €: paid 0.00→1.00, left 19.33→18.33, ISSUED→PARTIALLY_PAID (page and SQL) | PASS | same |
@@ -67,12 +70,19 @@ No test showed a bug in the application. **No code was changed.**
 * **N3. In I-10, saving a threshold does not raise an event at once.**
   * TR21 raises it when final daily totals arrive. `sp_CheckConsumptionThresholds` also raises it, but only officers
     can run that procedure, from SQL; no page calls it.
-  * With `import.sql`, the event for premise 1 already exists (October). The expected result is met, but a new event
-    appears only when new consumption passes the threshold.
+  * With `import.sql`, the event for premise 1 already exists (October), so I-10 on premise 1 shows the result but not
+    its cause. Run 3 shows the whole path on premise 2.
+  * Proposed I-10 wording: "premise 2: set the threshold to 10 kWh; officer runs the threshold check (SQL, L) → a
+    `THRESHOLD_EXCEEDED` event and SIMULATED notifications appear".
+  * This works only once per database: the event is kept, and the check raises at most one event per meter per month.
 * N4. Documentation nits:
   * The gate in `TESTING_PLAN.md` uses `http://localhost:8080`; the L container of this setup is on `:8081`.
-  * Section 2 allows `smoke.sh` 3 times per 15 minutes on S. Each run makes 2 wrong passwords for consumer1, so 3 runs
-    make 6 failures and trip the lock (5). Once per 15 minutes is the safe limit.
+  * Section 2 allows `smoke.sh` 3 times per 15 minutes on S, but the 3rd run trips the lock (seen on 25/11).
+    * A successful login resets that email's counter (`public/login.php:37`), so consumer1's wrong passwords do not
+      add up.
+    * `nobody@example.cy` never logs in successfully, and every run makes 2 refused attempts for it. The 3rd run
+      therefore reaches the limit of 5.
+    * Safe limit: 2 runs per 15 minutes; on S, once.
 * N5. The crawl now finds 168 pages on L/R (162 on 25/11). The extra pages are rows created by the repeated `WRITE=1`
   runs, not new pages.
 
@@ -105,7 +115,9 @@ No test showed a bug in the application. **No code was changed.**
 
 ```bash
 podman machine start; podman start mdms-sql mdms-web-local
-E=evidence/testing-ioannis/<date>; R="$(pwd -W)"
+T=evidence/testing-ioannis/2026-11-27/scripts          # the scripts of this run
+E=evidence/testing-ioannis/$(date +%F); mkdir -p "$E"   # where the outputs of a new run go
+R="$(pwd -W)"
 # static, PHP 8.0 and 8.3 (no PHP on the host)
 for img in mdms-php80 mdms-php-dev; do MSYS_NO_PATHCONV=1 podman run --rm -v "$R:/repo" -w /repo/sources -e APP_DEBUG=0 \
   --entrypoint sh localhost/$img -c 'php tests/audit_pages.php; php tests/errors_test.php; for x in $(find /repo/sources /repo/deploy -name "*.php"); do php -l "$x" >/dev/null || echo "LINT $x"; done'; done
@@ -120,17 +132,21 @@ python deploy/build_zip.py      # then: git restore deploy/mdms-app.zip, unless 
 MSYS_NO_PATHCONV=1 DB_HOST=mdms-sql DB_NAME=mdms2 DB_USER=mdms_web bash sources/dev/ucy-replica.sh 8090
 export DB_FORM_PASS="$(MSYS_NO_PATHCONV=1 podman exec mdms-web-local printenv DB_PASS)"
 BASE_URL=http://127.0.0.1:8090/~student/mdms WRITE=1 bash sources/tests/run_all.sh
-bash $E/scripts/i05_idle.sh http://127.0.0.1:8090/~student/mdms "$(pwd)/$E/I-05-idle-R.txt" 1900 &   # I-05, 32 min
-BASE_URL=http://127.0.0.1:8090/~student/mdms bash $E/scripts/manual_ro.sh
+bash $T/i05_idle.sh http://127.0.0.1:8090/~student/mdms "$(pwd)/$E/I-05-idle-R.txt" 1900 &   # I-05, 32 min, background
+BASE_URL=http://127.0.0.1:8090/~student/mdms bash $T/manual_ro.sh
 #   I-15: podman cp <zip> mdms-ucy-replica:/home/student/mdms-app.zip; podman exec mdms-ucy-replica sh -c
 #         'chown student:cs24 /home/student/mdms-app.zip && su student -c "bash ~/install.sh"'; then connect.sh + accounts.sh
-# manual writes, L
+# manual writes, L (i10_demo_L.sh needs a premise without an event for last month: "2 2" works once per database)
 SQLCMDPASSWORD="$(MSYS_NO_PATHCONV=1 podman exec mdms-sql printenv MSSQL_SA_PASSWORD)" BASE_URL=http://127.0.0.1:8081 \
-  SQLCMD=/c/Users/ioann/tools/sqlcmd/sqlcmd.exe bash $E/scripts/manual_L.sh
+  SQLCMD=/c/Users/ioann/tools/sqlcmd/sqlcmd.exe bash $T/manual_L.sh
+SQLCMDPASSWORD="$(MSYS_NO_PATHCONV=1 podman exec mdms-sql printenv MSSQL_SA_PASSWORD)" BASE_URL=http://127.0.0.1:8081 \
+  SQLCMD=/c/Users/ioann/tools/sqlcmd/sqlcmd.exe bash $T/i10_demo_L.sh 2 2
+wait                                                    # I-05 must finish before the replica goes
+podman logs mdms-ucy-replica 2>&1 | grep -cE 'PHP (Warning|Notice|Deprecated|Fatal|Parse)'   # expect 0
 podman rm -f mdms-ucy-replica
 # S, read-only, once (VPN; password from the Windows user variable, never printed)
 export DB_FORM_PASS="$(powershell.exe -NoProfile -Command "[Console]::Out.Write([Environment]::GetEnvironmentVariable('SQLCMDPASSWORD','User'))" | tr -d '\r\n')"
 S=https://students.cs.ucy.ac.cy/~ichara09/mdms
 BASE_URL=$S bash sources/tests/connect.sh; BASE_URL=$S bash sources/tests/smoke.sh; python sources/tests/crawl_links.py $S
-BASE_URL=$S bash $E/scripts/manual_ro.sh
+BASE_URL=$S bash $T/manual_ro.sh
 ```

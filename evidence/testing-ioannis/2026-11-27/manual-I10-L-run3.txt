@@ -1,0 +1,19 @@
+# I-10 run 3 on L: end to end on premise 2 (no threshold, no event before). Why: in runs 1-2 premise 1 already had the threshold 10 and
+# the October event from import.sql, so they showed the expected state but not the step that causes it. Commit 1b71b24
+# SQLCMDPASSWORD=<sa, not printed> BASE_URL=http://127.0.0.1:8081 SQLCMD=sqlcmd.exe bash scripts/i10_demo_L.sh 2 2
+# premise 2 / meter 2, check as of 2026-10-31, 2026-11-27T00:44:11Z
+before: threshold NULL; THRESHOLD_EXCEEDED events of meter 2: 0; final DAY 1.8.0 total of 2026-10: 60.4200 kWh
+PASS consumer1 logs in
+PASS I-10 set the threshold of premise 2 to 10 kWh on the page
+PASS I-10 saving the threshold alone raises no event (by design: TR21 on new final totals, or the officers' check)
+officers' threshold check as officer1 for 2026-10-31 (as_of, premises_checked, alerts_raised):
+2026-10-31 2 1
+new event: 20067 | 2026-10-31 00:00:00 | Month-to-date consumption 60.4200 kWh is above the threshold of 10.0000 kWh.
+PASS I-10 a new THRESHOLD_EXCEEDED event for meter 2
+NOTIFICATION rows of event 20067: EMAIL=SIMULATED to the profile address;SMS=SIMULATED to the profile address;;
+PASS I-10 B11: EMAIL and SMS notifications recorded as SIMULATED (nothing SENT)
+PASS I-10 the events page of premise 2 shows the new event and its SIMULATED notifications
+PASS cleanup: threshold of premise 2 removed again
+
+i10_demo_L.sh: 7 passed, 0 failed
+exit 0

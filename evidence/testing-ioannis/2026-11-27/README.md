@@ -24,9 +24,10 @@ R ran the zip rebuilt from the working tree (`python deploy/build_zip.py`, sha25
 | gate `run_all.sh` (WRITE=1, Connect page) | R | PASS: smoke; **connect 23/23**; consumer 63/63; market/dso/tso 160/160; accounts; crawl 168 pages, no problems; 0 PHP warnings | `gate-R-run_all.txt`, `R-php-log-check.txt` |
 | I-15 second `install.sh` + `connect.sh` + `accounts.sh` | R | PASS: `Done`, exit 0; 9 upload files kept (same content hash), `var` + 4 subfolders stay `drwx-wx-wt`, `config.local.php` unchanged; connect 23/23; accounts all passed (13 files in `var`) | `I-15-reinstall-R.txt` |
 | I-08…I-14 (curl + SQL checks) | L | PASS 19/19 (run 2; run 1 had one FAIL caused by a wrong assumption in the script, see below) | `manual-I08-I14-L.txt`, `manual-I08-I14-L-run1.txt` |
+| I-10 run 3, end to end on premise 2 | L | PASS 7/7: threshold set on the page (no event yet) → officers' check for 31/10 → new event 20067 → EMAIL and SMS SIMULATED → shown on the page → threshold removed | `manual-I10-L-run3.txt` |
 | I-03, I-07, I-08, I-09 (read-only) | R | PASS 15/15 | `manual-I03-I07-I08-I09-R.txt` |
 | I-05 idle 1900 s | R | see the file (result line `RESULT I-05`) | `I-05-idle-R.txt` |
-| deployed code vs. zip | S | S serves the committed zip: 6/6 static files byte-identical; Connect page HTML identical apart from the server name | `S-deployed-vs-zip.txt` |
+| deployed code vs. zip | S | matches the committed zip on every file that can be compared over HTTP: 6/6 static files byte-identical; Connect page HTML identical apart from the server name. PHP source cannot be read over HTTP | `S-deployed-vs-zip.txt` |
 | `connect.sh` | S | PASS 23/23 | `S-connect.txt` |
 | `smoke.sh` (once) | S | PASS all passed | `S-smoke.txt` |
 | `crawl_links.py` | S | PASS: 151 pages, 2,436 URLs, no problems (notes: `account/photo.php` 404, query-only pager: known, not bugs) | `S-crawl_links.txt` |
@@ -36,6 +37,13 @@ Run 1 of `manual_L.sh`: the I-10 check expected a **new** `THRESHOLD_EXCEEDED` e
 has 0 kWh this month, so the officers' check rightly raised nothing. The plan expects an event and a SIMULATED
 notification, and both exist: event 22 for October, 60.42 kWh > 10 kWh, raised by TR21 at import, with EMAIL and SMS
 both SIMULATED. The check was corrected to that expectation; run 2 passed.
+
+Premise 1 already had both the threshold and the event before the test, so runs 1-2 show the expected state but not
+its cause. Run 3 (`scripts/i10_demo_L.sh 2 2`) shows the whole path on premise 2, which had no threshold and no
+event. It can run only once per database: the event is kept, and the check raises at most one event per meter per
+month.
+
+Order: the S run (3.2) was done while I-05 (4.5) was still sleeping on R; every other part of 4.1–4.5 had passed.
 
 ## Scripts (`scripts/`)
 
@@ -53,4 +61,6 @@ These are on top of the usual `WRITE=1` rows:
 * bill 2 is now PARTIALLY_PAID, with 2.00 paid in two payments;
 * check requests 2033 and 2034 are CANCELLED;
 * GDPR requests 1007 and 1008 (consumer9) are REJECTED;
-* officer1 ran `sp_CheckConsumptionThresholds` twice: no new event.
+* officer1 ran `sp_CheckConsumptionThresholds` twice for today (no new event) and once for 31/10, which raised
+  event 20067 (meter 2) with 2 SIMULATED notifications;
+* the threshold of premise 2 was set and then removed again, so it is back to NULL.
