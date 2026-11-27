@@ -32,7 +32,7 @@ real servers, not localhost:
 | `tests/connect.sh` | **23 / 23** passed |
 | `tests/market_dso_tso.sh` (`WRITE=1`) | **160 / 160** passed |
 | `tests/crawl_links.py` | **169 pages, 2,923 URLs**, every link under `/~chadji22/mdms`, no problems (5 notes, see `TESTING_PLAN.md` section 7) |
-| `tests/consumer_pages.sh` (`WRITE=1`) | first run: 35 passed, **28 failed** (cause below); rerun pending |
+| `tests/consumer_pages.sh` (`WRITE=1`) | first run: 35 passed, 28 failed (cause below); **rerun at 13:34 UTC: 63 / 63 passed** |
 | `tests/accounts.sh` | pending (see below) |
 | Manual tests K-01 … K-15 (`TESTING_PLAN.md` 4.2), scripted over HTTP | **all 15 passed** (details in `TESTING_PLAN.md` section 6) |
 
@@ -78,7 +78,7 @@ The same suite passed 63 / 63 earlier the same day on a local PHP instance again
 
 ## 4. Pending
 
-* `consumer_pages.sh` again after consumer2's 15-minute lock has expired (13:34 UTC).
+* ~~`consumer_pages.sh` again after consumer2's 15-minute lock has expired~~: done at 13:34 UTC, 63 / 63 passed.
 * `accounts.sh` after 14:20 UTC: the site accepts **3 registrations per hour from one address** (B10 throttle), and the K-01,
   K-02 and K-14 runs had used them.
 

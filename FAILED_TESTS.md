@@ -3,7 +3,10 @@
 Where: `https://students.cs.ucy.ac.cy/~chadji22/mdms/` with the database `chadji22` on `mssql.cs.ucy.ac.cy\SQL2025`.
 Full results of the run: `evidence/S-chadji22/README.md`.
 
-**28 checks failed, all in `tests/consumer_pages.sh`. Every other test passed** (`tests.sql` 82/82, `select.sql`, telemetry
+**Status: resolved.** `consumer_pages.sh` was run again at 13:34 UTC, after consumer2's lock had expired: **63 passed,
+0 failed**. No defect was found; the failures below were caused by the login lock only.
+
+**28 checks failed in the first run, all in `tests/consumer_pages.sh`. Every other test passed** (`tests.sql` 82/82, `select.sql`, telemetry
 26/26, `smoke.sh`, `connect.sh` 23/23, `market_dso_tso.sh` 160/160, crawl 169 pages, manual tests K-01 to K-15).
 
 **Cause of all 28:** the first check, consumer2's login, was refused with **HTTP 429 "Too many failed logins"**, because
@@ -41,5 +44,5 @@ as consumer2, so they failed with it. The same suite passed 63/63 earlier the sa
 | 27 | pay someone else's bill #1 | refused |
 | 28 | right to be forgotten without the confirmation box | refused, nothing submitted |
 
-**Next:** `consumer_pages.sh` runs again at 13:34 UTC, after consumer2's lock has expired; `accounts.sh` runs after 14:20 UTC
-(the site allows 3 registrations per hour from one address). This file is updated with those results.
+**Rerun:** `consumer_pages.sh` at 13:34 UTC: **63 / 63 passed**. Still to run: `accounts.sh` after 14:20 UTC (the site allows
+3 registrations per hour from one address); this file is updated with its result.
