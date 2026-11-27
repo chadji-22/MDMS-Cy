@@ -1,0 +1,8 @@
+PROBE|1|1 commit|38.95
+PROBE|1|100 commits|294.45
+PROBE|2|1 commit|27.46
+PROBE|2|100 commits|290.50
+PROBE|3|1 commit|26.54
+PROBE|3|100 commits|287.62
+PROBE|per-commit ms|2.599
+PROBE|table gone|yes

@@ -5,8 +5,10 @@ Date: 27/11/2026 (12:38-13:30 UTC). Commit of the app: `5415192`, deployed at
 Asked by the user, who authorised this run explicitly. It goes beyond TESTING_PLAN §2 ("no perf tests on S"): the
 writes ran in transactions that were always rolled back, and the demo data was verified unchanged afterwards.
 
-**Answer: yes, on the demo data every function measured is well under 2 s.** There is one function to watch: a batch
-ingest of 95 packets takes about 1.85 s end to end and grows by about 13 ms per packet (see "Limits").
+**Answer: yes, on the demo data every function measured answers in under 2 s.** All functions except one stay under
+1.1 s. The exception is the DSO's batch ingest: one meter-day (95 packets) takes about **1.8 s** end to end, once the
+commit cost is included. It grows by about 15.6 ms per packet, so batches of more than about 105 packets go over 2 s
+(see "Limits").
 
 ## How it was measured
 
@@ -25,27 +27,47 @@ procedure itself: the web server opens a TLS connection to SQL2025, logs in, swi
 crosses the VPN. Pages with fast procedures have a median of 0.30 s; `home.php`, which does not touch the database,
 takes 0.04 s.
 * A read page ≈ 0.30 s + its procedures.
-* A form ≈ 0.30 s + the procedure for the POST, then ≈ 0.3–0.45 s for the page it redirects to.
+* A form ≈ 0.30 s + the procedure for the POST, then the page it redirects to. For the heavy DSO forms
+  (`dso/ingest.php`, `vee.php`, `finalize.php`) that page costs only 0.05 s, because their GET calls no procedure.
+  Other result pages cost 0.3–0.45 s.
 
-## Results: slowest functions end to end (estimate = POST 0.30 s + SQL max + result page ≈ 0.35 s)
+**Commit cost.** Inside the rolled-back transaction, the procedures' own `COMMIT`s are nested, so no log flush happens.
+In real use each one writes the log to disk. `commit_probe.sql` measured that on SQL2025: **2.6 ms per commit**. It
+compares 100 one-row inserts with 100 commits against 100 with 1 commit, over 3 rounds, on a probe table that was
+created and dropped again; the 25 tables were unchanged afterwards. That cost is added below:
+* batch ingest commits once per packet plus once for the summary;
+* VEE and finalize commit once per meter;
+* issuing bills commits once per bill.
 
-| Function (page) | SQL max | User waits about |
-|---|---|---|
-| Ingest a batch of 95 packets (`dso/ingest.php`) | 1.24 s | **1.9 s** |
-| Run VEE for a meter-day (`dso/vee.php`) | 0.49 s | 1.1 s |
-| Build transformer totals for a day (`dso/finalize.php`) | 0.47 s | 1.1 s |
-| Finalize a day (`dso/finalize.php`) | 0.34 s | 1.0 s |
-| Refresh transformer state (`tso/`) | 0.33 s | 1.0 s |
-| Phase unbalance report with events (`dso/reports.php`) | 0.19 s | 0.85 s |
-| Slowest read page measured: phase unbalance report for the whole grid | (in the page) | 0.58 s |
+## Results: slowest functions end to end
+
+Estimate = POST overhead 0.30 s + SQL max + commits × 2.6 ms + result page.
+
+| Function (page) | SQL max | Commits | Result page | User waits about |
+|---|---|---|---|---|
+| Ingest a batch of 95 packets, one meter-day (`dso/ingest.php`) | 1.24 s | 96 → 0.25 s | 0.05 s | **1.84 s** (median 1.79 s) |
+| Run VEE for a meter-day (`dso/vee.php`) | 0.49 s | 1 | 0.05 s | 0.84 s |
+| Build transformer totals for a day (`dso/finalize.php`) | 0.47 s | few | 0.05 s | 0.83 s |
+| Finalize a day (`dso/finalize.php`) | 0.34 s | 1 | 0.05 s | 0.69 s |
+| Refresh transformer state (`tso/`) | 0.33 s | 1 | ≈ 0.35 s | 0.98 s |
+| Issue the October bills, 6 premises (`market/bills.php`) | 0.06 s | 6 | ≈ 0.35 s | 0.73 s |
+| Phase unbalance report with events (`dso/reports.php`) | 0.19 s | few | ≈ 0.45 s | 0.95 s |
+| Slowest read page measured: phase unbalance report for the whole grid | in the page | – | – | 0.58 s |
 
 ## Limits: read before relying on these numbers
 
 * **Data volume.** SQL2025 holds the demo data: 12 meters, 8,063 readings (2 days), 4,701 totals, 402 audit rows. The
   27 MB cap does not allow the large data set. Procedures that scan readings or totals get slower with more data.
-* **Batch ingest grows with its size.** It costs about 12–13 ms per packet (1,135–1,237 ms for 95). The page accepts up
-  to 2 MB, so a batch of more than about 110 packets passes 2 s. To stay under 2 s, send one meter-day (96 packets)
-  per batch, or lower the page's limit.
+* **Batch ingest grows with its size.** Each packet costs about 13 ms of SQL plus 2.6 ms for its commit, 15.6 ms in
+  all. The fixed part is about 0.35 s, so a batch of more than about **105 packets** passes 2 s. The page accepts up to
+  2 MB, which is thousands of packets.
+  * Possible fixes, **not applied**: each is a code change, needs the gate and a redeploy, and deploying is the user's
+    job.
+    1. Limit the page to about 100 packets per batch (one meter-day).
+    2. Run the whole batch in one transaction, which saves the 0.25 s of commits.
+    3. Make the ingest set-based instead of one packet at a time.
+* Logout and Disconnect (functions 4 and 2) were not timed: they call no procedure. `home.php`, which also calls none,
+  took 0.04 s.
 * **Time depends on where you are.** The page times include the VPN from this PC. On campus they should be lower.
 * The first call of a procedure is slower: its plan is compiled and its data read from disk. For example
   `sp_GetDayAheadAggregates` takes 158 ms the first time and 46 ms after; VEE took 487 ms the first time and 72 ms in
@@ -78,6 +100,10 @@ takes 0.04 s.
 | `pages-S.csv`, `pages-S.txt` | every page: min / median / max seconds |
 | `sql-reads-raw.txt`, `sql-writes-raw.txt` | every timed call (`RES|…|ms|note`) |
 | `snapshot.sql`, `snapshot-before.txt`, `snapshot-after.txt` | the data check |
+| `commit_probe.sql`, `commit-probe-result.txt` | cost of one commit on SQL2025 (2.6 ms) |
+
+The full export of the 25 tables taken before the run is in the session scratchpad, not in the repository because it
+contains the password hashes: `C:\Users\ioann\AppData\Local\Temp\claude\01188d643f296ad0\f11363e0-2be0-43d0-9115-2fe67fa543cb\scratchpad\perf\export-before\`.
 
 Re-run (repository root, Git Bash, VPN on; the password comes from the Windows user variable and is never printed):
 
