@@ -46,8 +46,31 @@ final class Validate
     public static function iban(string $value): ?string
     {
         $value = strtoupper(preg_replace('/\s+/', '', $value) ?? '');
-        return preg_match('/\A[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}\z/', $value) === 1 ? $value : null;
+        if (preg_match('/\A[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}\z/', $value) !== 1) {
+            return null;
+        }
+        $length = self::IBAN_LENGTHS[substr($value, 0, 2)] ?? null;
+        if ($length !== null && strlen($value) !== $length) {
+            return null;                                           // e.g. a Cyprus IBAN has exactly 28 characters
+        }
+        // ISO 13616 check digits: move the first four characters to the end, letters become 10..35, the number mod 97 = 1.
+        // Done piece by piece, because the number is longer than an integer.
+        $remainder = 0;
+        foreach (str_split(substr($value, 4) . substr($value, 0, 4)) as $c) {
+            $digits = ctype_digit($c) ? $c : (string) (ord($c) - 55);
+            $remainder = (int) (($remainder . $digits) % 97);
+        }
+        return $remainder === 1 ? $value : null;
     }
+
+    /** IBAN length per country (SEPA countries and Cyprus's neighbours); other countries: only the general form. */
+    private const IBAN_LENGTHS = [
+        'AD' => 24, 'AT' => 20, 'BE' => 16, 'BG' => 22, 'CH' => 21, 'CY' => 28, 'CZ' => 24, 'DE' => 22, 'DK' => 18,
+        'EE' => 20, 'ES' => 24, 'FI' => 18, 'FR' => 27, 'GB' => 22, 'GI' => 23, 'GR' => 27, 'HR' => 21, 'HU' => 28,
+        'IE' => 22, 'IL' => 23, 'IS' => 26, 'IT' => 27, 'LB' => 28, 'LI' => 21, 'LT' => 20, 'LU' => 20, 'LV' => 21,
+        'MC' => 27, 'MT' => 31, 'NL' => 18, 'NO' => 15, 'PL' => 28, 'PT' => 25, 'RO' => 24, 'SE' => 24, 'SI' => 19,
+        'SK' => 24, 'SM' => 27, 'TR' => 26, 'VA' => 22,
+    ];
 
     /** A real calendar date written YYYY-MM-DD. */
     public static function date(string $value): ?string

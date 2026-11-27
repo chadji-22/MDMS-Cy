@@ -51,7 +51,13 @@ if ($isPost) {
     if ($phone === null && trim($in['phone']) !== '') { $errors[] = 'Enter a valid phone number, or leave it empty.'; }
     if ($isConsumer) {
         $iban = Validate::iban($in['iban']);
-        if ($iban === null) { $errors[] = 'Enter a valid IBAN.'; }
+        // An IBAN saved before the check digits were verified stays accepted while it is left unchanged, so the
+        // consumer can still save the other fields; a new or changed IBAN must pass the full check.
+        $stored = strtoupper((string) ($profile['iban'] ?? ''));
+        if ($iban === null && $stored !== '' && strtoupper(preg_replace('/\s+/', '', $in['iban']) ?? '') === $stored) {
+            $iban = $stored;
+        }
+        if ($iban === null) { $errors[] = 'Enter a valid IBAN: the country code, the length and the check digits must be right.'; }
     }
 
     if ($errors === []) {

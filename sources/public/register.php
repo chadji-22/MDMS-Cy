@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email === null)    { $errors[] = 'Enter a valid email address.'; }
     if ($fullName === null) { $errors[] = 'Enter your full name (at most 150 characters).'; }
     if ($phone === null)    { $errors[] = 'Enter a valid phone number.'; }
-    if ($iban === null)     { $errors[] = 'Enter a valid IBAN.'; }
+    if ($iban === null)     { $errors[] = 'Enter a valid IBAN: the country code, the length and the check digits must be right.'; }
     $problem = Validate::passwordProblem($password, Validate::post('password2'));
     if ($problem !== null)  { $errors[] = $problem; }
 
