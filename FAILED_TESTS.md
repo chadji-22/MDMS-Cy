@@ -3,10 +3,33 @@
 Where: `https://students.cs.ucy.ac.cy/~chadji22/mdms/` with the database `chadji22` on `mssql.cs.ucy.ac.cy\SQL2025`.
 Full results of the run: `evidence/S-chadji22/README.md`.
 
+## Latest run: 27/11, 13:43–13:47 UTC: **0 failed**
+
+All tests again, live, in an order where the K-04 login lock cannot reach another suite (SQL, then web suites, then K-01..K-15).
+
+| Test | Result |
+|---|---|
+| `tests.sql` | 82 / 82 |
+| `select.sql` | 0 errors, 20 / 20 use cases |
+| telemetry (`sql/test_telemetry_ingest`, `_storage`, `test_vee_range`, `_delta`) | 4 + 8 + 5 + 9 = 26 / 26 |
+| `sql/test_vee_edit.sql`, `sql/test_vee_spike_preview.sql` | PASS, PASS |
+| `smoke.sh` | 24 / 24 |
+| `connect.sh` | 23 / 23 |
+| `consumer_pages.sh` (WRITE=1) | 63 / 63 |
+| `market_dso_tso.sh` (WRITE=1) | 160 / 160 |
+| `crawl_links.py` | 169 pages, 2,931 URLs, no problems |
+| K-01..K-15 (48 checks) | 48 / 48 |
+
+No new accounts were registered in this run (the site allows 3 registrations per hour per address): K-01 and K-14 log in with
+accounts registered earlier through the site, K-02 checks the pending technician registered earlier. Registration itself is
+tested by `accounts.sh`, which runs after 14:20 UTC.
+
+## Earlier run: 27/11, 13:26 UTC: 28 failed (cause: login lock, not a defect)
+
 **Status: resolved.** `consumer_pages.sh` was run again at 13:34 UTC, after consumer2's lock had expired: **63 passed,
 0 failed**. No defect was found; the failures below were caused by the login lock only.
 
-**28 checks failed in the first run, all in `tests/consumer_pages.sh`. Every other test passed** (`tests.sql` 82/82, `select.sql`, telemetry
+**28 checks failed in that run, all in `tests/consumer_pages.sh`. Every other test passed** (`tests.sql` 82/82, `select.sql`, telemetry
 26/26, `smoke.sh`, `connect.sh` 23/23, `market_dso_tso.sh` 160/160, crawl 169 pages, manual tests K-01 to K-15).
 
 **Cause of all 28:** the first check, consumer2's login, was refused with **HTTP 429 "Too many failed logins"**, because
@@ -44,5 +67,10 @@ as consumer2, so they failed with it. The same suite passed 63/63 earlier the sa
 | 27 | pay someone else's bill #1 | refused |
 | 28 | right to be forgotten without the confirmation box | refused, nothing submitted |
 
-**Rerun:** `consumer_pages.sh` at 13:34 UTC: **63 / 63 passed**. Still to run: `accounts.sh` after 14:20 UTC (the site allows
-3 registrations per hour from one address); this file is updated with its result.
+**Rerun:** `consumer_pages.sh` at 13:34 UTC: **63 / 63 passed**.
+
+**Why:** `public/login.php` refuses an email with 429 for 15 minutes after 5 wrong passwords from the same address. K-04 did
+exactly that to consumer2 at about 13:17 UTC; the consumer suite started at about 13:26, inside the 15 minutes. To avoid it,
+run K-04 last, or wait 15 minutes after it.
+
+Still to run: `accounts.sh` after 14:20 UTC; this file is updated with its result.
