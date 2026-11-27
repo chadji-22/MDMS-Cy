@@ -1,0 +1,29 @@
+# Page timing on S (https://students.cs.ucy.ac.cy/~ichara09/mdms, SQL2025 ichara09), from the user's PC over the VPN, start 2026-11-27T12:38:56Z
+# DB_FORM_PASS=<not printed> python evidence/performance-sql2025/time_pages.py https://students.cs.ucy.ac.cy/~ichara09/mdms evidence/performance-sql2025/2026-11-27/pages-S.csv 3
+consumer1@example.cy     22 URLs x 3
+consumer2@example.cy     21 URLs x 3
+tech1@mdms.cy            7 URLs x 3
+officer1@mdms.cy         34 URLs x 3
+admin@mdms.cy            17 URLs x 3
+dso@mdms.cy              23 URLs x 3
+tso@mdms.cy              20 URLs x 3
+billing@eacsupply.cy     21 URLs x 3
+desk@flexpool.cy         14 URLs x 3
+190 distinct requests, 564 timed; max 0.581 s; over 2 s: 0; over 1 s: 0
+  0.581 max   0.451 med      200  dso@mdms.cy GET /dso/reports.php?report=unbalance&transformer=1  [Network reports]
+  0.547 max   0.359 med      200  tso@mdms.cy GET /tso/tree.php?root=6  [Transformer tree]
+  0.481 max   0.416 med      200  dso@mdms.cy GET /dso/reports.php?report=voltage&transformer=1  [Network reports]
+  0.451 max   0.376 med      404  dso@mdms.cy GET /dso/reports.php?report=losses&transformer=1  [Network reports]
+  0.426 max   0.357 med      200  tso@mdms.cy GET /tso/frequency.php  [Grid frequency]
+  0.417 max   0.404 med      200  dso@mdms.cy GET /dso/reports.php?report=unbalance&transformer=2  [Network reports]
+  0.416 max   0.361 med      200  tso@mdms.cy GET /tso/state.php  [Current state]
+  0.414 max   0.370 med      200  officer1@mdms.cy GET /tso/tree.php  [Transformer tree]
+  0.413 max   0.374 med      200  tso@mdms.cy GET /tso/state.php?root=1&level=3  [Current state]
+  0.410 max   0.376 med      200  dso@mdms.cy GET /dso/reports.php?report=voltage&transformer=2  [Network reports]
+  0.400 max   0.370 med      200  billing@eacsupply.cy GET /market/day-ahead.php?level=2  [Day-Ahead data]
+  0.396 max   0.375 med      200  officer1@mdms.cy GET /staff/statistics.php  [System statistics]
+  0.393 max   0.376 med      200  officer1@mdms.cy GET /tso/tree.php?root=1  [Transformer tree]
+  0.392 max   0.330 med      200  officer1@mdms.cy GET /staff/gdpr.php?id=2  [GDPR request #2]
+  0.391 max   0.328 med      200  officer1@mdms.cy GET /staff/catalogs.php?catalog=meter-types  [Meter types]
+exit 0
+# end 2026-11-27T12:41:32Z

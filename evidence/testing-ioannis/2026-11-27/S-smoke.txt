@@ -1,0 +1,29 @@
+# Read-only run on S (test plan 3.2): https://students.cs.ucy.ac.cy/~ichara09/mdms (PHP 8.0.30, SQL2025 database ichara09), deployed zip = committed deploy/mdms-app.zip (sha256 345fd7e9f4aa...), 2026-11-27T00:38:28Z
+# DB_FORM_PASS=<not printed> BASE_URL=https://students.cs.ucy.ac.cy/~ichara09/mdms bash sources/tests/smoke.sh
+PASS no session: protected page redirects to the login page
+PASS login without a CSRF token is refused (403)
+PASS wrong password -> 401 'Login failed.'
+PASS unknown email -> the same 401 and message
+PASS consumer1 logs in (303 to home)
+PASS consumer sees the consumer menu
+PASS consumer does not see the other menus
+PASS consumer page is allowed (200)
+PASS TSO page as consumer is refused (403)
+PASS staff page as consumer is refused (403)
+PASS Content-Security-Policy and nosniff headers are sent
+PASS session cookie is HttpOnly and SameSite=Lax
+PASS a new session id is issued at login (no fixation)
+PASS logout by GET does not log out
+PASS logout POST without CSRF token is refused (403)
+PASS logout POST with the token ends the session
+PASS officer1 logs in
+PASS officer sees staff and DSO menus only
+PASS Greek full name comes back intact (UTF-8)
+PASS officer reaches /dso/ and /staff/ (200), not /tso/ (403)
+PASS tso sees only the TSO menu and reaches it
+PASS an off-site 'next' is ignored (lands on /home.php)
+PASS a next outside the application folder is ignored
+PASS health endpoint shows the connection runs as mdms_php
+
+smoke.sh: all passed
+exit 0

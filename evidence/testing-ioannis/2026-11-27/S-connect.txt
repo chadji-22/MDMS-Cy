@@ -1,0 +1,29 @@
+# Read-only run on S (test plan 3.2): https://students.cs.ucy.ac.cy/~ichara09/mdms (PHP 8.0.30, SQL2025 database ichara09), deployed zip = committed deploy/mdms-app.zip (sha256 345fd7e9f4aa...), 2026-11-27T00:38:19Z
+# DB_FORM_PASS=<not printed> BASE_URL=https://students.cs.ucy.ac.cy/~ichara09/mdms bash sources/tests/connect.sh
+PASS login page without a database login goes to the Connect page
+PASS registration too
+PASS a protected page asks for the application login first
+PASS a JSON endpoint answers 401 JSON
+PASS Connect page: the three Lab 7 fields, the password field empty
+PASS Connect without the form token is refused (403)
+PASS wrong password: 401 and a clear message
+PASS ... and still not connected
+PASS right password, wrong database: 401 'cannot open the database', password not echoed
+PASS right login: 303 back to the login page
+PASS a new session id after connecting
+PASS login page now shows the database and a Disconnect button, never the password
+PASS Connect page says connected
+PASS consumer1 logs in
+PASS home with the consumer menu
+PASS a consumer page reads the database
+PASS log out
+PASS after log out the database login is kept (no Connect page)
+PASS another role logs in without typing the database password again
+PASS tso page reads the database
+PASS Disconnect: 303 to the Connect page
+PASS after Disconnect the login page asks for the database again
+PASS an off-site next after Connect is ignored
+
+23 passed, 0 failed
+connect.sh: all passed
+exit 0

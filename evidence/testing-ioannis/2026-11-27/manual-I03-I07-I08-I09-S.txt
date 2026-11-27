@@ -1,0 +1,36 @@
+# Manual tests I-03, I-07, I-08, I-09 (read-only) on S (https://students.cs.ucy.ac.cy/~ichara09/mdms, SQL2025 ichara09), 2026-11-27T00:39:45Z
+# DB_FORM_PASS=<not printed> BASE_URL=https://students.cs.ucy.ac.cy/~ichara09/mdms bash scripts/manual_ro.sh
+# target https://students.cs.ucy.ac.cy/~ichara09/mdms; imported days 2026-10-30 and 2026-10-31; Connect page: yes; 2026-11-27T00:39:46Z
+PASS connected once: the login page opens (200)
+PASS consumer1 logs in (303)
+
+## I-07 consumer1 opens /~ichara09/mdms/tso/ directly
+PASS I-07 403 Access denied
+
+## I-08 My premises; Readings for a premise
+PASS I-08 My premises: Greek addresses intact
+premise 1, 2026-10-30..2026-10-31: 'Access to past data is not bought for this period, or the period is outside the retention time.'
+PASS I-08 premise 1: last month not bought on this database -> the 50008 reason and the way to buy it (by design, project §1.2)
+
+## I-09 Totals: daily and monthly (premise 1)
+premise 1 daily: 'Access to past data is not bought for this period, or the period is outside the retention time.'
+PASS I-09 premise 1 daily: not bought -> 50008 message
+
+## I-03 Log out, log in as tso: no second Connect; tso menu only
+PASS I-03 consumer1 logs out (303)
+PASS I-03 after log out the login form opens directly (200, no Connect page)
+menus seen by tso: tso 
+PASS I-03 tso logs in without a second Connect and sees the tso menu only
+PASS I-03 a tso page reads the database (200)
+
+## I-08 / I-09 with a prosumer premise that has bought data (consumer2, premise 3)
+PASS consumer2 logs in (303)
+PASS I-08 premise 3: 15-minute rows with import and export (96 slots on 2026-10-30)
+premise 3 address:  #3          Λεωφ. Αγλαντζιάς 45 Άγιος Γεώργιος, Αγλαντζιά,          Λευκωσία 2108<
+premise 3 daily: 2026-10-30|29.950|2.520|2026-10-31|30.470|2.520|
+PASS I-09 premise 3: daily totals of the two imported days
+premise 3 monthly: 2026-10|60.420|5.040|
+PASS I-09 premise 3: monthly total
+
+manual_ro.sh: 14 passed, 0 failed
+exit 0

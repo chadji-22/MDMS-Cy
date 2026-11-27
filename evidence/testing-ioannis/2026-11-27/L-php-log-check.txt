@@ -1,0 +1,3 @@
+# podman logs --since 2026-11-27T00:20:00Z mdms-web-local, filtered for PHP warnings / notices / errors, 2026-11-27T00:40:03Z
+# log lines since 00:20Z: 693
+# PHP (Warning|Notice|Deprecated|Fatal|Parse): 0

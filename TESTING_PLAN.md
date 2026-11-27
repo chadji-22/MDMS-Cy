@@ -154,6 +154,10 @@ of their pages and adds a row for every new page.
 |---|---|---|---|---|---|
 | 25/11 | I | B12 merge into `io` | L, R | `run_all.sh` (WRITE=1), audit, errors, db_integration | all passed; crawl 162 pages no problems |
 | 25/11 | I | - | S | deployed, Connect + login confirmed in the browser | works |
+| 27/11 | I | `5415192` | none (PHP 8.0.30 + 8.3.36) | audit, errors_test, `php -l` (91 files) | all passed; audit 0 errors / 15 review lines |
+| 27/11 | I | `5415192` | L | `tests.sql`, `db_integration.php`, `run_all.sh` (WRITE=1), I-08..I-14 | all passed: tests.sql 82/82; consumer 63/63, market/dso/tso 160/160, crawl 168 pages; manual 19/19; I-10 end to end (premise 2) 7/7 |
+| 27/11 | I | `5415192` | R | `run_all.sh` (WRITE=1, Connect), I-15 reinstall + connect + accounts, I-03/07/08/09, I-05 | all passed: connect 23/23, 0 PHP warnings, I-05 idle 1900 s → back to login / Connect |
+| 27/11 | I | `5415192` (zip as committed) | S | connect, smoke (once), crawl, I-03/07/08/09 read-only; S vs. committed zip (6 assets + Connect HTML, all that HTTP shows) | all passed, identical; crawl 151 pages no problems. Report: `notes/testing-ioannis.md` |
 | 27/11 | K | `5415192` (`testing`) | - | `audit_pages.php`, `errors_test.php` | audit 0 errors / 15 review lines; errors all passed |
 | 27/11 | K | `5415192` (`testing`) | L (own db `chadji22` on SQL2025, `php -S`, PHP 8.3) | `tests.sql`, `db_integration.php`, `run_all.sh` (WRITE=1), `connect.sh` (instance without `DB_PASS`) | tests.sql 82/82; db_integration all passed; smoke all passed, consumer 63/63, market/dso/tso 160/160, accounts all passed, crawl 168 pages no problems; connect 23/23; 0 PHP warnings. R not run (no Podman on this PC); S not run (needs the team SQL2025 password) |
 | 27/11 | K | `5415192` (`testing`) | L (as above) | `sql/` telemetry suite (HOW_TO_RUN_TESTS.md) | seeds ok (already present); ingest 4/4, storage 8/8, VEE range 5/5, VEE delta 9/9 (26/26); `test_vee_edit` and `test_vee_spike_preview` PASS |

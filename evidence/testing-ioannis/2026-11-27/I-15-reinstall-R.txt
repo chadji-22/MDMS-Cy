@@ -1,0 +1,129 @@
+# I-15 on R: second run of install.sh as user student over the installed app (uploads from accounts.sh present), 2026-11-27T00:32:10Z
+# zip for the update: the committed deploy/mdms-app.zip (git show HEAD:deploy/mdms-app.zip, sha256 345fd7e9f4aa...)
+# podman cp <zip> mdms-ucy-replica:/home/student/mdms-app.zip; chown student:cs24; su student -c 'bash ~/install.sh'
+## before
+drwx-wx-wt 6 student cs24 4096 Nov 27 00:30 var
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:30 var/meter-certificates
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:31 var/technician-documents
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:31 var/technician-photos
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:31 var/throttle
+files in var: 9
+086621fe7bb8aa1a43b418b64b804488097c1de51db65b57b8475bcf29550454  (hash of var file list+contents)
+331a462f5bf9f72dd7a54aafac49eb71d253702b0247e7f0da716adc744d85e3  src/config.local.php
+drwx-----x 4 student cs24 4096 Nov 27 00:30 /home/student
+drwxr-xr-x 9 student cs24 4096 Nov 27 00:30 /home/student/mdms/areas
+lrwxrwxrwx 1 student cs24   25 Nov 27 00:30 /home/student/public_html/mdms -> /home/student/mdms/public
+Done. Open https://students.cs.ucy.ac.cy/~student/mdms/
+install.sh exit 0
+install.sh
+mdms
+public_html
+## after
+drwx-wx-wt 6 student cs24 4096 Nov 27 00:30 var
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:30 var/meter-certificates
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:31 var/technician-documents
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:31 var/technician-photos
+drwx-wx-wt 2 student cs24 4096 Nov 27 00:31 var/throttle
+files in var: 9
+086621fe7bb8aa1a43b418b64b804488097c1de51db65b57b8475bcf29550454  (hash of var file list+contents)
+331a462f5bf9f72dd7a54aafac49eb71d253702b0247e7f0da716adc744d85e3  src/config.local.php
+drwx-----x 4 student cs24 4096 Nov 27 00:32 /home/student
+drwxr-xr-x 9 student cs24 4096 Nov 27 00:30 /home/student/mdms/areas
+lrwxrwxrwx 1 student cs24   25 Nov 27 00:32 /home/student/public_html/mdms -> /home/student/mdms/public
+## before vs after (diff, empty = unchanged)
+9c9
+< drwx-----x 4 student cs24 4096 Nov 27 00:30 /home/student
+---
+> drwx-----x 4 student cs24 4096 Nov 27 00:32 /home/student
+11c11
+< lrwxrwxrwx 1 student cs24   25 Nov 27 00:30 /home/student/public_html/mdms -> /home/student/mdms/public
+---
+> lrwxrwxrwx 1 student cs24   25 Nov 27 00:32 /home/student/public_html/mdms -> /home/student/mdms/public
+
+## the update replaced the code: src/Connect.php in the replica vs. the committed zip / the rebuilt zip
+installed: 9127e6330dc0d106  committed zip: 9127e6330dc0d106  rebuilt zip: e78425f111b07bc4
+
+## after the second install: DB_FORM_PASS=<not printed> BASE_URL=http://127.0.0.1:8090/~student/mdms bash sources/tests/connect.sh
+PASS login page without a database login goes to the Connect page
+PASS registration too
+PASS a protected page asks for the application login first
+PASS a JSON endpoint answers 401 JSON
+PASS Connect page: the three Lab 7 fields, the password field empty
+PASS Connect without the form token is refused (403)
+PASS wrong password: 401 and a clear message
+PASS ... and still not connected
+PASS right password, wrong database: 401 'cannot open the database', password not echoed
+PASS right login: 303 back to the login page
+PASS a new session id after connecting
+PASS login page now shows the database and a Disconnect button, never the password
+PASS Connect page says connected
+PASS consumer1 logs in
+PASS home with the consumer menu
+PASS a consumer page reads the database
+PASS log out
+PASS after log out the database login is kept (no Connect page)
+PASS another role logs in without typing the database password again
+PASS tso page reads the database
+PASS Disconnect: 303 to the Connect page
+PASS after Disconnect the login page asks for the database again
+PASS an off-site next after Connect is ignored
+
+23 passed, 0 failed
+connect.sh: all passed
+exit 0
+
+## after the second install: DB_FORM_PASS=<not printed> BASE_URL=http://127.0.0.1:8090/~student/mdms bash sources/tests/accounts.sh
+PASS the login page links to both registrations
+PASS registration without a CSRF token is refused
+PASS bad input: 422 and one message per field
+PASS a password is never sent back to the browser
+PASS different repeated password is refused
+PASS a password the login would refuse (> 128 characters) is refused at registration
+PASS array parameters are handled (422, no server error)
+PASS a valid consumer is created (303 to the login page)
+PASS ...and the success message is shown
+PASS the same email again: 409 duplicate
+PASS the new consumer logs in with a Greek password
+PASS a logged-in user is sent away from the registration
+PASS profile: own email and IBAN (spaces removed, upper case)
+PASS profile: the name is escaped (no script tag)
+PASS profile: no password or hash in the page
+PASS profile: notification choices kept (email yes, SMS no)
+PASS profile saved (303)
+PASS profile: new values and header name shown, notification choices swapped
+PASS profile: bad input is 422
+PASS the documents page is refused to a consumer (403)
+PASS the photo page is refused to a consumer (403)
+PASS wrong current password: 422 and a clear message
+PASS the same password again is refused
+PASS password changed (303) with a new session id
+PASS ...the session goes on
+PASS the old password no longer works
+PASS the new password works
+PASS a PHP file named .png is refused as a photo
+PASS a date that does not exist is refused
+PASS under 18: the message of the database is shown
+PASS a valid technician is registered (303)
+PASS the pending technician can log in
+PASS home says the registration is PENDING
+PASS the own photo is served as an image
+PASS all three documents are missing
+PASS expiry before issue is refused
+PASS a file that is not a PDF is refused
+PASS a file over 2 MB is refused
+PASS a meter certificate type is refused
+PASS identity card uploaded (303)
+PASS the same document number again: 409
+PASS installer licence without expiry uploaded (303)
+PASS training certificate uploaded (303)
+PASS three PENDING documents, nothing missing, no file path shown
+PASS another person's document cannot be replaced
+PASS apply again is refused while PENDING (409)
+PASS no session: the profile redirects to the login
+
+accounts.sh: all passed
+exit 0
+
+## var after accounts.sh (new uploads next to the old ones)
+drwx-wx-wt 6 student cs24 4096 Nov 27 00:30 var
+files in var: 13

@@ -1,0 +1,20 @@
+# db_integration.php on L (mdms-web-local, PHP 8.3, database mdms2), 2026-11-27T00:26:27Z
+# MSYS_NO_PATHCONV=1 podman exec -w /var/www/html mdms-web-local php tests/db_integration.php
+PASS sp_Login returns the user row without any password column
+PASS connection runs as mdms_php (not the owner)
+PASS callAsActor without a login is refused
+PASS procedure name 'sp_x; DROP TABLE USER_ACCOUNT' is refused
+PASS procedure name 'DROP' is refused
+PASS procedure name 'sp_' is refused
+PASS procedure name 'dbo.sp_Login' is refused
+PASS procedure name 'sp_Login'' is refused
+PASS 50001 not found (reading 999999999)
+PASS 50003 wrong state (a VALID reading cannot be accepted)
+PASS 50004 bad input (window with from > to)
+PASS 50002 permission (a consumer runs VEE)
+PASS a procedure with many rows returns them (sp_ListMeters)
+PASS [51004] guard trigger surfaces with its own number
+PASS the connection works after a trigger rollback
+PASS Greek full name is intact (sp_GetMyProfile)
+db_integration.php: all passed
+exit 0

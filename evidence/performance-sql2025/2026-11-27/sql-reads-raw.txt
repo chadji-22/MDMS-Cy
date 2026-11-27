@@ -1,0 +1,165 @@
+RES|read-consumer|1|sp_GetMyProfile 12|3.2|
+RES|read-consumer|1|sp_ListMyPremises 12|2.1|
+RES|read-consumer|1|sp_ListSuppliers|4.6|
+RES|read-consumer|1|sp_GetPremiseReadings p3 2 days|12.3|
+RES|read-consumer|1|sp_GetPremiseReadings p3 31 days|20.6|
+RES|read-consumer|1|sp_GetPremiseReadings p1 not bought (50008)|7.1|ERROR 50008: Access to past data is not bought for this period, or the period is outside the retention time.
+RES|read-consumer|1|sp_GetPremiseAggregates DAY|15.5|
+RES|read-consumer|1|sp_GetPremiseAggregates MONTH|14.8|
+RES|read-consumer|1|sp_GetHistoricalAccessQuote|2.1|
+RES|read-consumer|1|sp_GetPremiseEvents|2.1|
+RES|read-consumer|1|sp_ListMyNotifications|6.0|
+RES|read-consumer|1|sp_ListMyWorkOrders (consumer)|6.4|
+RES|read-consumer|1|sp_GetWorkOrderHistory (consumer)|68.2|
+RES|read-consumer|1|sp_GetMyBillsAndPayments|7.0|
+RES|read-consumer|1|sp_ListServiceTypes|2.7|
+RES|read-consumer|1|sp_ListGdprRequests (consumer)|4.2|
+RES|read-technician|1|sp_ListMyWorkOrders (technician)|4.2|
+RES|read-technician|1|sp_GetWorkOrderHistory (technician)|4.2|
+RES|read-technician|1|sp_GetMyAvailability|4.2|
+RES|read-technician|1|sp_ListMyDocuments|4.6|
+RES|read-technician|1|sp_GetMeter (technician)|68.3|
+RES|read-staff|1|sp_ListOrganizations|2.1|
+RES|read-staff|1|sp_GetAuditLog page 1|4.2|
+RES|read-staff|1|sp_GetAuditLog page 5|4.2|
+RES|read-staff|1|sp_ReportSystemStatistics|40.1|
+RES|read-staff|1|sp_ListReferenceCatalog meter-types|3.6|
+RES|read-staff|1|sp_ListReferenceCatalog service-types|3.3|
+RES|read-staff|1|sp_ListReferenceCatalog obis|4.8|
+RES|read-staff|1|sp_ListReferenceCatalog tariffs|4.3|
+RES|read-staff|1|sp_ListGdprRequests (officer)|6.3|
+RES|read-staff|1|sp_ListMeters (officer)|2.1|
+RES|read-staff|1|sp_GetMeter (officer)|2.1|
+RES|read-staff|1|sp_ListPendingTechnicians|3.1|
+RES|read-staff|1|sp_GetTechnicianReview|32.0|
+RES|read-staff|1|sp_ListWorkOrders|4.0|
+RES|read-staff|1|sp_FindAvailableTechnicians|54.0|
+RES|read-staff|1|sp_ListCommands|2.8|
+RES|read-staff|1|sp_ListUsers (SQL only)|29.4|
+RES|read-dso|1|sp_ListSuspectReadings|5.0|
+RES|read-dso|1|sp_GetEvents|5.4|
+RES|read-dso|1|sp_ReportVoltageEvents root|50.9|
+RES|read-dso|1|sp_ReportPhaseUnbalance root|77.4|
+RES|read-dso|1|sp_ReportTechnicalLosses tx15|17.9|
+RES|read-tso|1|sp_GetGridOverview|7.4|
+RES|read-tso|1|sp_GetTransformerTree|117.2|
+RES|read-tso|1|sp_GetTransformerState|6.3|
+RES|read-tso|1|sp_FindGeofenceForPoint|9.0|
+RES|read-tso|1|sp_ListMeters (map)|2.1|
+RES|read-market|1|sp_GetPortfolioSummary supplier|4.2|
+RES|read-market|1|sp_GetPortfolioSummary aggregator|4.2|
+RES|read-market|1|sp_GetDayAheadAggregates level 1|158.4|
+RES|read-market|1|sp_GetDayAheadAggregates level 2|43.4|
+RES|read-market|1|sp_GetDayAheadAggregates level 3|43.5|
+RES|read-market|1|sp_GetIntradayProvisional|124.2|
+RES|read-market|1|sp_ListSupplierBills|5.7|
+RES|read-consumer|2|sp_GetMyProfile 12|3.0|
+RES|read-consumer|2|sp_ListMyPremises 12|3.9|
+RES|read-consumer|2|sp_ListSuppliers|1.7|
+RES|read-consumer|2|sp_GetPremiseReadings p3 2 days|13.2|
+RES|read-consumer|2|sp_GetPremiseReadings p3 31 days|21.4|
+RES|read-consumer|2|sp_GetPremiseReadings p1 not bought (50008)|5.5|ERROR 50008: Access to past data is not bought for this period, or the period is outside the retention time.
+RES|read-consumer|2|sp_GetPremiseAggregates DAY|15.8|
+RES|read-consumer|2|sp_GetPremiseAggregates MONTH|13.4|
+RES|read-consumer|2|sp_GetHistoricalAccessQuote|2.1|
+RES|read-consumer|2|sp_GetPremiseEvents|2.1|
+RES|read-consumer|2|sp_ListMyNotifications|4.7|
+RES|read-consumer|2|sp_ListMyWorkOrders (consumer)|2.8|
+RES|read-consumer|2|sp_GetWorkOrderHistory (consumer)|2.7|
+RES|read-consumer|2|sp_GetMyBillsAndPayments|4.2|
+RES|read-consumer|2|sp_ListServiceTypes|4.2|
+RES|read-consumer|2|sp_ListGdprRequests (consumer)|4.2|
+RES|read-technician|2|sp_ListMyWorkOrders (technician)|2.1|
+RES|read-technician|2|sp_GetWorkOrderHistory (technician)|2.1|
+RES|read-technician|2|sp_GetMyAvailability|3.3|
+RES|read-technician|2|sp_ListMyDocuments|4.3|
+RES|read-technician|2|sp_GetMeter (technician)|4.2|
+RES|read-staff|2|sp_ListOrganizations|1.3|
+RES|read-staff|2|sp_GetAuditLog page 1|4.2|
+RES|read-staff|2|sp_GetAuditLog page 5|4.2|
+RES|read-staff|2|sp_ReportSystemStatistics|40.4|
+RES|read-staff|2|sp_ListReferenceCatalog meter-types|2.1|
+RES|read-staff|2|sp_ListReferenceCatalog service-types|2.1|
+RES|read-staff|2|sp_ListReferenceCatalog obis|2.1|
+RES|read-staff|2|sp_ListReferenceCatalog tariffs|2.1|
+RES|read-staff|2|sp_ListGdprRequests (officer)|4.0|
+RES|read-staff|2|sp_ListMeters (officer)|3.2|
+RES|read-staff|2|sp_GetMeter (officer)|4.9|
+RES|read-staff|2|sp_ListPendingTechnicians|4.2|
+RES|read-staff|2|sp_GetTechnicianReview|4.8|
+RES|read-staff|2|sp_ListWorkOrders|4.2|
+RES|read-staff|2|sp_FindAvailableTechnicians|2.1|
+RES|read-staff|2|sp_ListCommands|4.2|
+RES|read-staff|2|sp_ListUsers (SQL only)|2.1|
+RES|read-dso|2|sp_ListSuspectReadings|4.8|
+RES|read-dso|2|sp_GetEvents|3.3|
+RES|read-dso|2|sp_ReportVoltageEvents root|45.9|
+RES|read-dso|2|sp_ReportPhaseUnbalance root|52.0|
+RES|read-dso|2|sp_ReportTechnicalLosses tx15|16.3|
+RES|read-tso|2|sp_GetGridOverview|6.0|
+RES|read-tso|2|sp_GetTransformerTree|41.5|
+RES|read-tso|2|sp_GetTransformerState|6.3|
+RES|read-tso|2|sp_FindGeofenceForPoint|6.3|
+RES|read-tso|2|sp_ListMeters (map)|2.6|
+RES|read-market|2|sp_GetPortfolioSummary supplier|4.4|
+RES|read-market|2|sp_GetPortfolioSummary aggregator|4.2|
+RES|read-market|2|sp_GetDayAheadAggregates level 1|46.2|
+RES|read-market|2|sp_GetDayAheadAggregates level 2|43.4|
+RES|read-market|2|sp_GetDayAheadAggregates level 3|46.4|
+RES|read-market|2|sp_GetIntradayProvisional|46.1|
+RES|read-market|2|sp_ListSupplierBills|4.2|
+RES|read-consumer|3|sp_GetMyProfile 12|2.7|
+RES|read-consumer|3|sp_ListMyPremises 12|2.3|
+RES|read-consumer|3|sp_ListSuppliers|4.5|
+RES|read-consumer|3|sp_GetPremiseReadings p3 2 days|13.3|
+RES|read-consumer|3|sp_GetPremiseReadings p3 31 days|22.7|
+RES|read-consumer|3|sp_GetPremiseReadings p1 not bought (50008)|4.3|ERROR 50008: Access to past data is not bought for this period, or the period is outside the retention time.
+RES|read-consumer|3|sp_GetPremiseAggregates DAY|13.8|
+RES|read-consumer|3|sp_GetPremiseAggregates MONTH|13.8|
+RES|read-consumer|3|sp_GetHistoricalAccessQuote|2.1|
+RES|read-consumer|3|sp_GetPremiseEvents|4.2|
+RES|read-consumer|3|sp_ListMyNotifications|2.1|
+RES|read-consumer|3|sp_ListMyWorkOrders (consumer)|4.2|
+RES|read-consumer|3|sp_GetWorkOrderHistory (consumer)|4.2|
+RES|read-consumer|3|sp_GetMyBillsAndPayments|4.2|
+RES|read-consumer|3|sp_ListServiceTypes|2.1|
+RES|read-consumer|3|sp_ListGdprRequests (consumer)|5.2|
+RES|read-technician|3|sp_ListMyWorkOrders (technician)|4.8|
+RES|read-technician|3|sp_GetWorkOrderHistory (technician)|2.0|
+RES|read-technician|3|sp_GetMyAvailability|2.1|
+RES|read-technician|3|sp_ListMyDocuments|4.2|
+RES|read-technician|3|sp_GetMeter (technician)|4.2|
+RES|read-staff|3|sp_ListOrganizations|2.1|
+RES|read-staff|3|sp_GetAuditLog page 1|4.4|
+RES|read-staff|3|sp_GetAuditLog page 5|3.1|
+RES|read-staff|3|sp_ReportSystemStatistics|90.8|
+RES|read-staff|3|sp_ListReferenceCatalog meter-types|3.0|
+RES|read-staff|3|sp_ListReferenceCatalog service-types|3.0|
+RES|read-staff|3|sp_ListReferenceCatalog obis|3.9|
+RES|read-staff|3|sp_ListReferenceCatalog tariffs|2.1|
+RES|read-staff|3|sp_ListGdprRequests (officer)|6.3|
+RES|read-staff|3|sp_ListMeters (officer)|3.8|
+RES|read-staff|3|sp_GetMeter (officer)|4.2|
+RES|read-staff|3|sp_ListPendingTechnicians|3.1|
+RES|read-staff|3|sp_GetTechnicianReview|4.2|
+RES|read-staff|3|sp_ListWorkOrders|6.4|
+RES|read-staff|3|sp_FindAvailableTechnicians|4.2|
+RES|read-staff|3|sp_ListCommands|5.1|
+RES|read-staff|3|sp_ListUsers (SQL only)|3.8|
+RES|read-dso|3|sp_ListSuspectReadings|2.1|
+RES|read-dso|3|sp_GetEvents|4.3|
+RES|read-dso|3|sp_ReportVoltageEvents root|58.1|
+RES|read-dso|3|sp_ReportPhaseUnbalance root|50.9|
+RES|read-dso|3|sp_ReportTechnicalLosses tx15|15.8|
+RES|read-tso|3|sp_GetGridOverview|6.3|
+RES|read-tso|3|sp_GetTransformerTree|41.7|
+RES|read-tso|3|sp_GetTransformerState|4.2|
+RES|read-tso|3|sp_FindGeofenceForPoint|6.3|
+RES|read-tso|3|sp_ListMeters (map)|4.4|
+RES|read-market|3|sp_GetPortfolioSummary supplier|4.2|
+RES|read-market|3|sp_GetPortfolioSummary aggregator|4.2|
+RES|read-market|3|sp_GetDayAheadAggregates level 1|46.0|
+RES|read-market|3|sp_GetDayAheadAggregates level 2|46.1|
+RES|read-market|3|sp_GetDayAheadAggregates level 3|44.0|
+RES|read-market|3|sp_GetIntradayProvisional|43.7|
+RES|read-market|3|sp_ListSupplierBills|5.4|
