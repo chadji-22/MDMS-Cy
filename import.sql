@@ -143,7 +143,8 @@ FETCH NEXT FROM c_te INTO @n, @email, @full, @phone, @birth, @spec, @district;
 WHILE @@FETCH_STATUS = 0
 BEGIN
     BEGIN TRY CHECKPOINT; END TRY BEGIN CATCH END CATCH;   -- let the capped log be reused (see the note above)
-    SET @path = '/uploads/tech/photo_' + CAST(@n AS VARCHAR(5)) + '.jpg';
+    -- the photo files are deploy/demo-photos/<md5>.jpg (copied to ~/mdms/var/technician-photos/, see deploy/DEPLOY.md)
+    SET @path = 'technician-photos/' + LOWER(CONVERT(VARCHAR(32), HASHBYTES('MD5', 'mdms-demo-photo-' + CAST(@n AS VARCHAR(5))), 2)) + '.jpg';
     EXEC [dbo].[sp_RegisterTechnician] @email, @pw, @full, @phone, @birth, @path, @spec;
     SELECT @tech = user_id FROM [dbo].[USER_ACCOUNT] WHERE email = @email;
 

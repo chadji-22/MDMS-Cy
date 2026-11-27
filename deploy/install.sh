@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 # MDMS-Cy: install OR update the web application on the department web server.
-# 1. Upload mdms-app.zip and this file to your home folder (U:\ on a lab PC, NOT public_html).
-# 2. In a terminal on a department Linux machine:   bash ~/install.sh
-# 3. Open https://students.cs.ucy.ac.cy/~<your login>/mdms/
+# 1. Remote Desktop to a Linux lab machine; copy mdms-app.zip and this file into your home folder (NOT public_html).
+# 2. Either leave the zip there, or extract it yourself in the home folder (it creates ~/mdms).
+# 3. In a terminal:   bash ~/install.sh          then open https://students.cs.ucy.ac.cy/~<your login>/mdms/
 # Safe to run again for every new zip: your settings file and the uploaded files in ~/mdms/var are kept.
 set -e
 cd ~
-[ -f mdms-app.zip ] || { echo "mdms-app.zip is not in your home folder: upload it first"; exit 1; }
-unzip -o -q mdms-app.zip && rm mdms-app.zip
+if [ -f mdms-app.zip ]; then
+  unzip -o -q mdms-app.zip && rm mdms-app.zip
+elif [ -d ~/mdms/public ] && [ -d ~/mdms/src ]; then
+  echo "No mdms-app.zip in your home folder: using the ~/mdms you extracted, setting its permissions"
+else
+  echo "Neither mdms-app.zip nor an extracted ~/mdms is in your home folder: copy the zip there first"; exit 1
+fi
 
 # code: readable by the web server (PHP runs as the user "apache", which is "other" to your files)
 find ~/mdms -type d ! -path "$HOME/mdms/var*" -exec chmod 711 {} +

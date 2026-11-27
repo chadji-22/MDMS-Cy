@@ -29,28 +29,37 @@ on **`mssql.cs.ucy.ac.cy\SQL2025`**. Everyone can install it in their own accoun
   SELECT COUNT(*) FROM dbo.USER_ACCOUNT;                               -- more than 0
   ```
 
-## 1. Upload two files to your HOME folder (not `public_html`)
+## 1. Copy the files to your HOME folder (Remote Desktop, no ssh)
 
-`deploy/mdms-app.zip` and `deploy/install.sh`:
+1. With the VPN on, open **Remote Desktop** to a department **Linux lab machine** and log in with your university account.
+2. In that session, copy these into your **home folder** (`~`, the same as `U:\` on the lab PCs), **not** into `public_html`:
+   * `deploy/mdms-app.zip`
+   * `deploy/install.sh`
+   * the folder `deploy/demo-photos/` (only for step 2b).
 
-* Lab PC: copy both into `U:\`.
-* Own PC (PowerShell, VPN on; `<host>` = the department Linux machine you SSH into):
-  ```powershell
-  scp deploy\mdms-app.zip deploy\install.sh <login>@<host>:~/
-  ```
+   Use any way the session offers: drag and drop or copy-paste into the Remote Desktop window, the `U:\` drive, or the
+   `testing` branch downloaded from GitHub in the session's browser.
 
-## 2. Install (the same command updates later)
+## 2. Unzip and install (the same steps update later)
 
-In a terminal on a department Linux machine:
+1. **Extract `mdms-app.zip` in your home folder by hand.** In the file manager use right-click → *Extract Here*, and
+   choose *Replace all* on an update. Or in a terminal: `cd ~ && unzip -o mdms-app.zip`.
+   * The result must be **`~/mdms/`** (with `src`, `areas`, `public`), not `~/mdms-app/mdms/`. If the file manager
+     made an extra `mdms-app` folder, move the `mdms` folder inside it up to your home folder.
+   * You may delete the zip afterwards.
+2. Open a **terminal** in the session and run:
+   ```bash
+   bash ~/install.sh
+   ```
+   It finds the extracted `~/mdms` and sets the permissions, the settings file and the `public_html` link. It ends
+   with `Done. Open https://students.cs.ucy.ac.cy/~<login>/mdms/`.
+   * Extracting by hand does **not** set the permissions. Without this step the menus are empty and uploads fail.
+   * If you leave `mdms-app.zip` in your home folder unextracted, `install.sh` extracts it itself and deletes it.
+
+What `install.sh` does (you can also paste these lines after extracting):
 
 ```bash
-bash ~/install.sh
-```
-
-It ends with `Done. Open https://students.cs.ucy.ac.cy/~<login>/mdms/`. What it does (you can also paste these lines):
-
-```bash
-cd ~ && unzip -o -q mdms-app.zip && rm mdms-app.zip
+cd ~ && [ -f mdms-app.zip ] && unzip -o -q mdms-app.zip && rm mdms-app.zip   # only when the zip is still there
 find ~/mdms -type d ! -path "$HOME/mdms/var*" -exec chmod 711 {} +
 find ~/mdms/public -type d -exec chmod 755 {} +
 chmod 755 ~/mdms/areas
@@ -70,6 +79,20 @@ ln -sfn ~/mdms/public ~/public_html/mdms
 | `~/mdms/var` + 4 subfolders **1733** | PHP can save uploads; other accounts cannot list or delete them |
 | `config.local.php` 644 | it holds **no password** (server, database name, login name, URL folder) |
 
+## 2b. Demo technician photos (once per server)
+
+The demo technicians (`tech1`–`tech3`) have a photo. Its files are not in the zip (the zip never touches `var/`).
+
+1. Copy the folder `deploy/demo-photos/` into your home folder, as in step 1.
+2. In the terminal of the Remote Desktop session:
+   ```bash
+   install -m 644 ~/demo-photos/*.jpg ~/mdms/var/technician-photos/ && rm -r ~/demo-photos
+   ```
+3. A database built before 27/11/2026 still has the old photo paths: run `sql/fix_demo_photo_paths.sql` once in SSMS.
+   Running it again changes nothing. A database built later already has the right paths.
+
+Check: log in as `tech1@mdms.cy` → *My profile* → *Show my photo*: the photo appears instead of "Photo unavailable".
+
 ## 3. Use it
 
 1. Open `https://students.cs.ucy.ac.cy/~<login>/mdms/` (with **`/mdms/`**; without it you get your Lab 7 pages).
@@ -84,8 +107,25 @@ ln -sfn ~/mdms/public ~/public_html/mdms
 ## 4. Update after a code change
 
 1. Rebuild the zip from the code: `python deploy/build_zip.py` (commit the new zip with the code change).
-2. Upload `mdms-app.zip` (and `install.sh` if it changed) to your home folder.
-3. `bash ~/install.sh` again. Your settings and the uploaded files are kept.
+2. Copy `mdms-app.zip` and `install.sh` to your home folder through Remote Desktop (step 1). Extract the zip over
+   `~/mdms` and choose *Replace all* (step 2).
+3. Run `bash ~/install.sh` again. Your settings and the uploaded files in `~/mdms/var` are kept.
+
+## 5. When the database changes (team rule)
+
+Every change to the SQL files or the demo data (`*.sql`, `sql/`, `import.sql`) is **merged into `testing` at once** and
+announced to the team. Each member then updates **their own** database on `mssql.cs.ucy.ac.cy\SQL2025`:
+
+* **Small data fix:** the announcement names a script in `sql/` (e.g. `sql/fix_demo_photo_paths.sql`). Run it once in
+  SSMS on your own database; it is safe to run again.
+* **Schema or procedure change:** rebuild your own database.
+  1. Run `build_all.sql` in SSMS with *Query → SQLCMD Mode* on, opened from the repository folder (its `:r` lines need
+     it). This wipes all MDMS-Cy data; the lab tables are kept.
+  2. Then run `import.sql` for the demo data.
+
+  Run them one after the other, not together: the log is capped at 20 MB.
+
+Then update your deployment (section 4) if the announcement says the zip changed.
 
 ## Rules
 
