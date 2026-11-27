@@ -22,7 +22,8 @@ on **`mssql.cs.ucy.ac.cy\SQL2025`**. Everyone can install it in their own accoun
 ## 0. Before you start
 
 * University VPN if you are not on campus.
-* The database must hold the MDMS build. Check in SSMS (`mssql.cs.ucy.ac.cy\SQL2025`, database `ichara09`):
+* The database must hold the MDMS build. Check in SSMS (`mssql.cs.ucy.ac.cy\SQL2025`): database `ichara09` (team),
+  or your own copy:
   ```sql
   SELECT name FROM sys.database_principals WHERE name = 'mdms_php';   -- 1 row
   SELECT COUNT(*) FROM sys.procedures;                                 -- about 127
@@ -96,7 +97,8 @@ Check: log in as `tech1@mdms.cy` → *My profile* → *Show my photo*: the photo
 ## 3. Use it
 
 1. Open `https://students.cs.ucy.ac.cy/~<login>/mdms/` (with **`/mdms/`**; without it you get your Lab 7 pages).
-2. **Connect to the database**: database `ichara09`, login `ichara09` (pre-filled), the SQL password. 5 wrong passwords
+2. **Connect to the database**: database `ichara09`, login `ichara09` (pre-filled), the SQL password. To use **your own**
+   database instead (e.g. `chadji22`), overwrite both fields with your database name and your SQL login. 5 wrong passwords
    -> wait 15 minutes (protects the SQL login).
 3. **Log in** with a demo account (password `Passw0rd!23`):
    `consumer1@example.cy`, `tech1@mdms.cy`, `officer1@mdms.cy`, `admin@mdms.cy`, `dso@mdms.cy`, `tso@mdms.cy`,
