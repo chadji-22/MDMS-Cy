@@ -70,6 +70,20 @@ ln -sfn ~/mdms/public ~/public_html/mdms
 | `~/mdms/var` + 4 subfolders **1733** | PHP can save uploads; other accounts cannot list or delete them |
 | `config.local.php` 644 | it holds **no password** (server, database name, login name, URL folder) |
 
+## 2b. Demo technician photos (once per server)
+
+The demo technicians (`tech1`–`tech3`) have a photo. Its files are not in the zip (the zip never touches `var/`).
+
+1. Upload the folder `deploy/demo-photos/` to your home: `scp -r deploy\demo-photos <login>@<host>:~/`
+2. On the department machine:
+   ```bash
+   install -m 644 ~/demo-photos/*.jpg ~/mdms/var/technician-photos/ && rm -r ~/demo-photos
+   ```
+3. A database built before 27/11/2026 still has the old photo paths: run `sql/fix_demo_photo_paths.sql` once in SSMS.
+   Running it again changes nothing. A database built later already has the right paths.
+
+Check: log in as `tech1@mdms.cy` → *My profile* → *Show my photo*: the photo appears instead of "Photo unavailable".
+
 ## 3. Use it
 
 1. Open `https://students.cs.ucy.ac.cy/~<login>/mdms/` (with **`/mdms/`**; without it you get your Lab 7 pages).

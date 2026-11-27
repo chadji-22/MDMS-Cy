@@ -249,8 +249,10 @@ Server replica and post-deployment verification remain pending.
 
 ## 7. Known, not bugs
 
-* `account/photo.php` answers 404 for the demo technicians: their photo files are not on the server (the crawl lists it
-  as a note).
+* `account/photo.php` answers 404 for a demo technician if the server misses its photo file. Fixed on 27/11: do step 2b
+  of `deploy/DEPLOY.md` (copy `deploy/demo-photos/`; on an older database run `sql/fix_demo_photo_paths.sql`).
+  The demo technicians' *documents* still have old paths, so the officers' review page shows them without a download
+  link (a note, not a bug).
 * Some pagers use query-only links (`href="?page=2"`): correct in any folder (crawl note).
 * After about 20-30 minutes idle the server forgets the session: Connect again.
 * The login lock also blocks the right password for 15 minutes after 5 wrong ones (by design).
