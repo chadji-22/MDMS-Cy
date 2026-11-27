@@ -154,7 +154,8 @@ of their pages and adds a row for every new page.
 |---|---|---|---|---|---|
 | 25/11 | I | B12 merge into `io` | L, R | `run_all.sh` (WRITE=1), audit, errors, db_integration | all passed; crawl 162 pages no problems |
 | 25/11 | I | - | S | deployed, Connect + login confirmed in the browser | works |
-| | K | | | | |
+| 27/11 | K | `5415192` (`testing`) | - | `audit_pages.php`, `errors_test.php` | audit 0 errors / 15 review lines; errors all passed |
+| 27/11 | K | `5415192` (`testing`) | L (own db `chadji22` on SQL2025, `php -S`, PHP 8.3) | `tests.sql`, `db_integration.php`, `run_all.sh` (WRITE=1), `connect.sh` (instance without `DB_PASS`) | tests.sql 82/82; db_integration all passed; smoke all passed, consumer 63/63, market/dso/tso 160/160, accounts all passed, crawl 168 pages no problems; connect 23/23; 0 PHP warnings. R not run (no Podman on this PC); S not run (needs the team SQL2025 password) |
 | | E | | | | |
 
 ## 7. Known, not bugs
