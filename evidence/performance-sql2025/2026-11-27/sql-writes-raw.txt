@@ -1,0 +1,246 @@
+RES|1|W01 accounts|1|sp_Login (right password)|15.2|
+RES|1|W01 accounts|2|sp_RegisterConsumer|6.4|
+RES|1|W01 accounts|3|sp_UpdateMyProfile|4.2|
+RES|1|W01 accounts|4|sp_ChangePassword|4.3|
+RES|1|W01 accounts|5|sp_CreateOrganization|6.3|
+RES|1|W01 accounts|6|sp_CreateStaffUser|4.8|
+RES|1|W01 accounts|7|sp_CreateOrganizationUser|4.2|
+RES|1|W01 accounts|8|sp_SetUserActive off (SQL only)|6.0|
+RES|1|W01 accounts|9|sp_SetUserActive on (SQL only)|4.2|
+RES|1|W02 login refused|1|sp_Login (wrong password, error path)|4.2|ERROR 50006: Login failed. | trancount at error 1
+RES|1|W03 technician onboarding|1|sp_RegisterTechnician|20.6|
+RES|1|W03 technician onboarding|2|sp_AddTechnicianDocument|20.6|
+RES|1|W03 technician onboarding|3|sp_ListMyDocuments (new technician)|17.5|
+RES|1|W03 technician onboarding|4|sp_GetTechnicianReview (new technician)|16.5|
+RES|1|W03 technician onboarding|5|sp_DecideDocument REJECTED|25.7|
+RES|1|W03 technician onboarding|6|sp_ResubmitDocument|16.0|
+RES|1|W03 technician onboarding|7|sp_DecideDocument APPROVED|12.2|
+RES|1|W03 technician onboarding|8|sp_AddTechnicianDocument (licence)|10.8|
+RES|1|W03 technician onboarding|9|sp_AddTechnicianDocument (training)|11.6|
+RES|1|W03 technician onboarding|10|sp_DecideDocument APPROVED (licence)|11.9|
+RES|1|W03 technician onboarding|11|sp_DecideDocument APPROVED (training)|10.5|
+RES|1|W03 technician onboarding|12|sp_DecideTechnician REJECTED|12.8|
+RES|1|W03 technician onboarding|13|sp_ResubmitTechnician|10.5|
+RES|1|W03 technician onboarding|14|sp_DecideTechnician APPROVED|11.7|
+RES|1|W04 availability|1|sp_SetAvailability|4.8|
+RES|1|W04 availability|2|sp_FindAvailableTechnicians (with the slot)|2.1|
+RES|1|W04 availability|3|sp_DeleteAvailability|4.2|
+RES|1|W05 consumer premises and payments|1|sp_AddPremise|5.1|
+RES|1|W05 consumer premises and payments|2|sp_UpdatePremise (SQL only)|6.0|
+RES|1|W05 consumer premises and payments|3|sp_ChangeSupplier (SQL only)|5.0|
+RES|1|W05 consumer premises and payments|4|sp_SetPremiseAggregator (SQL only)|6.3|
+RES|1|W05 consumer premises and payments|5|sp_SetPremiseThreshold|5.6|
+RES|1|W05 consumer premises and payments|6|sp_UpdateMyProfile (notification preferences)|4.4|
+RES|1|W05 consumer premises and payments|7|sp_BuyHistoricalAccess|8.8|
+RES|1|W05 consumer premises and payments|8|sp_PayBill (part payment)|7.2|
+RES|1|W05 consumer premises and payments|9|sp_PayServiceFee|6.3|
+RES|1|W05 consumer premises and payments|10|sp_SubmitGdprRequest RETENTION_REDUCTION|5.0|
+RES|1|W06 threshold check|1|sp_SetPremiseThreshold (premise 2, 10 kWh)|5.1|
+RES|1|W06 threshold check|2|sp_CheckConsumptionThresholds (SQL only; raises event + notifications)|8.0|
+RES|1|W07 work orders|1|sp_SetAvailability (for the jobs)|2.7|
+RES|1|W07 work orders|2|sp_SubmitServiceRequest FAULT_REPAIR|6.3|
+RES|1|W07 work orders|3|sp_AssignWorkOrder|13.8|
+RES|1|W07 work orders|4|sp_AcceptWorkOrder|6.3|
+RES|1|W07 work orders|5|sp_StartWorkOrder|4.8|
+RES|1|W07 work orders|6|sp_CompleteWorkOrder|4.2|
+RES|1|W07 work orders|7|sp_SubmitServiceRequest TECHNICAL_CHECK|7.8|
+RES|1|W07 work orders|8|sp_AssignWorkOrder (2nd)|12.8|
+RES|1|W07 work orders|9|sp_DeclineWorkOrder|7.5|
+RES|1|W07 work orders|10|sp_CancelWorkOrder|5.7|
+RES|1|W07 work orders|11|sp_CreateWorkOrder ANTI_TAMPER (SQL only)|5.9|
+RES|1|W08 meter installation and approval|1|sp_SetAvailability (install day)|4.5|
+RES|1|W08 meter installation and approval|2|sp_AddPremise (for the new meter)|4.2|
+RES|1|W08 meter installation and approval|3|sp_CreateWorkOrder INSTALLATION|5.4|
+RES|1|W08 meter installation and approval|4|sp_AssignWorkOrder (installation)|13.8|
+RES|1|W08 meter installation and approval|5|sp_AcceptWorkOrder (installation)|4.2|
+RES|1|W08 meter installation and approval|6|sp_InstallMeter|9.9|
+RES|1|W08 meter installation and approval|7|sp_AddMeterDocument CALIBRATION_CERT|4.2|
+RES|1|W08 meter installation and approval|8|sp_AddMeterDocument CE_DECLARATION|4.2|
+RES|1|W08 meter installation and approval|9|sp_AddMeterDocument ENCRYPTION_CERT|3.8|
+RES|1|W08 meter installation and approval|10|sp_GetMeter (pending meter)|2.3|
+RES|1|W08 meter installation and approval|11|sp_DecideDocument meter doc 1|4.2|
+RES|1|W08 meter installation and approval|12|sp_DecideDocument meter doc 2|4.2|
+RES|1|W08 meter installation and approval|13|sp_DecideDocument meter doc 3|5.9|
+RES|1|W08 meter installation and approval|14|sp_ConfirmMeter|6.1|
+RES|1|W08 meter installation and approval|15|sp_UpdateMeterTechnicalData (SQL only)|6.5|
+RES|1|W08 meter installation and approval|16|sp_SetMeterStatus (SQL only)|6.5|
+RES|1|W08 meter installation and approval|17|sp_CreateWorkOrder REPLACEMENT (SQL only)|4.2|
+RES|1|W08 meter installation and approval|18|sp_AssignWorkOrder (replacement)|13.8|
+RES|1|W08 meter installation and approval|19|sp_AcceptWorkOrder (replacement)|5.5|
+RES|1|W08 meter installation and approval|20|sp_ReplaceMeter (SQL only)|10.9|
+RES|1|W09 remote commands|1|sp_RequestRemoteCommand (SQL only)|4.5|
+RES|1|W09 remote commands|2|sp_DecideRemoteCommand APPROVED|4.2|
+RES|1|W09 remote commands|3|sp_DispatchCommands (one command)|4.2|
+RES|1|W09 remote commands|4|sp_SimulateCommandAcknowledgment|8.4|
+RES|1|W09 remote commands|5|sp_RequestRemoteCommand (2nd)|4.2|
+RES|1|W09 remote commands|6|sp_DecideRemoteCommand APPROVED (2nd)|2.7|
+RES|1|W09 remote commands|7|sp_DispatchCommands (2nd)|4.2|
+RES|1|W09 remote commands|8|sp_AcknowledgeCommand (device ACK, SQL only)|6.8|
+RES|1|W09 remote commands|9|sp_RequestRemoteCommand (3rd)|4.3|
+RES|1|W09 remote commands|10|sp_DecideRemoteCommand REJECTED|6.3|
+RES|1|W10 load shedding (1 level-1 transformer)|1|sp_ShedTransformerLoad tx15|10.5|
+RES|1|W10 load shedding (1 level-1 transformer)|2|sp_ListCommands (TSO)|64.9|
+RES|1|W10 load shedding (1 level-1 transformer)|3|sp_DispatchCommands (all approved)|7.1|
+RES|1|W11 load shedding (whole grid)|1|sp_ShedTransformerLoad root (all meters)|31.1|
+RES|1|W11 load shedding (whole grid)|2|sp_DispatchCommands (all, after root shed)|22.3|
+RES|1|W12 telemetry single packet|1|sp_IngestTelemetryPacket|12.0|
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|1|sp_IngestTelemetryBatch (95 packets, 1 meter-day)|1236.6|
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|2|sp_RunVEE (meter 1, the day)|487.3|
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|3|sp_ListSuspectReadings (the day)|65.8|
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|4|(suspects after VEE)||2 suspect, 96 readings
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|5|sp_AcceptSuspectReading|11.7|
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|6|sp_EditReading|99.1|
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|7|sp_FinalizeReadings (meter 1, the day)|264.1|
+RES|1|W13 telemetry day: batch, VEE, suspects, finalize, transform|8|sp_BuildTransformerAggregates (the day)|472.0|
+RES|1|W14 tamper and reports with events|1|sp_RaiseTamperEvent|7.0|
+RES|1|W14 tamper and reports with events|2|sp_ReportPhaseUnbalance (raise events)|189.3|
+RES|1|W14 tamper and reports with events|3|sp_ReportTechnicalLosses (raise events)|46.0|
+RES|1|W15 grid (TSO / DSO)|1|sp_RefreshTransformerState|332.0|
+RES|1|W15 grid (TSO / DSO)|2|sp_RefreshTransformerAncestors|99.7|
+RES|1|W15 grid (TSO / DSO)|3|sp_RecordTransformerReading|10.1|
+RES|1|W15 grid (TSO / DSO)|4|sp_UpsertTransformer (new)|71.5|
+RES|1|W15 grid (TSO / DSO)|5|sp_UpsertTransformer (edit)|17.3|
+RES|1|W16 catalogs|1|sp_UpsertMeterType|5.9|
+RES|1|W16 catalogs|2|sp_UpsertServiceType|4.3|
+RES|1|W16 catalogs|3|sp_UpsertObisCode|15.9|
+RES|1|W16 catalogs|4|sp_UpsertTariff|4.8|
+RES|1|W17 GDPR right to be forgotten (throw-away consumer)|1|sp_RegisterConsumer (throw-away)|4.2|
+RES|1|W17 GDPR right to be forgotten (throw-away consumer)|2|sp_SubmitGdprRequest RIGHT_TO_BE_FORGOTTEN|4.2|
+RES|1|W17 GDPR right to be forgotten (throw-away consumer)|3|sp_AdvanceGdprRequest UNDER_REVIEW|4.2|
+RES|1|W17 GDPR right to be forgotten (throw-away consumer)|4|sp_AdvanceGdprRequest PRE_APPROVED|4.2|
+RES|1|W17 GDPR right to be forgotten (throw-away consumer)|5|sp_AdvanceGdprRequest APPROVED (2nd officer)|110.0|
+RES|1|W17 GDPR right to be forgotten (throw-away consumer)|6|sp_ExecuteGdprRequest (SQL only)|10.2|
+RES|1|W18 purge (alone)|1|sp_PurgeExpiredReadings (SQL only)|367.6|
+RES|1|W19 bootstrap admin (refused: an admin exists)|1|sp_BootstrapAdmin (error path)|3.7|ERROR 50003: An administrator already exists. | trancount at error 0
+RES|1|W20 bills: cancel 6, re-issue October|1|sp_CancelBill (bill 2)|4.2|
+RES|1|W20 bills: cancel 6, re-issue October|2|sp_CancelBill (bill 3)|4.8|
+RES|1|W20 bills: cancel 6, re-issue October|3|sp_CancelBill (bill 4)|4.2|
+RES|1|W20 bills: cancel 6, re-issue October|4|sp_CancelBill (bill 5)|4.7|
+RES|1|W20 bills: cancel 6, re-issue October|5|sp_CancelBill (bill 6)|4.2|
+RES|1|W20 bills: cancel 6, re-issue October|6|sp_CancelBill (bill 7)|4.8|
+RES|1|W20 bills: cancel 6, re-issue October|7|sp_IssueMonthlyBills (October, supplier 1: 6 premises)|83.7|
+RES|1|W20 bills: cancel 6, re-issue October|8|sp_ListSupplierBills (after issuing)|3.6|
+RES|1|W21 overdue bills (alone)|1|sp_MarkOverdueBills (SQL only, as of 2027-02-01)|21.5|
+RES|2|W01 accounts|1|sp_Login (right password)|5.8|
+RES|2|W01 accounts|2|sp_RegisterConsumer|3.9|
+RES|2|W01 accounts|3|sp_UpdateMyProfile|3.3|
+RES|2|W01 accounts|4|sp_ChangePassword|6.0|
+RES|2|W01 accounts|5|sp_CreateOrganization|4.2|
+RES|2|W01 accounts|6|sp_CreateStaffUser|5.3|
+RES|2|W01 accounts|7|sp_CreateOrganizationUser|4.2|
+RES|2|W01 accounts|8|sp_SetUserActive off (SQL only)|4.2|
+RES|2|W01 accounts|9|sp_SetUserActive on (SQL only)|4.8|
+RES|2|W02 login refused|1|sp_Login (wrong password, error path)|4.2|ERROR 50006: Login failed. | trancount at error 1
+RES|2|W03 technician onboarding|1|sp_RegisterTechnician|5.0|
+RES|2|W03 technician onboarding|2|sp_AddTechnicianDocument|6.6|
+RES|2|W03 technician onboarding|3|sp_ListMyDocuments (new technician)|2.9|
+RES|2|W03 technician onboarding|4|sp_GetTechnicianReview (new technician)|4.2|
+RES|2|W03 technician onboarding|5|sp_DecideDocument REJECTED|6.3|
+RES|2|W03 technician onboarding|6|sp_ResubmitDocument|5.4|
+RES|2|W03 technician onboarding|7|sp_DecideDocument APPROVED|4.2|
+RES|2|W03 technician onboarding|8|sp_AddTechnicianDocument (licence)|6.3|
+RES|2|W03 technician onboarding|9|sp_AddTechnicianDocument (training)|4.2|
+RES|2|W03 technician onboarding|10|sp_DecideDocument APPROVED (licence)|4.2|
+RES|2|W03 technician onboarding|11|sp_DecideDocument APPROVED (training)|5.5|
+RES|2|W03 technician onboarding|12|sp_DecideTechnician REJECTED|4.2|
+RES|2|W03 technician onboarding|13|sp_ResubmitTechnician|4.2|
+RES|2|W03 technician onboarding|14|sp_DecideTechnician APPROVED|6.9|
+RES|2|W04 availability|1|sp_SetAvailability|5.4|
+RES|2|W04 availability|2|sp_FindAvailableTechnicians (with the slot)|2.1|
+RES|2|W04 availability|3|sp_DeleteAvailability|4.2|
+RES|2|W05 consumer premises and payments|1|sp_AddPremise|6.3|
+RES|2|W05 consumer premises and payments|2|sp_UpdatePremise (SQL only)|7.4|
+RES|2|W05 consumer premises and payments|3|sp_ChangeSupplier (SQL only)|6.3|
+RES|2|W05 consumer premises and payments|4|sp_SetPremiseAggregator (SQL only)|8.2|
+RES|2|W05 consumer premises and payments|5|sp_SetPremiseThreshold|5.5|
+RES|2|W05 consumer premises and payments|6|sp_UpdateMyProfile (notification preferences)|5.2|
+RES|2|W05 consumer premises and payments|7|sp_BuyHistoricalAccess|8.0|
+RES|2|W05 consumer premises and payments|8|sp_PayBill (part payment)|6.3|
+RES|2|W05 consumer premises and payments|9|sp_PayServiceFee|6.3|
+RES|2|W05 consumer premises and payments|10|sp_SubmitGdprRequest RETENTION_REDUCTION|4.2|
+RES|2|W06 threshold check|1|sp_SetPremiseThreshold (premise 2, 10 kWh)|6.3|
+RES|2|W06 threshold check|2|sp_CheckConsumptionThresholds (SQL only; raises event + notifications)|59.8|
+RES|2|W07 work orders|1|sp_SetAvailability (for the jobs)|4.3|
+RES|2|W07 work orders|2|sp_SubmitServiceRequest FAULT_REPAIR|6.3|
+RES|2|W07 work orders|3|sp_AssignWorkOrder|13.7|
+RES|2|W07 work orders|4|sp_AcceptWorkOrder|5.9|
+RES|2|W07 work orders|5|sp_StartWorkOrder|4.2|
+RES|2|W07 work orders|6|sp_CompleteWorkOrder|5.5|
+RES|2|W07 work orders|7|sp_SubmitServiceRequest TECHNICAL_CHECK|6.1|
+RES|2|W07 work orders|8|sp_AssignWorkOrder (2nd)|14.4|
+RES|2|W07 work orders|9|sp_DeclineWorkOrder|6.3|
+RES|2|W07 work orders|10|sp_CancelWorkOrder|8.0|
+RES|2|W07 work orders|11|sp_CreateWorkOrder ANTI_TAMPER (SQL only)|7.0|
+RES|2|W08 meter installation and approval|1|sp_SetAvailability (install day)|5.8|
+RES|2|W08 meter installation and approval|2|sp_AddPremise (for the new meter)|6.3|
+RES|2|W08 meter installation and approval|3|sp_CreateWorkOrder INSTALLATION|6.5|
+RES|2|W08 meter installation and approval|4|sp_AssignWorkOrder (installation)|15.3|
+RES|2|W08 meter installation and approval|5|sp_AcceptWorkOrder (installation)|6.3|
+RES|2|W08 meter installation and approval|6|sp_InstallMeter|10.0|
+RES|2|W08 meter installation and approval|7|sp_AddMeterDocument CALIBRATION_CERT|6.3|
+RES|2|W08 meter installation and approval|8|sp_AddMeterDocument CE_DECLARATION|5.9|
+RES|2|W08 meter installation and approval|9|sp_AddMeterDocument ENCRYPTION_CERT|6.7|
+RES|2|W08 meter installation and approval|10|sp_GetMeter (pending meter)|4.2|
+RES|2|W08 meter installation and approval|11|sp_DecideDocument meter doc 1|4.6|
+RES|2|W08 meter installation and approval|12|sp_DecideDocument meter doc 2|6.5|
+RES|2|W08 meter installation and approval|13|sp_DecideDocument meter doc 3|4.2|
+RES|2|W08 meter installation and approval|14|sp_ConfirmMeter|5.9|
+RES|2|W08 meter installation and approval|15|sp_UpdateMeterTechnicalData (SQL only)|6.3|
+RES|2|W08 meter installation and approval|16|sp_SetMeterStatus (SQL only)|7.5|
+RES|2|W08 meter installation and approval|17|sp_CreateWorkOrder REPLACEMENT (SQL only)|8.4|
+RES|2|W08 meter installation and approval|18|sp_AssignWorkOrder (replacement)|13.8|
+RES|2|W08 meter installation and approval|19|sp_AcceptWorkOrder (replacement)|7.3|
+RES|2|W08 meter installation and approval|20|sp_ReplaceMeter (SQL only)|12.8|
+RES|2|W09 remote commands|1|sp_RequestRemoteCommand (SQL only)|6.3|
+RES|2|W09 remote commands|2|sp_DecideRemoteCommand APPROVED|6.3|
+RES|2|W09 remote commands|3|sp_DispatchCommands (one command)|6.3|
+RES|2|W09 remote commands|4|sp_SimulateCommandAcknowledgment|12.2|
+RES|2|W09 remote commands|5|sp_RequestRemoteCommand (2nd)|5.4|
+RES|2|W09 remote commands|6|sp_DecideRemoteCommand APPROVED (2nd)|6.3|
+RES|2|W09 remote commands|7|sp_DispatchCommands (2nd)|6.3|
+RES|2|W09 remote commands|8|sp_AcknowledgeCommand (device ACK, SQL only)|7.5|
+RES|2|W09 remote commands|9|sp_RequestRemoteCommand (3rd)|6.3|
+RES|2|W09 remote commands|10|sp_DecideRemoteCommand REJECTED|7.5|
+RES|2|W10 load shedding (1 level-1 transformer)|1|sp_ShedTransformerLoad tx15|12.4|
+RES|2|W10 load shedding (1 level-1 transformer)|2|sp_ListCommands (TSO)|3.5|
+RES|2|W10 load shedding (1 level-1 transformer)|3|sp_DispatchCommands (all approved)|8.4|
+RES|2|W11 load shedding (whole grid)|1|sp_ShedTransformerLoad root (all meters)|34.4|
+RES|2|W11 load shedding (whole grid)|2|sp_DispatchCommands (all, after root shed)|27.6|
+RES|2|W12 telemetry single packet|1|sp_IngestTelemetryPacket|13.1|
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|1|sp_IngestTelemetryBatch (95 packets, 1 meter-day)|1135.0|
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|2|sp_RunVEE (meter 1, the day)|71.9|
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|3|sp_ListSuspectReadings (the day)|2.1|
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|4|(suspects after VEE)||2 suspect, 96 readings
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|5|sp_AcceptSuspectReading|4.2|
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|6|sp_EditReading|5.4|
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|7|sp_FinalizeReadings (meter 1, the day)|338.3|
+RES|2|W13 telemetry day: batch, VEE, suspects, finalize, transform|8|sp_BuildTransformerAggregates (the day)|307.5|
+RES|2|W14 tamper and reports with events|1|sp_RaiseTamperEvent|9.5|
+RES|2|W14 tamper and reports with events|2|sp_ReportPhaseUnbalance (raise events)|61.2|
+RES|2|W14 tamper and reports with events|3|sp_ReportTechnicalLosses (raise events)|20.6|
+RES|2|W15 grid (TSO / DSO)|1|sp_RefreshTransformerState|306.2|
+RES|2|W15 grid (TSO / DSO)|2|sp_RefreshTransformerAncestors|21.8|
+RES|2|W15 grid (TSO / DSO)|3|sp_RecordTransformerReading|6.1|
+RES|2|W15 grid (TSO / DSO)|4|sp_UpsertTransformer (new)|9.5|
+RES|2|W15 grid (TSO / DSO)|5|sp_UpsertTransformer (edit)|10.5|
+RES|2|W16 catalogs|1|sp_UpsertMeterType|6.8|
+RES|2|W16 catalogs|2|sp_UpsertServiceType|6.5|
+RES|2|W16 catalogs|3|sp_UpsertObisCode|7.4|
+RES|2|W16 catalogs|4|sp_UpsertTariff|6.3|
+RES|2|W17 GDPR right to be forgotten (throw-away consumer)|1|sp_RegisterConsumer (throw-away)|6.3|
+RES|2|W17 GDPR right to be forgotten (throw-away consumer)|2|sp_SubmitGdprRequest RIGHT_TO_BE_FORGOTTEN|7.5|
+RES|2|W17 GDPR right to be forgotten (throw-away consumer)|3|sp_AdvanceGdprRequest UNDER_REVIEW|6.3|
+RES|2|W17 GDPR right to be forgotten (throw-away consumer)|4|sp_AdvanceGdprRequest PRE_APPROVED|5.3|
+RES|2|W17 GDPR right to be forgotten (throw-away consumer)|5|sp_AdvanceGdprRequest APPROVED (2nd officer)|6.3|
+RES|2|W17 GDPR right to be forgotten (throw-away consumer)|6|sp_ExecuteGdprRequest (SQL only)|13.7|
+RES|2|W18 purge (alone)|1|sp_PurgeExpiredReadings (SQL only)|175.2|
+RES|2|W19 bootstrap admin (refused: an admin exists)|1|sp_BootstrapAdmin (error path)|2.1|ERROR 50003: An administrator already exists. | trancount at error 0
+RES|2|W20 bills: cancel 6, re-issue October|1|sp_CancelBill (bill 2)|6.6|
+RES|2|W20 bills: cancel 6, re-issue October|2|sp_CancelBill (bill 3)|5.0|
+RES|2|W20 bills: cancel 6, re-issue October|3|sp_CancelBill (bill 4)|6.3|
+RES|2|W20 bills: cancel 6, re-issue October|4|sp_CancelBill (bill 5)|5.0|
+RES|2|W20 bills: cancel 6, re-issue October|5|sp_CancelBill (bill 6)|5.1|
+RES|2|W20 bills: cancel 6, re-issue October|6|sp_CancelBill (bill 7)|6.3|
+RES|2|W20 bills: cancel 6, re-issue October|7|sp_IssueMonthlyBills (October, supplier 1: 6 premises)|45.3|
+RES|2|W20 bills: cancel 6, re-issue October|8|sp_ListSupplierBills (after issuing)|5.8|
+RES|2|W21 overdue bills (alone)|1|sp_MarkOverdueBills (SQL only, as of 2027-02-01)|27.1|

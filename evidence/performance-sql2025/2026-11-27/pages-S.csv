@@ -1,0 +1,191 @@
+request,title,status,n,min_s,median_s,max_s
+dso@mdms.cy GET /dso/reports.php?report=unbalance&transformer=1,Network reports,200,3,0.429,0.451,0.581
+tso@mdms.cy GET /tso/tree.php?root=6,Transformer tree,200,3,0.332,0.359,0.547
+dso@mdms.cy GET /dso/reports.php?report=voltage&transformer=1,Network reports,200,3,0.412,0.416,0.481
+dso@mdms.cy GET /dso/reports.php?report=losses&transformer=1,Network reports,404,3,0.350,0.376,0.451
+tso@mdms.cy GET /tso/frequency.php,Grid frequency,200,3,0.349,0.357,0.426
+dso@mdms.cy GET /dso/reports.php?report=unbalance&transformer=2,Network reports,200,3,0.402,0.404,0.417
+tso@mdms.cy GET /tso/state.php,Current state,200,3,0.339,0.361,0.416
+officer1@mdms.cy GET /tso/tree.php,Transformer tree,200,3,0.356,0.370,0.414
+tso@mdms.cy GET /tso/state.php?root=1&level=3,Current state,200,3,0.358,0.374,0.413
+dso@mdms.cy GET /dso/reports.php?report=voltage&transformer=2,Network reports,200,3,0.366,0.376,0.410
+billing@eacsupply.cy GET /market/day-ahead.php?level=2,Day-Ahead data,200,3,0.344,0.370,0.400
+officer1@mdms.cy GET /staff/statistics.php,System statistics,200,3,0.324,0.375,0.396
+officer1@mdms.cy GET /tso/tree.php?root=1,Transformer tree,200,3,0.374,0.376,0.393
+officer1@mdms.cy GET /staff/gdpr.php?id=2,GDPR request #2,200,3,0.323,0.330,0.392
+officer1@mdms.cy GET /staff/catalogs.php?catalog=meter-types,Meter types,200,3,0.300,0.328,0.391
+tso@mdms.cy GET /tso/tree.php?root=1,Transformer tree,200,3,0.359,0.368,0.390
+admin@mdms.cy GET /tso/tree.php?root=1,Transformer tree,200,3,0.355,0.384,0.388
+dso@mdms.cy GET /tso/tree.php?root=1,Transformer tree,200,3,0.346,0.355,0.382
+billing@eacsupply.cy GET /market/api/intraday.php?from=2026-11-26+12%3A30%3A00&to=2026-11-27+12%3A30%3A00&level=1,application/json; charset=UTF-8,200,3,0.351,0.361,0.381
+tso@mdms.cy GET /tso/map-data.php,application/json; charset=UTF-8,200,3,0.350,0.366,0.380
+tso@mdms.cy GET /tso/shedding.php,Remote shedding,200,3,0.340,0.357,0.378
+tso@mdms.cy GET /tso/transformer.php?id=1,Change transformer 1,200,3,0.355,0.374,0.378
+dso@mdms.cy GET /dso/reports.php?report=losses&transformer=2,Network reports,404,3,0.359,0.363,0.377
+tso@mdms.cy GET /tso/transformer.php,Add a transformer,200,3,0.361,0.366,0.377
+admin@mdms.cy GET /tso/tree.php,Transformer tree,200,3,0.359,0.364,0.376
+dso@mdms.cy GET /tso/state.php,Current state,200,3,0.365,0.367,0.376
+billing@eacsupply.cy GET /market/api/intraday.php?level=3,application/json; charset=UTF-8,200,3,0.372,0.374,0.376
+dso@mdms.cy GET /tso/frequency.php,Grid frequency,200,3,0.354,0.356,0.374
+billing@eacsupply.cy GET /market/day-ahead.php,Day-Ahead data,200,3,0.359,0.364,0.374
+consumer2@example.cy GET /consumer/readings.php?premise_id=3,15-minute readings,200,3,0.300,0.306,0.373
+admin@mdms.cy GET /tso/tree.php?root=2,Transformer tree,200,3,0.332,0.360,0.373
+billing@eacsupply.cy GET /market/intraday.php,Intraday data,200,3,0.345,0.363,0.373
+billing@eacsupply.cy GET /market/api/day-ahead.php?level=3,application/json; charset=UTF-8,200,3,0.331,0.356,0.372
+consumer1@example.cy GET /consumer/aggregates.php?premise_id=1,"Totals by day, month and year",200,3,0.290,0.324,0.371
+billing@eacsupply.cy GET /market/day-ahead.php?level=1,Day-Ahead data,200,3,0.353,0.359,0.371
+dso@mdms.cy GET /tso/tree.php,Transformer tree,200,3,0.349,0.362,0.370
+billing@eacsupply.cy GET /market/api/day-ahead.php?from=2026-09-01&to=2026-11-27&level=3,application/json; charset=UTF-8,200,3,0.329,0.347,0.369
+officer1@mdms.cy GET /tso/tree.php?root=6,Transformer tree,200,3,0.347,0.351,0.368
+officer1@mdms.cy GET /staff/catalogs.php?catalog=service-types,Service types,200,3,0.321,0.332,0.367
+desk@flexpool.cy GET /market/day-ahead.php,Day-Ahead data,200,3,0.332,0.337,0.366
+billing@eacsupply.cy GET /market/intraday.php?level=3,Intraday data,200,3,0.353,0.361,0.364
+admin@mdms.cy GET /staff/statistics.php,System statistics,200,3,0.347,0.350,0.363
+billing@eacsupply.cy GET /market/api/day-ahead.php?from=2026-09-01&to=2026-11-27&level=1,application/json; charset=UTF-8,200,3,0.341,0.350,0.362
+tso@mdms.cy GET /tso/tree.php,Transformer tree,200,3,0.346,0.353,0.361
+desk@flexpool.cy GET /market/api/day-ahead.php?from=2026-09-01&to=2026-11-27&level=1,application/json; charset=UTF-8,200,3,0.325,0.331,0.360
+officer1@mdms.cy GET /staff/technicians.php,Technician approvals,200,3,0.316,0.324,0.359
+tso@mdms.cy GET /tso/transformer.php?id=2,Change transformer 2,200,3,0.340,0.356,0.359
+consumer1@example.cy GET /consumer/readings.php?premise_id=1&from=2026-10-30&to=2026-10-31,15-minute readings,200,3,0.293,0.300,0.357
+billing@eacsupply.cy GET /market/api/day-ahead.php?from=2026-09-01&to=2026-11-27&level=2,application/json; charset=UTF-8,200,3,0.344,0.349,0.356
+consumer2@example.cy POST /login.php,log in (sp_Login),303,1,0.355,0.355,0.355
+tso@mdms.cy GET /tso/transformer.php?id=6,Change transformer 6,200,3,0.339,0.344,0.355
+billing@eacsupply.cy GET /market/day-ahead.php?level=3,Day-Ahead data,200,3,0.350,0.355,0.355
+billing@eacsupply.cy GET /market/api/intraday.php?from=2026-11-26+12%3A30%3A00&to=2026-11-27+12%3A30%3A00&level=3,application/json; charset=UTF-8,200,3,0.349,0.352,0.355
+desk@flexpool.cy GET /market/api/day-ahead.php?from=2026-09-01&to=2026-11-27&level=3,application/json; charset=UTF-8,200,3,0.326,0.351,0.353
+consumer2@example.cy GET /consumer/history.php?premise_id=3,Access to past data,200,3,0.308,0.310,0.351
+billing@eacsupply.cy GET /market/api/intraday.php,application/json; charset=UTF-8,200,3,0.349,0.350,0.351
+officer1@mdms.cy GET /staff/catalogs.php?catalog=obis,OBIS codes,200,3,0.338,0.348,0.350
+officer1@mdms.cy GET /tso/tree.php?root=2,Transformer tree,200,3,0.318,0.336,0.349
+desk@flexpool.cy GET /market/api/intraday.php,application/json; charset=UTF-8,200,3,0.327,0.336,0.349
+admin@mdms.cy GET /staff/work-orders.php,Work orders,200,3,0.302,0.333,0.347
+dso@mdms.cy GET /tso/tree.php?root=2,Transformer tree,200,3,0.312,0.324,0.347
+consumer2@example.cy GET /consumer/aggregates.php?premise_id=3&period=MONTH&from=2026-10-01&to=2026-10-31,"Totals by day, month and year",200,3,0.291,0.311,0.346
+desk@flexpool.cy GET /market/api/portfolio.php,application/json; charset=UTF-8,200,3,0.289,0.309,0.346
+consumer1@example.cy GET /consumer/events.php?premise_id=1,Events and alerts,200,3,0.305,0.307,0.344
+officer1@mdms.cy GET /staff/remote-commands.php,Remote commands,200,3,0.315,0.339,0.344
+officer1@mdms.cy GET /staff/gdpr.php?id=1,GDPR request #1,200,3,0.303,0.325,0.344
+tso@mdms.cy GET /tso/,Grid overview,200,3,0.292,0.324,0.344
+tso@mdms.cy GET /tso/tree.php?root=2,Transformer tree,200,3,0.326,0.341,0.344
+officer1@mdms.cy GET /staff/work-order.php?id=11,Work order #11,200,3,0.290,0.304,0.343
+consumer2@example.cy GET /consumer/readings.php?premise_id=3&from=2026-10-30&to=2026-10-31,15-minute readings,200,3,0.317,0.320,0.341
+dso@mdms.cy GET /dso/events.php?from=2026-10-01&to=2026-11-27,Events,200,3,0.310,0.317,0.341
+tso@mdms.cy GET /tso/map-data.php?lat=35.1856&lon=33.3823,application/json; charset=UTF-8,200,3,0.291,0.316,0.340
+consumer2@example.cy GET /consumer/readings.php?premise_id=3&from=2026-10-01&to=2026-10-31,15-minute readings,200,3,0.307,0.328,0.339
+consumer2@example.cy GET /consumer/events.php?premise_id=3,Events and alerts,200,3,0.282,0.297,0.339
+consumer2@example.cy GET /consumer/events.php?premise_id=4,Events and alerts,200,3,0.290,0.333,0.336
+officer1@mdms.cy GET /staff/audit.php,Audit log,200,3,0.277,0.318,0.336
+tech1@mdms.cy GET /technician/,My Jobs,200,3,0.324,0.329,0.335
+admin@mdms.cy GET /tso/tree.php?root=6,Transformer tree,200,3,0.331,0.333,0.335
+desk@flexpool.cy GET /market/day-ahead.php?level=3,Day-Ahead data,200,3,0.322,0.331,0.335
+officer1@mdms.cy GET /staff/gdpr.php,GDPR review,200,3,0.302,0.307,0.334
+desk@flexpool.cy GET /market/intraday.php,Intraday data,200,3,0.329,0.332,0.334
+officer1@mdms.cy GET /dso/suspects.php,Suspect readings,200,3,0.296,0.313,0.333
+officer1@mdms.cy GET /staff/work-order.php?id=10,Work order #10,200,3,0.295,0.311,0.333
+officer1@mdms.cy GET /staff/meters.php,Meter approvals,200,3,0.295,0.329,0.332
+officer1@mdms.cy GET /staff/work-order.php?id=9,Work order #9,200,3,0.307,0.332,0.332
+officer1@mdms.cy GET /staff/work-orders.php,Work orders,200,3,0.302,0.328,0.331
+admin@mdms.cy POST /login.php,log in (sp_Login),303,1,0.331,0.331,0.331
+consumer1@example.cy GET /consumer/bills.php,Bills and payments,200,3,0.280,0.292,0.330
+officer1@mdms.cy GET /staff/work-order.php?id=12,Work order #12,200,3,0.313,0.323,0.330
+admin@mdms.cy GET /staff/audit.php,Audit log,200,3,0.281,0.311,0.329
+officer1@mdms.cy GET /dso/events.php,Events,200,3,0.300,0.326,0.327
+desk@flexpool.cy GET /market/api/intraday.php?from=2026-11-26+12%3A30%3A00&to=2026-11-27+12%3A30%3A00&level=1,application/json; charset=UTF-8,200,3,0.311,0.325,0.327
+officer1@mdms.cy GET /account/profile.php,My profile,200,3,0.285,0.295,0.326
+officer1@mdms.cy GET /dso/,Telemetry and VEE,200,3,0.278,0.324,0.326
+desk@flexpool.cy GET /market/api/day-ahead.php,application/json; charset=UTF-8,200,3,0.321,0.325,0.326
+consumer2@example.cy GET /consumer/history.php?premise_id=4&from=2026-10&to=2026-10,Access to past data,200,3,0.298,0.308,0.325
+tech1@mdms.cy GET /technician/availability.php,Availability,200,3,0.311,0.321,0.325
+consumer2@example.cy GET /consumer/gdpr.php,Privacy (GDPR),200,3,0.297,0.311,0.324
+tso@mdms.cy GET /account/profile.php,My profile,200,3,0.296,0.301,0.324
+consumer2@example.cy GET /consumer/readings.php,15-minute readings,200,3,0.285,0.304,0.323
+consumer2@example.cy GET /consumer/aggregates.php,"Totals by day, month and year",200,3,0.292,0.299,0.323
+consumer2@example.cy GET /consumer/requests.php,Check and fault requests,200,3,0.279,0.293,0.323
+admin@mdms.cy GET /staff/work-order.php?id=12,Work order #12,200,3,0.283,0.313,0.323
+dso@mdms.cy GET /tso/tree.php?root=6,Transformer tree,200,3,0.301,0.313,0.323
+consumer1@example.cy GET /consumer/readings.php?premise_id=2,15-minute readings,200,3,0.289,0.304,0.322
+consumer2@example.cy GET /consumer/events.php,Events and alerts,200,3,0.308,0.320,0.322
+admin@mdms.cy GET /staff/work-order.php?id=10,Work order #10,200,3,0.315,0.322,0.322
+admin@mdms.cy GET /staff/work-order.php?id=9,Work order #9,200,3,0.308,0.311,0.322
+dso@mdms.cy GET /dso/events.php,Events,200,3,0.291,0.305,0.321
+(connect) POST /connect.php,-,303,9,0.274,0.296,0.320
+consumer1@example.cy GET /consumer/aggregates.php?premise_id=2,"Totals by day, month and year",200,3,0.296,0.300,0.320
+tech1@mdms.cy GET /account/profile.php,My profile,200,3,0.308,0.316,0.320
+consumer1@example.cy GET /consumer/aggregates.php,"Totals by day, month and year",200,3,0.296,0.306,0.319
+billing@eacsupply.cy POST /login.php,log in (sp_Login),303,1,0.319,0.319,0.319
+consumer2@example.cy GET /account/profile.php,My profile,200,3,0.285,0.285,0.318
+tech1@mdms.cy GET /account/documents.php,My documents,200,3,0.271,0.310,0.318
+consumer1@example.cy GET /consumer/requests.php,Check and fault requests,200,3,0.281,0.288,0.317
+admin@mdms.cy GET /staff/accounts.php,Accounts and organizations,200,3,0.310,0.314,0.317
+consumer1@example.cy GET /consumer/events.php,Events and alerts,200,3,0.294,0.316,0.316
+billing@eacsupply.cy GET /market/bills.php,Customer bills,200,3,0.300,0.300,0.316
+consumer1@example.cy GET /consumer/history.php?premise_id=1&from=2026-10&to=2026-10,Access to past data,200,3,0.292,0.300,0.315
+consumer1@example.cy GET /consumer/readings.php?premise_id=1,15-minute readings,200,3,0.295,0.307,0.315
+consumer1@example.cy GET /consumer/events.php?premise_id=2,Events and alerts,200,3,0.290,0.305,0.315
+consumer2@example.cy GET /consumer/,My premises,200,3,0.275,0.295,0.315
+consumer2@example.cy GET /consumer/bills.php,Bills and payments,200,3,0.300,0.303,0.315
+tech1@mdms.cy GET /account/photo.php,Photo unavailable,404,3,0.287,0.298,0.315
+dso@mdms.cy GET /dso/,Telemetry and VEE,200,3,0.299,0.302,0.315
+tso@mdms.cy GET /dso/events.php,Events,200,3,0.303,0.315,0.315
+consumer2@example.cy GET /consumer/history.php,Access to past data,200,3,0.296,0.304,0.314
+officer1@mdms.cy GET /staff/catalogs.php,Meter types,200,3,0.285,0.311,0.314
+billing@eacsupply.cy GET /account/profile.php,My profile,200,3,0.290,0.307,0.314
+officer1@mdms.cy GET /staff/accounts.php,Accounts and organizations,200,3,0.286,0.290,0.313
+desk@flexpool.cy GET /market/,Portfolio,200,3,0.277,0.292,0.313
+consumer1@example.cy GET /consumer/gdpr.php,Privacy (GDPR),200,3,0.299,0.307,0.312
+consumer1@example.cy GET /consumer/history.php?premise_id=1,Access to past data,200,3,0.283,0.302,0.312
+tech1@mdms.cy POST /login.php,log in (sp_Login),303,1,0.312,0.312,0.312
+consumer1@example.cy GET /consumer/,My premises,200,3,0.296,0.306,0.311
+billing@eacsupply.cy GET /market/,Portfolio,200,3,0.301,0.304,0.311
+officer1@mdms.cy GET /staff/audit.php?page=2,Audit log,200,3,0.296,0.301,0.310
+consumer1@example.cy GET /consumer/history.php?premise_id=2,Access to past data,200,3,0.302,0.307,0.309
+admin@mdms.cy GET /account/profile.php,My profile,200,3,0.284,0.288,0.309
+billing@eacsupply.cy GET /market/api/portfolio.php,application/json; charset=UTF-8,200,3,0.297,0.299,0.309
+consumer1@example.cy GET /consumer/aggregates.php?premise_id=1&period=DAY&from=2026-10-01&to=2026-10-31,"Totals by day, month and year",200,3,0.292,0.297,0.308
+admin@mdms.cy GET /staff/work-order.php?id=11,Work order #11,200,3,0.294,0.304,0.308
+consumer2@example.cy GET /consumer/aggregates.php?premise_id=3&period=DAY&from=2026-10-01&to=2026-10-31,"Totals by day, month and year",200,3,0.298,0.302,0.307
+desk@flexpool.cy POST /login.php,log in (sp_Login),303,1,0.307,0.307,0.307
+officer1@mdms.cy POST /login.php,log in (sp_Login),303,1,0.306,0.306,0.306
+dso@mdms.cy POST /login.php,log in (sp_Login),303,1,0.306,0.306,0.306
+consumer1@example.cy GET /consumer/history.php,Access to past data,200,3,0.291,0.296,0.305
+dso@mdms.cy GET /account/profile.php,My profile,200,3,0.303,0.304,0.305
+dso@mdms.cy GET /dso/suspects.php,Suspect readings,200,3,0.300,0.303,0.303
+consumer2@example.cy GET /consumer/aggregates.php?premise_id=3,"Totals by day, month and year",200,3,0.288,0.297,0.301
+consumer1@example.cy GET /consumer/readings.php,15-minute readings,200,3,0.298,0.300,0.300
+consumer1@example.cy GET /account/profile.php,My profile,200,3,0.271,0.291,0.293
+desk@flexpool.cy GET /account/profile.php,My profile,200,3,0.288,0.290,0.290
+consumer1@example.cy POST /login.php,log in (sp_Login),303,1,0.288,0.288,0.288
+tso@mdms.cy POST /login.php,log in (sp_Login),303,1,0.282,0.282,0.282
+consumer1@example.cy GET /home.php,Home,200,3,0.034,0.038,0.070
+officer1@mdms.cy GET /staff/,Officer / admin area,200,3,0.041,0.048,0.062
+consumer2@example.cy GET /home.php,Home,200,3,0.027,0.039,0.060
+dso@mdms.cy GET /home.php,Home,200,3,0.026,0.039,0.058
+billing@eacsupply.cy GET /home.php,Home,200,3,0.043,0.048,0.058
+desk@flexpool.cy GET /home.php,Home,200,3,0.038,0.052,0.058
+admin@mdms.cy GET /tso/map.php,Map,200,3,0.026,0.027,0.057
+admin@mdms.cy GET /staff/,Officer / admin area,200,3,0.046,0.051,0.056
+tso@mdms.cy GET /tso/map.php,Map,200,3,0.042,0.045,0.056
+billing@eacsupply.cy GET /market/data.php,Data for other systems,200,3,0.040,0.055,0.056
+dso@mdms.cy GET /dso/ingest.php,Ingest telemetry,200,3,0.033,0.053,0.055
+dso@mdms.cy GET /account/password.php,Change my password,200,3,0.049,0.050,0.055
+desk@flexpool.cy GET /account/password.php,Change my password,200,3,0.040,0.047,0.054
+(any) GET /login.php,login page,200,9,0.022,0.040,0.052
+consumer2@example.cy GET /account/password.php,Change my password,200,3,0.032,0.042,0.052
+consumer1@example.cy GET /account/password.php,Change my password,200,3,0.035,0.045,0.051
+tech1@mdms.cy GET /home.php,Home,200,3,0.028,0.042,0.051
+officer1@mdms.cy GET /tso/map.php,Map,200,3,0.046,0.047,0.051
+officer1@mdms.cy GET /dso/vee.php,Run VEE,200,3,0.028,0.045,0.049
+dso@mdms.cy GET /dso/vee.php,Run VEE,200,3,0.025,0.046,0.049
+tech1@mdms.cy GET /account/password.php,Change my password,200,3,0.028,0.045,0.048
+officer1@mdms.cy GET /dso/finalize.php,Finalize a day,200,3,0.029,0.045,0.048
+officer1@mdms.cy GET /account/password.php,Change my password,200,3,0.026,0.043,0.048
+officer1@mdms.cy GET /dso/ingest.php,Ingest telemetry,200,3,0.042,0.044,0.047
+admin@mdms.cy GET /home.php,Home,200,3,0.029,0.029,0.047
+dso@mdms.cy GET /tso/map.php,Map,200,3,0.028,0.045,0.047
+desk@flexpool.cy GET /market/data.php,Data for other systems,200,3,0.038,0.042,0.046
+tso@mdms.cy GET /account/password.php,Change my password,200,3,0.026,0.041,0.045
+officer1@mdms.cy GET /home.php,Home,200,3,0.028,0.042,0.044
+dso@mdms.cy GET /dso/finalize.php,Finalize a day,200,3,0.039,0.042,0.044
+billing@eacsupply.cy GET /account/password.php,Change my password,200,3,0.039,0.040,0.044
+tso@mdms.cy GET /home.php,Home,200,3,0.026,0.037,0.041
+admin@mdms.cy GET /account/password.php,Change my password,200,3,0.025,0.025,0.029
