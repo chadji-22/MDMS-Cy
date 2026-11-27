@@ -1,0 +1,24 @@
+# sql/fix_demo_photo_paths.sql on mssql.cs.ucy.ac.cy\SQL2025, database ichara09, 2026-11-27T14:23:34Z
+# sqlcmd -S mssql.cs.ucy.ac.cy\SQL2025 -U ichara09 -d ichara09 -C -I -b -W -i sql/fix_demo_photo_paths.sql   (password from the environment)
+fix_demo_photo_paths.sql: 3 technician photo path(s) updated.
+user_id|email|photo_path
+-------|-----|----------
+9|tech1@mdms.cy|technician-photos/a4c78555d496add94275d4eef635fa5d.jpg
+10|tech2@mdms.cy|technician-photos/9cb1a25468cf512901b081f495e26172.jpg
+11|tech3@mdms.cy|technician-photos/7a236b59c98ebeea5dd715d8a1d2c553.jpg
+
+exit 0
+
+## newest audit rows of users 9-11: none comes from this update (TR10 does not audit photo_path); AUDIT_LOG row count and checksum unchanged by it
+log_id|logged_at|actor_type|mechanism|action|object_id|comment
+------|---------|----------|---------|------|---------|-------
+987|2026-11-27 14:13:19|USER|sp_Login|LOGIN_OK|9|NULL
+395|2026-11-27 12:39:35|USER|sp_Login|LOGIN_OK|9|NULL
+380|2026-11-27 00:38:54|USER|sp_Login|LOGIN_OK|9|NULL
+66|2026-11-25 11:22:10|USER|sp_DecideTechnician|DECISION_COMMENT|11|Πλήρης φάκελος
+65|2026-11-25 11:22:10|USER|sp_DecideTechnician|STATUS_CHANGE|11|approval_status
+
+
+## undo (NOT run), exact: UPDATE dbo.USER_ACCOUNT SET photo_path = CASE email WHEN 'tech1@mdms.cy' THEN '/uploads/tech/photo_1.jpg' WHEN 'tech2@mdms.cy' THEN '/uploads/tech/photo_2.jpg' WHEN 'tech3@mdms.cy' THEN '/uploads/tech/photo_3.jpg' END WHERE email IN ('tech1@mdms.cy','tech2@mdms.cy','tech3@mdms.cy');
+
+## snapshot before/after (25 tables): only USER_ACCOUNT changed (checksum -1535387691 -> -1869458063, still 21 rows)

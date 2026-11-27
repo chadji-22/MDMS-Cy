@@ -5,7 +5,9 @@
    import.sql now gives them 'technician-photos/<md5>.jpg'; the files are deploy/demo-photos/<md5>.jpg and go to
    ~/mdms/var/technician-photos/ on the web server (deploy/DEPLOY.md, step 2b).
    This script brings a database built BEFORE that change to the same paths. Safe to run again: it only changes a
-   technician whose path is still the old one. The audit trigger (TR10) records each change.
+   technician whose path is still the old one. (The audit trigger TR10 does not record photo_path changes.)
+   Undo: UPDATE dbo.USER_ACCOUNT SET photo_path = '/uploads/tech/photo_' + SUBSTRING(email, 5, 1) + '.jpg'
+         WHERE email IN ('tech1@mdms.cy', 'tech2@mdms.cy', 'tech3@mdms.cy');
    ============================================================================ */
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
