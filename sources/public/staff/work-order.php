@@ -67,7 +67,14 @@ if ($hasSearch && $canAssign) {
         }
     }
 }
-
+$history = [];
+if ($isOfficer) {
+    try {
+        $history = Db::rows('sp_GetWorkOrderHistory', [$workOrderId]);
+    } catch (DbError $error) {
+        $dbError = $error;
+    }
+}
 View::header('Work order #' . $workOrderId);
 ?>
 <p><a href="<?= View::base() ?>/staff/work-orders.php">Back to Work orders</a></p>
@@ -123,5 +130,39 @@ View::header('Work order #' . $workOrderId);
     <?php endif; ?>
 <?php elseif ($isOfficer && $order['status'] === 'SUBMITTED'): ?>
     <p>This work order needs a premise district before it can be assigned.</p>
+<?php endif; ?>
+<?php if ($isOfficer && $history !== []): ?>
+    <?php if ($history[0]['completed_at'] !== null): ?>
+        <h2>Findings</h2>
+        <p><?= View::h($history[0]['findings'] ?? '—') ?></p>
+    <?php endif; ?>
+
+    <h2>History</h2>
+    <?php if ($history[0]['logged_at'] === null): ?>
+        <p>No history recorded for this work order.</p>
+    <?php else: ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time (UTC)</th>
+                    <th>Action</th>
+                    <th>Previous state</th>
+                    <th>New state</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($history as $event): ?>
+                    <tr>
+                        <td><?= View::h($event['logged_at']) ?></td>
+                        <td><?= View::h($event['action']) ?></td>
+                        <td><?= View::h($event['old_state'] ?? '—') ?></td>
+                        <td><?= View::h($event['new_state'] ?? '—') ?></td>
+                        <td><?= View::h($event['comment'] ?? '—') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
 <?php endif; ?>
 <?php View::footer(); ?>

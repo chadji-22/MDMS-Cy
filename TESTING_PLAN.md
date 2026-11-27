@@ -156,7 +156,95 @@ of their pages and adds a row for every new page.
 | 25/11 | I | - | S | deployed, Connect + login confirmed in the browser | works |
 | 27/11 | K | `5415192` (`testing`) | - | `audit_pages.php`, `errors_test.php` | audit 0 errors / 15 review lines; errors all passed |
 | 27/11 | K | `5415192` (`testing`) | L (own db `chadji22` on SQL2025, `php -S`, PHP 8.3) | `tests.sql`, `db_integration.php`, `run_all.sh` (WRITE=1), `connect.sh` (instance without `DB_PASS`) | tests.sql 82/82; db_integration all passed; smoke all passed, consumer 63/63, market/dso/tso 160/160, accounts all passed, crawl 168 pages no problems; connect 23/23; 0 PHP warnings. R not run (no Podman on this PC); S not run (needs the team SQL2025 password) |
-| | E | | | | |
+| 27/11 | K | `5415192` (`testing`) | L (as above) | `sql/` telemetry suite (HOW_TO_RUN_TESTS.md) | seeds ok (already present); ingest 4/4, storage 8/8, VEE range 5/5, VEE delta 9/9 (26/26); `test_vee_edit` and `test_vee_spike_preview` PASS |
+| 27/11 | K | `5415192` (`testing`) | L (as above; the S rows too) | K-01–K-15 (scripted over HTTP, see below) | all 15 passed. K-13 clicks (popups) still to be checked by eye |
+| 25–26/11 | E | c54b11c | L, S | E-01–E-13 | All 13 manual test scenarios exercised. E-08 fixed and verified locally. See detailed results below. |
+
+### Kostis — manual tests K-01–K-15 (27/11/2026)
+
+Run on L (own database `chadji22`) by a script that fills in the real forms; the rows marked S were also run on L,
+because S needs the team password. Results checked on the page and in the database.
+
+| Test | Result | Notes |
+|---|---|---|
+| K-01 | PASS | Consumer with a Greek name created (303) and logged in at once; the name is shown intact. |
+| K-02 | PASS | Technician registered with a photo: PENDING in the database and on home, three documents asked for, no jobs. |
+| K-03 | PASS | Phone of consumer1 saved (then put back). Password changed on the K-01 account (not consumer1, to keep the demo password): old refused, new works. |
+| K-04 | PASS | consumer2: 5 wrong passwords 401, the 6th (right password) 429 "Too many failed logins"; other users not affected. The 15-minute unlock was not waited for. |
+| K-05 | PASS | Portfolio table; Day-Ahead table for 2026-10-01..2026-11-30 level 3; "Same data as JSON" opens valid JSON. Intraday 31/10 level 3: 192 rows, level 4: 96 rows, all provisional. |
+| K-06 | PASS | Customer bills: no user id, email or consumer column. |
+| K-07 | PASS | desk@flexpool.cy: no "Customer bills" in the menu; the page answers 403. |
+| K-08 | PASS | One packet for `DEMO-NET-001` (2026-11-20 00:00): MATCHED, reading PENDING. Batch of the other 95: 95 matched, 95 readings. |
+| K-09 | PASS | VEE on 2026-11-20: 93 valid, 3 suspect (SPIKE, NEGATIVE_DELTA, SPIKE). Spike accepted; the dip edited to 5070: EDITED, original value and editor kept. Day finalized: 96/96 final. |
+| K-10 | PASS | Voltage and unbalance for transformer 1: rows, no error. Losses works for level-1 transformers only (9, 11, 12: rows); for transformer 1 (level 4) it answers "Level-1 transformer not found" by design, so the plan step should name a level-1 transformer. |
+| K-11 | PASS | Tree of 17 transformers indented by level (depths 0-3); every parent's import and export = the sum of its children. Current state and Frequency open without error. |
+| K-12 | PASS | DEMO_TX_L1 (no. 18): the check page asks for a confirmation; on confirm "1 commands were created" = 1 active meter, +1 row in REMOTE_COMMAND. |
+| K-13 | PASS (data) | Map page opens, CSP allows the tiles; map data has transformers and meters; a point inside a rectangle finds a transformer, an empty spot does not. Clicking the popups is still to be checked in a browser. |
+| K-14 | PASS | Consumer named `Test <script>alert(1)</script>`: shown escaped on home and profile, never as a script. |
+| K-15 | PASS | Instance with the Connect page: profile open, Disconnect in the same session, then the old profile form saved: sent back to connect, phone unchanged in the database. |
+
+Data left in `chadji22`: consumers `k01-*` / `k14-*`, technician `k02-*`, 96 final readings of `DEMO-NET-001` on 2026-11-20,
+one APPROVED DISCONNECT command for it (not dispatched), and consumer2 locked for 15 minutes.
+
+
+### Eliana — Detailed manual testing results (25–26/11/2026)
+
+| Test | Result | Notes |
+|---|---|---|
+| E-01 | PASS | Availability displayed on S; new slot saved on L. |
+| E-02 | PASS (L) | Assigned jobs and meter coordinates displayed correctly locally. |
+| E-03 | PASS with limitation | Fault repair completed successfully. Declined request returned to SUBMITTED; direct decline evidence is limited. |
+| E-04 | PASS | Meter #13 registered with automatic transformer lookup and three certificates uploaded. Installation work order #15 completed. |
+| E-05 | PASS | PDF uploaded successfully and document status set to PENDING. |
+| E-06 | PASS with setup workarounds | Document approval, rejection, resubmission and final technician approval successful. |
+| E-07 | PASS with limitation | All three certificates approved and meter activated. Premature activation did not proceed in the UI; TR04 was not independently verified. Certificate download was not explicitly verified. |
+| E-08 | PASS AFTER FIX (L) | Officer work order history was missing. Added history and findings using the existing stored procedure. University deployment retest pending. |
+| E-09 | PASS | Remote command progressed from PENDING_APPROVAL to APPROVED, SENT and ACKNOWLEDGED. Attempt count and timestamps recorded. |
+| E-10 | PASS | Same-officer final approval denied. Second officer successfully approved the request. Review history confirmed both actors. |
+| E-11 | PASS | New service type and OBIS code added without schema changes. |
+| E-12 | PARTIAL | Admin pages, audit log and statistics verified. Full account and organization lists were not verified. |
+| E-13 | PASS (UI) | Officer access to the consumer page denied. HTTP 403 status was not independently checked. |
+
+### Fix implemented
+
+- Commit: `c54b11c`
+- Branch: `eliana/setup-testing`
+- File: `sources/public/staff/work-order.php`
+- Added officer work order history and findings using `sp_GetWorkOrderHistory`.
+- PHP syntax validation passed.
+- Manual verification on the local environment passed.
+- No database schema changes were required.
+
+### Testing environment and observations
+
+- University SQL Server build and deployment completed successfully.
+- Separate local SQL Server and PHP containers configured for write tests.
+- Local upload directory permissions required configuration.
+- The E-06 test account required a manual password reset after a password mismatch. No application login defect was confirmed.
+- Installation and remote command test data were prepared using existing stored procedures.
+- Local automatic pre-merge tests completed successfully.
+- Post-deployment verification remains pending.
+
+### Automatic testing results (26/11/2026)
+
+| Test | Result |
+|---|---|
+| audit_pages.php | PASS: 117 procedure calls, 0 errors, 15 review notes |
+| errors_test.php | PASS: all passed with APP_DEBUG=0 |
+| smoke.sh | PASS |
+| consumer_pages.sh | PASS: 63 passed, 0 failed |
+| market_dso_tso.sh | PASS: 160 passed, 0 failed |
+| accounts.sh | PASS |
+| crawl_links.py | PASS: 163 pages, 2627 URLs, no problems |
+
+All five run_all.sh suites passed on the local environment with WRITE=1.
+
+The initial errors_test.php failure was caused by APP_DEBUG=1.
+The test passed after disabling debug mode for the test execution.
+No source code changes were required.
+
+The Connect-page suite was not applicable to this local setup.
+Server replica and post-deployment verification remain pending.
 
 ## 7. Known, not bugs
 
