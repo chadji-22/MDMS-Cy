@@ -203,11 +203,11 @@ and 2026-11-21, two APPROVED DISCONNECT commands for it (not dispatched), and co
 | E-05 | PASS | PDF uploaded successfully and document status set to PENDING. |
 | E-06 | PASS with setup workarounds | Document approval, rejection, resubmission and final technician approval successful. |
 | E-07 | PASS with limitation | All three certificates approved and meter activated. Premature activation did not proceed in the UI; TR04 was not independently verified. Certificate download was not explicitly verified. |
-| E-08 | PASS AFTER FIX (L) | Officer work order history was missing. Added history and findings using the existing stored procedure. University deployment retest pending. |
+| E-08 | PASS (S) | Retested the university deployment on 27/11/2026 (`c3def5b`). The officer saw the technician's findings and six history entries, including the transition to COMPLETED. |
 | E-09 | PASS | Remote command progressed from PENDING_APPROVAL to APPROVED, SENT and ACKNOWLEDGED. Attempt count and timestamps recorded. |
 | E-10 | PASS | Same-officer final approval denied. Second officer successfully approved the request. Review history confirmed both actors. |
 | E-11 | PASS | New service type and OBIS code added without schema changes. |
-| E-12 | PARTIAL | Admin pages, audit log and statistics verified. Full account and organization lists were not verified. |
+| E-12 | PASS (S) | Admin pages, audit log and statistics verified in the initial run. On 27/11/2026 (`c3def5b`), the admin verified both tables and the role and approval filters. An email search with APPROVED selected returned only `tech1@mdms.cy`. The account list fit on one page, so second-page navigation was not exercised. |
 | E-13 | PASS (UI) | Officer access to the consumer page denied. HTTP 403 status was not independently checked. |
 
 ### Fix implemented
@@ -228,7 +228,8 @@ and 2026-11-21, two APPROVED DISCONNECT commands for it (not dispatched), and co
 - The E-06 test account required a manual password reset after a password mismatch. No application login defect was confirmed.
 - Installation and remote command test data were prepared using existing stored procedures.
 - Local automatic pre-merge tests completed successfully.
-- Post-deployment verification remains pending.
+- Post-deployment retest on 27/11/2026 passed E-08 and E-12 for the available dataset. E-12 second-page navigation requires a larger dataset.
+- On the same deployment (`c3def5b`), the photo paths for tech1–tech3 were confirmed in the `egeorg28` database. The tech1 photo opened from My profile → Show my photo.
 
 ### Automatic testing results (26/11/2026)
 
