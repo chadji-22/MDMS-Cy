@@ -33,7 +33,7 @@ real servers, not localhost:
 | `tests/market_dso_tso.sh` (`WRITE=1`) | **160 / 160** passed |
 | `tests/crawl_links.py` | **169 pages, 2,923 URLs**, every link under `/~chadji22/mdms`, no problems (5 notes, see `TESTING_PLAN.md` section 7) |
 | `tests/consumer_pages.sh` (`WRITE=1`) | first run: 35 passed, 28 failed (cause below); **rerun at 13:34 UTC: 63 / 63 passed** |
-| `tests/accounts.sh` | pending (see below) |
+| `tests/accounts.sh` (28/11) | technician half all passed; consumer half 28 passed, 3 failed: the new IBAN checks, because the live site still runs the code before the IBAN fix (see `FAILED_TESTS.md`) |
 | Manual tests K-01 … K-15 (`TESTING_PLAN.md` 4.2), scripted over HTTP | **all 15 passed** (details in `TESTING_PLAN.md` section 6) |
 
 ## 3. Failed checks
@@ -79,8 +79,9 @@ The same suite passed 63 / 63 earlier the same day on a local PHP instance again
 ## 4. Pending
 
 * ~~`consumer_pages.sh` again after consumer2's 15-minute lock has expired~~: done at 13:34 UTC, 63 / 63 passed.
-* `accounts.sh` after 14:20 UTC: the site accepts **3 registrations per hour from one address** (B10 throttle), and the K-01,
-  K-02 and K-14 runs had used them.
+* ~~`accounts.sh`~~: run on 28/11 (the registration limit had blocked it on 27/11). Its consumer name `Δοκιμή <script>` is
+  blocked by the department server (Apache 403 for any HTML tag in the name), so the consumer half was run with a plain
+  name. Open: install the current `deploy/mdms-app.zip` on the live site and rerun, for the three IBAN checks.
 
 ## 5. Notes for the team
 

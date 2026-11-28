@@ -3,7 +3,28 @@
 Where: `https://students.cs.ucy.ac.cy/~chadji22/mdms/` with the database `chadji22` on `mssql.cs.ucy.ac.cy\SQL2025`.
 Full results of the run: `evidence/S-chadji22/README.md`.
 
-## Latest run: 27/11, 13:43–13:47 UTC: **0 failed**
+## `accounts.sh`: 28/11, 11:25–11:35 UTC: **3 failed** (the live site still runs the code without the IBAN fix)
+
+The test skipped on 27/11 (registration limit), run live on 28/11 in three steps:
+
+| Step | Result |
+|---|---|
+| 1. `accounts.sh` as it is | technician half **all passed** (registration, photo, the three documents, every refusal); consumer half 21 failed: the registration got **403 from Apache**, not from PHP, so no consumer existed for the later checks |
+| 2. why | the department server blocks a request whose name contains an HTML tag: `Δοκιμή <script>` and `Δοκιμή <b>` get Apache's 403, plain `Δοκιμή` reaches the application (422 for a wrong repeated password). The test's name `Δοκιμή <script>` can therefore never be registered on this server |
+| 3. consumer half again with the name `Δοκιμή Λάιβ` (copy of the script, nothing else changed) | **28 passed, 3 failed** |
+
+| # | Failed check | Expected | Got | Cause |
+|---|---|---|---|---|
+| 1 | profile: an IBAN with wrong check digits is refused | 422 | 303, saved | the live site has the **old** `Validate::iban` (form only); the fix (`b3cd2c6`) is in `testing` and in `deploy/mdms-app.zip`, not yet installed in `~/mdms` |
+| 2 | ...and the saved IBAN is unchanged | `CY60…7699` | the wrong IBAN | follows from 1 |
+| 3 | profile: a Cyprus IBAN of 27 characters is refused | 422 | 303 | same as 1 |
+
+The same three checks pass on a local instance with the current code (27/11). **To clear them:** install the current
+`deploy/mdms-app.zip` in `~/mdms` (`deploy/DEPLOY.md`, section 4) and run `accounts.sh` again. The name-escaping check of
+`accounts.sh` cannot run on this server (its `<script>` name is blocked before PHP); it passes locally, and K-14 shows on the
+live site that a stored `<script>` name is displayed escaped.
+
+## Run: 27/11, 13:43–13:47 UTC: **0 failed**
 
 All tests again, live, in an order where the K-04 login lock cannot reach another suite (SQL, then web suites, then K-01..K-15).
 
@@ -22,7 +43,7 @@ All tests again, live, in an order where the K-04 login lock cannot reach anothe
 
 No new accounts were registered in this run (the site allows 3 registrations per hour per address): K-01 and K-14 log in with
 accounts registered earlier through the site, K-02 checks the pending technician registered earlier. Registration itself is
-tested by `accounts.sh`, which runs after 14:20 UTC.
+tested by `accounts.sh` (run on 28/11, see above).
 
 ## Earlier run: 27/11, 13:26 UTC: 28 failed (cause: login lock, not a defect)
 
@@ -73,4 +94,4 @@ as consumer2, so they failed with it. The same suite passed 63/63 earlier the sa
 exactly that to consumer2 at about 13:17 UTC; the consumer suite started at about 13:26, inside the 15 minutes. To avoid it,
 run K-04 last, or wait 15 minutes after it.
 
-Still to run: `accounts.sh` after 14:20 UTC; this file is updated with its result.
+`accounts.sh` was run on 28/11: see the first section.
