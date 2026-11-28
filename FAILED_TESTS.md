@@ -3,7 +3,24 @@
 Where: `https://students.cs.ucy.ac.cy/~chadji22/mdms/` with the database `chadji22` on `mssql.cs.ucy.ac.cy\SQL2025`.
 Full results of the run: `evidence/S-chadji22/README.md`.
 
-## `accounts.sh`: 28/11, 11:25–11:35 UTC: **3 failed** (the live site still runs the code without the IBAN fix)
+## `accounts.sh` after the redeploy: 28/11, 11:49 UTC: **0 failed** (31 / 31, consumer half)
+
+**Status: resolved.** After the current `deploy/mdms-app.zip` was installed and the PHP files were touched (see below), the
+consumer half passed 31 / 31, including the three IBAN checks. With the technician half of 11:25 (all passed), every check
+of `accounts.sh` has passed on the live site.
+
+Two deployment problems were found and fixed on the way:
+
+1. **Login impossible after the update:** `~/mdms` had been replaced as a whole, so `src/config.local.php` and `var/` were
+   gone. Without the settings every redirect went to `students.cs.ucy.ac.cy/login.php` (no `BASE_PATH`) and the Connect page
+   had empty fields. Fixed by writing `config.local.php` again and recreating `var/` (1733). Update by `unzip -o` over the
+   old folder, never by deleting it.
+2. **Old page served after the update:** `deploy/build_zip.py` gives every file the fixed date 2026-01-01, and the web
+   server's PHP OPcache recompiles a file only when its date changes. A changed `profile.php` with the same date kept running
+   the cached old version (new IBAN rule from `Validate.php`, old message from `profile.php`). Fixed with
+   `find ~/mdms -name '*.php' -exec touch {} +` after unzipping.
+
+## `accounts.sh`: 28/11, 11:25–11:35 UTC: **3 failed** (the live site still ran the code without the IBAN fix)
 
 The test skipped on 27/11 (registration limit), run live on 28/11 in three steps:
 

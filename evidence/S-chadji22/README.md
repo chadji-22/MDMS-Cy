@@ -81,7 +81,8 @@ The same suite passed 63 / 63 earlier the same day on a local PHP instance again
 * ~~`consumer_pages.sh` again after consumer2's 15-minute lock has expired~~: done at 13:34 UTC, 63 / 63 passed.
 * ~~`accounts.sh`~~: run on 28/11 (the registration limit had blocked it on 27/11). Its consumer name `Δοκιμή <script>` is
   blocked by the department server (Apache 403 for any HTML tag in the name), so the consumer half was run with a plain
-  name. Open: install the current `deploy/mdms-app.zip` on the live site and rerun, for the three IBAN checks.
+  name. After installing the current `deploy/mdms-app.zip` (and touching the PHP files, OPcache) the consumer half
+  passed **31 / 31** at 11:49 UTC, the three IBAN checks included. Nothing is pending.
 
 ## 5. Notes for the team
 
