@@ -110,7 +110,7 @@ Filter by type, severity and dates. To report tampering (DSO only), give the net
 
 # Part B — TSO
 
-## 7. Grid overview
+## 1. Grid overview
 
 **Purpose.** The state of the grid in one screen (§4.2 p. 10). **Procedures.** `sp_GetGridOverview`, `sp_RefreshTransformerState`.
 
@@ -121,7 +121,7 @@ The boxes show the slot, the import and export of the grid, the overloaded trans
 
 ![Grid overview](img/tso_01_grid.png){width=4.6in}
 
-## 8. Transformer tree
+## 2. Transformer tree
 
 **Purpose.** The hierarchy of the geofences (§4.1 p. 9). **Procedures.** `sp_GetTransformerTree`, `sp_RefreshTransformerAncestors`, `sp_UpsertTransformer`.
 
@@ -133,13 +133,13 @@ Each line shows the level, capacity, meters and energy. **Subtree** shows one br
 
 ![Change a transformer](img/tso_03_transformer.png){width=4.6in}
 
-## 9. Current state
+## 3. Current state
 
-**Purpose.** The stored state, filtered by branch and level. **Procedure.** `sp_GetTransformerState`. It changes only when it is refreshed (section 7 or 8); **Computed** shows when.
+**Purpose.** The stored state, filtered by branch and level. **Procedure.** `sp_GetTransformerState`. It changes only when it is refreshed (section 1 or 2); **Computed** shows when.
 
 ![Current state](img/tso_04_state.png){width=4.6in}
 
-## 10. Frequency
+## 4. Frequency
 
 **Purpose.** Follow the grid frequency (§II.Δ p. 3). **Procedure.** `sp_RecordTransformerReading`.
 
@@ -147,7 +147,7 @@ The page lists the latest frequency of each transformer and the latest deviation
 
 ![Frequency, as the DSO sees it](img/tso_05_frequency.png){width=4.6in}
 
-## 11. Remote shedding
+## 5. Remote shedding
 
 **Purpose.** Disconnect or reconnect all the active meters under a transformer (§II.Δ p. 3, §2.4 p. 8). **Procedures.** `sp_ShedTransformerLoad`, `sp_DispatchCommands`, `sp_ListCommands`.
 
