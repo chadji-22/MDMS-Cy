@@ -65,6 +65,7 @@ find ~/mdms -type d ! -path "$HOME/mdms/var*" -exec chmod 711 {} +
 find ~/mdms/public -type d -exec chmod 755 {} +
 chmod 755 ~/mdms/areas
 find ~/mdms -type f ! -path "$HOME/mdms/var/*" -exec chmod 644 {} +
+find ~/mdms -name '*.php' ! -path "$HOME/mdms/var/*" -exec touch {} +   # new date, so the server's OPcache reloads the code
 mkdir -p ~/mdms/var/throttle ~/mdms/var/technician-documents ~/mdms/var/technician-photos ~/mdms/var/meter-certificates
 chmod 1733 ~/mdms/var ~/mdms/var/*
 [ -f ~/mdms/src/config.local.php ] || sed "s/__USER__/$USER/" ~/mdms/src/config.ucy.sample.php > ~/mdms/src/config.local.php
@@ -112,6 +113,11 @@ Check: log in as `tech1@mdms.cy` → *My profile* → *Show my photo*: the photo
 2. Copy `mdms-app.zip` and `install.sh` to your home folder through Remote Desktop (step 1). Extract the zip over
    `~/mdms` and choose *Replace all* (step 2).
 3. Run `bash ~/install.sh` again. Your settings and the uploaded files in `~/mdms/var` are kept.
+   * **Do not delete `~/mdms` before extracting**: that also deletes your settings (`src/config.local.php`) and the
+     uploads (`var/`). Extract over the old folder instead.
+   * Always run `install.sh` after extracting, even by hand: it also gives the PHP files a new date. The zip stores every
+     file with one fixed date, and the server keeps compiled pages (PHP OPcache) until a file's date changes, so without
+     this a changed page can keep running the old code.
 
 ## 5. When the database changes (team rule)
 
@@ -149,6 +155,8 @@ Then update your deployment (section 4) if the announcement says the zip changed
 | "cannot open the database" on Connect | wrong database name |
 | "Service problem" after logging in | the database lacks the MDMS build or `mdms_php` (step 0) |
 | An upload is refused | `ls -ld ~/mdms/var` must be `drwx-wx-wt`; if the server still refuses, `chmod 700 ~/mdms/var ~/mdms/var/*` (uploads off, the rest works) |
+| After an update: cannot log in, redirects to `students.cs.ucy.ac.cy/login.php`, Connect page with empty fields | `~/mdms/src/config.local.php` is gone (the old `~/mdms` was deleted): `bash ~/install.sh` creates it again; for your own database set `DB_NAME`/`DB_USER` in it again |
+| After an update a page still behaves as before | the server still runs the cached old code: `bash ~/install.sh` (or `find ~/mdms -name '*.php' -exec touch {} +`) |
 | "Too many ... attempts" | wait 15 minutes, or use another demo account |
 
 ## Optional: check a server account first

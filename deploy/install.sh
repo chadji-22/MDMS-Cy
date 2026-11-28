@@ -20,6 +20,10 @@ find ~/mdms/public -type d -exec chmod 755 {} +
 chmod 755 ~/mdms/areas                                  # the menus are found by listing this folder
 find ~/mdms -type f ! -path "$HOME/mdms/var/*" -exec chmod 644 {} +
 
+# give the code today's date: the zip stores every file with one fixed date (build_zip.py), and the server's PHP OPcache
+# only compiles a file again when its date changes, so without this a changed page keeps running the old cached code
+find ~/mdms -name '*.php' ! -path "$HOME/mdms/var/*" -exec touch {} +
+
 # uploads: PHP may write, other accounts can neither list nor delete (sticky bit)
 mkdir -p ~/mdms/var/throttle ~/mdms/var/technician-documents ~/mdms/var/technician-photos ~/mdms/var/meter-certificates
 chmod 1733 ~/mdms/var ~/mdms/var/*
